@@ -7,3 +7,18 @@
 //Main View of the project
 
 
+import SwiftUI
+
+struct MainView: View {
+    var body: some View {
+        VStack {
+            Text("Hello, world!")
+                .font(.largeTitle)
+                .padding()
+        }
+    }
+}
+
+#Preview {
+    MainView()
+}

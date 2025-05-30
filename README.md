@@ -1,0 +1,1 @@
+High-fidelity designs live in **` (Figma).https://www.figma.com/proto/46Wkxg7hmWvuTVZzU3qD4q/Magnet?node-id=125-10192&t=MxK4GIok0nQ3Imef-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=125%3A10192&show-proto-sidebar=1 `** (Figma)
