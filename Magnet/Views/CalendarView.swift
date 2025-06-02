@@ -52,9 +52,9 @@ struct CalendarView: View {
                         HStack {
                             Image(systemName: "line.horizontal.3")
                                 .resizable()
-                                .frame(width: 80,height: 40)
+                                .frame(width: 65, height: 35)
                                 .foregroundColor(magnetBrown)
-                                .padding(.leading, 40)
+                                .padding(.leading, 30)
 
                             Spacer()
 

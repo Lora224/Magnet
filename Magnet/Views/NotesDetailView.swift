@@ -23,42 +23,9 @@ struct NotesDetailView: View {
         VStack(spacing: 0) {
             
             // Header bar
-            ZStack {
-                Rectangle()
-                    .fill(magnetYellow)
-                    .frame(height: 90)
-
-                HStack(spacing: 10) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 40))
-
-                    Text("🎉")
-                        .font(.system(size: 45))
-                        .padding(.leading, 35)
-
-                    Text("Family 1")
-                        .font(.system(size: 45, weight: .bold))
-                        .foregroundColor(magnetBrown)
-                        .textCase(.uppercase)
-                        .padding(.trailing, 35)
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 40))
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
+            VStack(spacing: 0) {
+                TopFamilyBar()
             }
-            .overlay(
-                HStack {
-                    Image(systemName: "line.horizontal.3")
-                        .resizable()
-                        .frame(width: 65, height: 35)
-                        .foregroundColor(magnetBrown)
-                        .padding(.leading, 40)
-
-                    Spacer()
-
-                }
-            )
             
             ZStack(alignment: .topLeading) {
                 
@@ -68,7 +35,7 @@ struct NotesDetailView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 700, height: 700)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                    .offset(y: 100)
+                    .offset(y: -20)
                     .shadow(color: Color.black.opacity(0.10),
                             radius: 15,
                             x: 10,
@@ -78,7 +45,7 @@ struct NotesDetailView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 700, height: 700)
-                    .offset(x: 1000, y: 100) // Moves it to the right
+                    .offset(x: 1000, y: -20) // Moves it to the right
                     .zIndex(0)
                     .shadow(color: Color.black.opacity(0.10),
                             radius: 15,
@@ -89,7 +56,7 @@ struct NotesDetailView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 700, height: 700)
-                    .offset(x: -450, y: 100) // Moves it to the right
+                    .offset(x: -500, y: -20) // Moves it to the right
                     .zIndex(0)
                     .shadow(color: Color.black.opacity(0.10),
                             radius: 15,
@@ -99,14 +66,14 @@ struct NotesDetailView: View {
                 // Back Arrow at Top-Left
                 Image(systemName: "arrowshape.backward.fill")
                     .font(.system(size: 50))
-                    .padding(.top, 120)
-                    .padding(.leading, 40)
+                    .padding(.top, 10)
+                    .padding(.leading, 30)
                 
                 Image("image") // Profile Picture
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 120)
-                    .offset(x: 550, y: 130)
+                    .offset(x: 550, y: 15)
                     .zIndex(1)
             }
             .frame(height: 500) // or any height you prefer
@@ -115,7 +82,7 @@ struct NotesDetailView: View {
 
             ZStack {
                 // 1) Rounded rectangle as the “container”
-                RoundedRectangle(cornerRadius: 25)
+                RoundedRectangle(cornerRadius: 35)
                     .fill(lightGray)
                     .frame(width: 500, height: 80)
 
@@ -138,12 +105,11 @@ struct NotesDetailView: View {
                 }
             }
             
-
-
-
             Image(systemName: "chevron.compact.up")
                 .font(.system(size: 60))
                 .foregroundColor(magnetBrown)
+                .offset(y: 20)   // ← shifts just the chevron 20 points down
+
     
         }
         .ignoresSafeArea(.all, edges: .top)

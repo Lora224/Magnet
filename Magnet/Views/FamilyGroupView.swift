@@ -28,9 +28,9 @@ struct FamilyGroupView: View {
                     NavigationLink(destination: SideBarView()) {
                         Image(systemName: "line.3.horizontal")
                             .resizable()
-                            .frame(width: 80, height: 50)
+                            .frame(width: 65, height: 35)
                             .foregroundColor(magnetBrown)
-                            .padding(.leading, 16)
+                            .padding(.leading, 25)
                     }
                     Spacer()
                     

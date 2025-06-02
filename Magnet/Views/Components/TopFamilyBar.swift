@@ -28,51 +28,41 @@ struct TopFamilyBar: View {
                 
                 // Wrap the text and rectangle together
                 ZStack {
-                        Rectangle()
-                            .fill(magnetYellow)
-                            .frame(height: 100)
+                    Rectangle()
+                        .fill(magnetYellow)
+                        .frame(height: 90)
 
-                        // Centered chevrons + emoji + title
-                        HStack(spacing: 10) {
-                            Button(action:{/*tbd*/}){
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 50))
-                            }
-                            Text("🎉")
-                                .font(.system(size: 50))
-                                .padding(.leading, 35)
+                    HStack(spacing: 10) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 40))
 
-                            Text("Family 1")
-                                .font(.system(size: 50, weight: .bold))
-                                .foregroundColor(magnetBrown)
-                                .textCase(.uppercase)
-                                .padding(.trailing, 35)
+                        Text("🎉")
+                            .font(.system(size: 45))
+                            .padding(.leading, 35)
 
-                            Button(action:{/*tbd*/}){
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 50))
-                            }
-                                
-                        }
-                        .font(.system(size: 20)) // Default symbol size if not individually set
-                        .frame(maxWidth: .infinity, alignment: .center)
+                        Text("Family 1")
+                            .font(.system(size: 45, weight: .bold))
+                            .foregroundColor(magnetBrown)
+                            .textCase(.uppercase)
+                            .padding(.trailing, 35)
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 40))
                     }
-                    .overlay(
-                        HStack {
-                            NavigationLink(destination: SideBarView()) {
-                                Image(systemName: "line.3.horizontal")
-                                    .resizable()
-                                    .frame(width: 80, height: 50)
-                                    .foregroundColor(magnetBrown)
-                                    .padding(.leading, 16)
-                            }
-                            Spacer()
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .overlay(
+                    HStack {
+                        Image(systemName: "line.horizontal.3")
+                            .resizable()
+                            .frame(width: 60, height: 30)
+                            .foregroundColor(magnetBrown)
+                            .padding(.leading, 30)
 
-                            Image(systemName: "ellipsis") // Invisible to balance layout
-                                .opacity(0)
-                                .padding(.trailing, 16)
-                        }
-                    )
+                        Spacer()
+
+                    }
+                )
 
                 
                 .frame(maxHeight: .infinity, alignment: .top) // this line helps when inside a parent with defined height
@@ -87,5 +77,5 @@ struct TopFamilyBar: View {
 
 
 #Preview(traits: .landscapeLeft) {
-    CalendarView()
+    TopFamilyBar()
 }
