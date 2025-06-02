@@ -45,7 +45,7 @@ struct ProfileView: View {
             // Top navigation bar
             HStack {
                 // Hamburger menu icon
-                Button(action:{/*back botton action*/}){
+                NavigationLink(destination: SideBarView()) {
                     Image(systemName: "line.3.horizontal")
                         .resizable()
                         .frame(width: 80,height: 40)
@@ -56,7 +56,7 @@ struct ProfileView: View {
                 Spacer()
                 
                 // Home icon
-                Button(action:{/*back botton action*/}){
+                NavigationLink(destination: MainView()) {
                     Image(systemName: "house.fill")
                         .resizable()
                         .frame(width: 50,height: 50)
@@ -77,7 +77,7 @@ struct ProfileView: View {
                     .shadow(radius: 6)
                 
                 // Edit button (static overlay)
-                Button(action:{/*back botton action*/}){
+                Button(action:{/*edit button action*/}){
                     Circle()
                         .fill(magnetBrown)
                         .frame(width: 48, height: 48)
@@ -118,6 +118,7 @@ struct ProfileView: View {
                     
                     // “+” add‐note placeholder
                     ZStack {
+                        //MARK: Add family logic
                         RoundedRectangle(cornerRadius: 0, style: .continuous)
                             .stroke(style: StrokeStyle(lineWidth: 2, dash: [6]))
                             .aspectRatio(1, contentMode: .fit)    // square shape
@@ -145,7 +146,5 @@ struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView()
             .previewDevice("iPad Pro (11-inch) (3rd generation)")
-        
-        
     }
 }

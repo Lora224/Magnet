@@ -25,7 +25,7 @@ struct FamilyGroupView: View {
                 
                 HStack {
                     // Hamburger menu icon (kept at default size)
-                    Button(action:{/*hamburger botton action*/}){
+                    NavigationLink(destination: SideBarView()) {
                         Image(systemName: "line.3.horizontal")
                             .resizable()
                             .frame(width: 80, height: 50)
@@ -35,7 +35,7 @@ struct FamilyGroupView: View {
                     Spacer()
                     
                     // Calendar icon (sized 50×50)
-                    Button(action:{/*calendar botton action*/}){
+                    NavigationLink(destination: CalendarView()) {
                         Image(systemName: "calendar")
                             .resizable()
                             .frame(width: 50, height: 50)
@@ -80,7 +80,7 @@ struct FamilyGroupView: View {
                     // Back arrow (sized 50×50)
 
                         HStack {
-                            Button(action:{/*back button action*/}){
+                            NavigationLink(destination: MainView()) {
                                 Image(systemName: "arrowshape.backward.fill")
                                     .resizable()
                                     .scaledToFit()
