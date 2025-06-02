@@ -21,32 +21,48 @@ struct CalendarView: View {
                 
                 // Wrap the text and rectangle together
                 ZStack {
-                    Rectangle()
-                        .fill(magnetYellow)
-                        .frame(height: 100)
-                    HStack {
-                        Image(systemName: "line.horizontal.3")
-                            .frame(alignment: .topLeading)
-                            
-                        
-                        Image(systemName: "chevron.left")
-                        
-                        
-                        Text("🎉")
-                            .font(.system(size: 40))
+                        Rectangle()
+                            .fill(magnetYellow)
+                            .frame(height: 100)
 
-                        
-                        
-                        
-                        Text("Family 1")
-                            .font(.headline)
-                            .foregroundColor(magnetBrown)
-                            .textCase(.uppercase)
-                        
-                        Image(systemName: "chevron.right")
+                        // Centered chevrons + emoji + title
+                        HStack(spacing: 10) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 50))
+//hahahah
+
+                            Text("🎉")
+                                .font(.system(size: 50))
+                                .padding(.leading, 35)
+
+                            Text("Family 1")
+                                .font(.system(size: 50, weight: .bold))
+                                .foregroundColor(magnetBrown)
+                                .textCase(.uppercase)
+                                .padding(.trailing, 35)
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 50))
+                                
+                        }
+                        .font(.system(size: 20)) // Default symbol size if not individually set
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    
-                }
+                    .overlay(
+                        HStack {
+                            Image(systemName: "line.horizontal.3")
+                                .resizable()
+                                .frame(width: 80,height: 40)
+                                .foregroundColor(magnetBrown)
+                                .padding(.leading, 40)
+
+                            Spacer()
+
+                            Image(systemName: "ellipsis") // Invisible to balance layout
+                                .opacity(0)
+                                .padding(.trailing, 16)
+                        }
+                    )
 
                 
                 .frame(maxHeight: .infinity, alignment: .top) // this line helps when inside a parent with defined height
