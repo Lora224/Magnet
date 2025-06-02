@@ -53,10 +53,10 @@ struct FamilyGroupView: View {
                     // Centered emoji inside a white circle (emoji at size 64)
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 120, height: 120)
+                        .frame(width: 150, height: 150)
                         .overlay(
                             Text(familyEmoji)
-                                .font(.system(size: 64))
+                                .font(.system(size: 75))
                         )
                         .shadow(radius: 4)
                     
@@ -110,7 +110,7 @@ struct FamilyGroupView: View {
                             HStack(spacing: 12) {
                                 Circle()
                                     .fill(Color.white)
-                                    .frame(width: 56, height: 56)
+                                    .frame(width: 75, height: 75)
                                     .overlay(
                                         Image("avatarPlaceholder") // replace with actual member image
                                             .resizable()
@@ -133,7 +133,7 @@ struct FamilyGroupView: View {
                             HStack(spacing: 12) {
                                 Circle()
                                     .fill(Color.white)
-                                    .frame(width: 56, height: 56)
+                                    .frame(width: 75, height: 75)
                                     .overlay(
                                         Image("avatarPlaceholder") // replace with actual member image
                                             .resizable()
@@ -159,7 +159,7 @@ struct FamilyGroupView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "link")
                             .font(.system(size: 30, weight: .regular))
-                            .frame(width: 50, height: 50)
+                            .frame(width: 50, height: 35)
                         Text("Invite")
                             .font(.title3).bold()
                     }
