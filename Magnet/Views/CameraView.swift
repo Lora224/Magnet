@@ -1,6 +1,7 @@
 //  CameraView.swift
 //  Magnet
 //  Created by Muze Lyu on 30/5/2025.
+
 import SwiftUI
 struct CameraView: View {
     var body: some View {
