@@ -34,14 +34,14 @@ struct FamilyGroupView: View {
                     }
                     Spacer()
                     
-                    // Calendar icon (sized 50×50)
-                    NavigationLink(destination: CalendarView()) {
-                        Image(systemName: "calendar")
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                            .foregroundColor(magnetBrown)
-                            .padding(.trailing, 16)
-                    }
+//                    // Calendar icon (sized 50×50)
+//                    NavigationLink(destination: CalendarView()) {
+//                        Image(systemName: "calendar")
+//                            .resizable()
+//                            .frame(width: 50, height: 50)
+//                            .foregroundColor(magnetBrown)
+//                            .padding(.trailing, 16)
+//                    }
                 }
                 // Respect iPad’s top safe area
                 .padding(.top, 20)

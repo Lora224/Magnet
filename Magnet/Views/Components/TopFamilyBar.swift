@@ -34,10 +34,10 @@ struct TopFamilyBar: View {
 
                         // Centered chevrons + emoji + title
                         HStack(spacing: 10) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 50))
-//hahahahd
-
+                            Button(action:{/*tbd*/}){
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 50))
+                            }
                             Text("🎉")
                                 .font(.system(size: 50))
                                 .padding(.leading, 35)
@@ -48,8 +48,10 @@ struct TopFamilyBar: View {
                                 .textCase(.uppercase)
                                 .padding(.trailing, 35)
 
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 50))
+                            Button(action:{/*tbd*/}){
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 50))
+                            }
                                 
                         }
                         .font(.system(size: 20)) // Default symbol size if not individually set
@@ -57,12 +59,13 @@ struct TopFamilyBar: View {
                     }
                     .overlay(
                         HStack {
-                            Image(systemName: "line.horizontal.3")
-                                .resizable()
-                                .frame(width: 80,height: 40)
-                                .foregroundColor(magnetBrown)
-                                .padding(.leading, 40)
-
+                            NavigationLink(destination: SideBarView()) {
+                                Image(systemName: "line.3.horizontal")
+                                    .resizable()
+                                    .frame(width: 80, height: 50)
+                                    .foregroundColor(magnetBrown)
+                                    .padding(.leading, 16)
+                            }
                             Spacer()
 
                             Image(systemName: "ellipsis") // Invisible to balance layout
