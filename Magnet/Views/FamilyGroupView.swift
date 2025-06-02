@@ -44,7 +44,7 @@ struct FamilyGroupView: View {
 //                    }
                 }
                 // Respect iPad’s top safe area
-                .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20)
+                .padding(.top, 20)
                 .background(magnetYellow)
 
                 

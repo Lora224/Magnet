@@ -112,7 +112,7 @@ struct SideBarView: View {
 
                 Spacer()
             }
-            .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20)
+            .padding(.top, 20)
             .padding(.horizontal, 24)
             .frame(width: 280)             // FIXED WIDTH of the sidebar
             .background(Color.white)       // Solid white background for sidebar
