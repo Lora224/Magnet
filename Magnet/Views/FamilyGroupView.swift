@@ -22,25 +22,29 @@ struct FamilyGroupView: View {
             
             VStack(spacing: 0) {
                 // MARK: – Top bar (hamburger on left, calendar on right)
+                
                 HStack {
                     // Hamburger menu icon (kept at default size)
-                    Image(systemName: "line.3.horizontal")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(magnetBrown)
-                        .padding(.leading, 16)
-                    
+                    NavigationLink(destination: SideBarView()) {
+                        Image(systemName: "line.3.horizontal")
+                            .resizable()
+                            .frame(width: 65, height: 35)
+                            .foregroundColor(magnetBrown)
+                            .padding(.leading, 25)
+                    }
                     Spacer()
                     
-                    // Calendar icon (sized 50×50)
-                    Image(systemName: "calendar")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(magnetBrown)
-                        .padding(.trailing, 16)
+//                    // Calendar icon (sized 50×50)
+//                    NavigationLink(destination: CalendarView()) {
+//                        Image(systemName: "calendar")
+//                            .resizable()
+//                            .frame(width: 50, height: 50)
+//                            .foregroundColor(magnetBrown)
+//                            .padding(.trailing, 16)
+//                    }
                 }
                 // Respect iPad’s top safe area
-                .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20)
+                .padding(.top, 20)
                 .background(magnetYellow)
 
                 
@@ -49,37 +53,45 @@ struct FamilyGroupView: View {
                     // Centered emoji inside a white circle (emoji at size 64)
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 120, height: 120)
+                        .frame(width: 150, height: 150)
                         .overlay(
                             Text(familyEmoji)
-                                .font(.system(size: 64))
+                                .font(.system(size: 75))
                         )
                         .shadow(radius: 4)
                     
                     // Edit pencil overlay (50×50 circle + pencil icon)
-                    Circle()
-                        .fill(magnetBrown)
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            Image(systemName: "pencil")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(.white)
-                        )
-                        .offset(x: 40, y: 40)
+                    Button(action:{/*back button action*/}){
+                        Circle()
+                            .fill(magnetBrown)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Image(systemName: "pencil")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundColor(.white)
+                            )
+                    }
+                        
+                            .offset(x: 40, y: 40)
+                    
                     
                     // Back arrow (sized 50×50)
-                    HStack {
-                        Image(systemName: "arrowshape.backward.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50, height: 50)
-                            .foregroundColor(magnetBrown)
-                            .padding(.leading, 16)
-                        Spacer()
+
+                        HStack {
+                            NavigationLink(destination: MainView()) {
+                                Image(systemName: "arrowshape.backward.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 50)
+                                    .foregroundColor(magnetBrown)
+                                    .padding(.leading, 16)
+                            }
+                            Spacer()
+                        
+                        .frame(height: 120) // match emoji circle height
                     }
-                    .frame(height: 120) // match emoji circle height
                 }
                 .padding(.top, 8)
                 
@@ -98,7 +110,7 @@ struct FamilyGroupView: View {
                             HStack(spacing: 12) {
                                 Circle()
                                     .fill(Color.white)
-                                    .frame(width: 56, height: 56)
+                                    .frame(width: 75, height: 75)
                                     .overlay(
                                         Image("avatarPlaceholder") // replace with actual member image
                                             .resizable()
@@ -121,7 +133,7 @@ struct FamilyGroupView: View {
                             HStack(spacing: 12) {
                                 Circle()
                                     .fill(Color.white)
-                                    .frame(width: 56, height: 56)
+                                    .frame(width: 75, height: 75)
                                     .overlay(
                                         Image("avatarPlaceholder") // replace with actual member image
                                             .resizable()
@@ -147,7 +159,7 @@ struct FamilyGroupView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "link")
                             .font(.system(size: 30, weight: .regular))
-                            .frame(width: 50, height: 50)
+                            .frame(width: 50, height: 35)
                         Text("Invite")
                             .font(.title3).bold()
                     }
