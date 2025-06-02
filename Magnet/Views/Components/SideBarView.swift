@@ -15,9 +15,8 @@ struct SideBarView: View {
             // ───────────────────── Sidebar Content ─────────────────────
             VStack(alignment: .leading, spacing: 32) {
                 // HOME ROW
-                Button(action: {
-                    // Navigate to Home
-                }) {
+                //Navigate to home
+                NavigationLink(destination: MainView()) {
                     HStack(spacing: 16) {
                         ZStack {
                             Circle()
@@ -39,9 +38,7 @@ struct SideBarView: View {
                 }
 
                 // ARCHIVE ROW
-                Button(action: {
-                    // Navigate to Archive
-                }) {
+                NavigationLink(destination: CalendarView())  {
                     HStack(spacing: 16) {
                         ZStack {
                             Circle()
@@ -63,9 +60,8 @@ struct SideBarView: View {
                 }
 
                 // PROFILE ROW
-                Button(action: {
-                    // Navigate to Profile
-                }) {
+                //Navigate to profile
+                    NavigationLink(destination: ProfileView()) {
                     HStack(spacing: 16) {
                         avatarImage
                             .resizable()
@@ -116,7 +112,7 @@ struct SideBarView: View {
 
                 Spacer()
             }
-            .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20)
+            .padding(.top, 20)
             .padding(.horizontal, 24)
             .frame(width: 280)             // FIXED WIDTH of the sidebar
             .background(Color.white)       // Solid white background for sidebar
