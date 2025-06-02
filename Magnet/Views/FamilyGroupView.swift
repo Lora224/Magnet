@@ -26,7 +26,7 @@ struct FamilyGroupView: View {
                     // Hamburger menu icon (kept at default size)
                     Image(systemName: "line.3.horizontal")
                         .resizable()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 80, height: 50)
                         .foregroundColor(magnetBrown)
                         .padding(.leading, 16)
                     
@@ -74,7 +74,7 @@ struct FamilyGroupView: View {
                         Image(systemName: "arrowshape.backward.fill")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 50, height: 50)
+                            .frame(width: 80, height: 50)
                             .foregroundColor(magnetBrown)
                             .padding(.leading, 16)
                         Spacer()

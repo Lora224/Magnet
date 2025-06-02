@@ -35,12 +35,11 @@ struct ProfileView: View {
     ]
     
 
-    // Five equal‐width columns
-    private let columns = Array(
-        repeating: GridItem(.flexible(), spacing: 16),
-        count: 5
-    )
-
+    // 2 equal‐width columns
+        private let columns = [
+            GridItem(.flexible(), spacing: 16),
+            GridItem(.flexible(), spacing: 16)
+        ]
     var body: some View {
         VStack(spacing: 0) {
             // Top navigation bar
@@ -48,7 +47,7 @@ struct ProfileView: View {
                 // Hamburger menu icon
                 Image(systemName: "line.3.horizontal")
                     .resizable()
-                    .frame(width: 50,height: 50)
+                    .frame(width: 80,height: 40)
                     .foregroundColor(magnetBrown)
                     .padding(16)
 
@@ -63,7 +62,7 @@ struct ProfileView: View {
                     .foregroundColor(magnetBrown)
                     .padding(16)
             }
-            
+            .padding(.top, 20)
            
             // Avatar with edit pencil overlay
             ZStack(alignment: .bottomTrailing) {
@@ -95,7 +94,7 @@ struct ProfileView: View {
             
             // 5-column grid of square “notes”
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: columns, spacing: 32) {
                     ForEach(families) { fam in
                         // Wrap each card in a NavigationLink
                         NavigationLink(
@@ -106,6 +105,8 @@ struct ProfileView: View {
                             )
                         ) {
                             FamilyCard(family: fam,textColor: magnetBrown)
+                                .aspectRatio(1, contentMode: .fit)    // square shape
+                                .frame(maxWidth: 240)
                         }
                     }
 
@@ -115,6 +116,7 @@ struct ProfileView: View {
                         RoundedRectangle(cornerRadius: 0, style: .continuous)
                             .stroke(style: StrokeStyle(lineWidth: 2, dash: [6]))
                             .aspectRatio(1, contentMode: .fit)    // square shape
+                            .frame(maxWidth: 240)
                         
                         Image(systemName: "plus")
                             .font(.system(size: 36, weight: .semibold))
@@ -123,6 +125,8 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 32)
+                .frame(maxWidth: 600)//
+                .frame(maxWidth: .infinity)
             }
             
             Spacer(minLength: 20)
