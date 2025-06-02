@@ -15,9 +15,11 @@ struct MainView: View {
             Text("Hello, world!")
                 .font(.largeTitle)
                 .padding()
+            Text("Hello, Magent!")
         }
     }
 }
+
 
 #Preview {
     MainView()
