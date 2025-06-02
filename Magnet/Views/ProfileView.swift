@@ -131,7 +131,7 @@ struct ProfileView: View {
             
             Spacer(minLength: 20)
         }
-        .edgesIgnoringSafeArea(.top)
+        .edgesIgnoringSafeArea(.bottom)
     }
 }
 
