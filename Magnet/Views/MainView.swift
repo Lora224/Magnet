@@ -13,6 +13,7 @@ struct MainView: View {
     var body: some View {
         VStack {
             Text("Hello, world!")
+                .foregroundStyle(Color.magnetBlue)
                 .font(.largeTitle)
                 .padding()
             Text("Hello, Magent!")
