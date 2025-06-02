@@ -45,22 +45,25 @@ struct ProfileView: View {
             // Top navigation bar
             HStack {
                 // Hamburger menu icon
-                Image(systemName: "line.3.horizontal")
-                    .resizable()
-                    .frame(width: 80,height: 40)
-                    .foregroundColor(magnetBrown)
-                    .padding(16)
-
+                Button(action:{/*back botton action*/}){
+                    Image(systemName: "line.3.horizontal")
+                        .resizable()
+                        .frame(width: 80,height: 40)
+                        .foregroundColor(magnetBrown)
+                        .padding(16)
+                }
                 
                 Spacer()
                 
                 // Home icon
-                Image(systemName: "house.fill")
-                    .resizable()
-                    .frame(width: 50,height: 50)
-                    .font(.title2)
-                    .foregroundColor(magnetBrown)
-                    .padding(16)
+                Button(action:{/*back botton action*/}){
+                    Image(systemName: "house.fill")
+                        .resizable()
+                        .frame(width: 50,height: 50)
+                        .font(.title2)
+                        .foregroundColor(magnetBrown)
+                        .padding(16)
+                }
             }
             .padding(.top, 20)
            
@@ -74,15 +77,17 @@ struct ProfileView: View {
                     .shadow(radius: 6)
                 
                 // Edit button (static overlay)
-                Circle()
-                    .fill(magnetBrown)
-                    .frame(width: 48, height: 48)
-                    .overlay(
-                        Image(systemName: "pencil")
-                            .foregroundColor(.white)
-                            .font(.system(size: 20, weight: .semibold))
-                    )
-                    .offset(x: 8, y: 8)
+                Button(action:{/*back botton action*/}){
+                    Circle()
+                        .fill(magnetBrown)
+                        .frame(width: 48, height: 48)
+                        .overlay(
+                            Image(systemName: "pencil")
+                                .foregroundColor(.white)
+                                .font(.system(size: 20, weight: .semibold))
+                        )
+                        .offset(x: 8, y: 8)
+                }
             }
             .padding(.top, 8)
             
@@ -138,11 +143,9 @@ struct ProfileView: View {
 // MARK: – Preview
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        Group {
-            ProfileView()
-                .previewDevice("iPad Pro (11-inch) (3rd generation)")
-            ProfileView()
-                .previewDevice("iPhone 13 Pro Max")
-        }
+        ProfileView()
+            .previewDevice("iPad Pro (11-inch) (3rd generation)")
+        
+        
     }
 }

@@ -22,22 +22,26 @@ struct FamilyGroupView: View {
             
             VStack(spacing: 0) {
                 // MARK: – Top bar (hamburger on left, calendar on right)
+                
                 HStack {
                     // Hamburger menu icon (kept at default size)
-                    Image(systemName: "line.3.horizontal")
-                        .resizable()
-                        .frame(width: 80, height: 50)
-                        .foregroundColor(magnetBrown)
-                        .padding(.leading, 16)
-                    
+                    Button(action:{/*hamburger botton action*/}){
+                        Image(systemName: "line.3.horizontal")
+                            .resizable()
+                            .frame(width: 80, height: 50)
+                            .foregroundColor(magnetBrown)
+                            .padding(.leading, 16)
+                    }
                     Spacer()
                     
                     // Calendar icon (sized 50×50)
-                    Image(systemName: "calendar")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(magnetBrown)
-                        .padding(.trailing, 16)
+                    Button(action:{/*calendar botton action*/}){
+                        Image(systemName: "calendar")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(magnetBrown)
+                            .padding(.trailing, 16)
+                    }
                 }
                 // Respect iPad’s top safe area
                 .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 20)
@@ -57,29 +61,37 @@ struct FamilyGroupView: View {
                         .shadow(radius: 4)
                     
                     // Edit pencil overlay (50×50 circle + pencil icon)
-                    Circle()
-                        .fill(magnetBrown)
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            Image(systemName: "pencil")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(.white)
-                        )
-                        .offset(x: 40, y: 40)
+                    Button(action:{/*back button action*/}){
+                        Circle()
+                            .fill(magnetBrown)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Image(systemName: "pencil")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundColor(.white)
+                            )
+                    }
+                        
+                            .offset(x: 40, y: 40)
+                    
                     
                     // Back arrow (sized 50×50)
-                    HStack {
-                        Image(systemName: "arrowshape.backward.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 80, height: 50)
-                            .foregroundColor(magnetBrown)
-                            .padding(.leading, 16)
-                        Spacer()
+
+                        HStack {
+                            Button(action:{/*back button action*/}){
+                                Image(systemName: "arrowshape.backward.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 50)
+                                    .foregroundColor(magnetBrown)
+                                    .padding(.leading, 16)
+                            }
+                            Spacer()
+                        
+                        .frame(height: 120) // match emoji circle height
                     }
-                    .frame(height: 120) // match emoji circle height
                 }
                 .padding(.top, 8)
                 
