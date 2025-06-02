@@ -19,12 +19,31 @@ struct NotesDetailView: View {
     
 
     var body: some View {
-        VStack {
+        VStack (spacing : 0){
             
-            Rectangle()
-                .fill(magnetYellow)
-                .frame(height: 100)
+            ZStack {
+                Rectangle()
+                    .fill(magnetYellow)
+                    .frame(height: 100)
+                ZStack {
+                    Image("tribar")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+  
+                }.padding(.leading, 25)
+            }
+
             
+            HStack (spacing : 0){
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(maxHeight: 30)
+
+
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(maxHeight: 30)
+
+            }
             Image("blueNotePlain")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -34,6 +53,7 @@ struct NotesDetailView: View {
             Spacer()
         }
         .ignoresSafeArea(.all, edges: .top)
+        
     }
 }
 
