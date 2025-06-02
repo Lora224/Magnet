@@ -17,7 +17,7 @@ extension Color {
 
 // hwo to use:
 // Text("Hello Magnet!")
-//     .foregroundColor(.magnetBrown)
+//     .foregroundStyle(Color.magnetBlue)
 //
 // Rectangle()
 //     .fill(Color.magnetBeige)
