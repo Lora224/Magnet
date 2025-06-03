@@ -72,17 +72,6 @@ struct MonthlyView: View {
         .ignoresSafeArea(.all, edges: .top)
         Text("Notes")
         ScrollView {
-
-//             LazyVGrid(columns: columns, spacing: 16) {
-//                 ForEach(notes) { note in
-//                     ZStack(alignment: .bottomLeading) {
-//                         RoundedRectangle(cornerRadius: 16)
-//                             .fill(note.cardColor.color)
-//                             .frame(height: 120)
-//                             .shadow(radius: 2)
-
-//                         Text(note.text)
-
             LazyVStack(spacing: 16) {
                 ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
                     NavigationLink(destination: MonthlyView(month: month, notes: groupedNotes[month]!)) {
@@ -102,7 +91,6 @@ struct MonthlyView: View {
                                     .font(.subheadline)
                                     .lineLimit(1)
                             }
-
                             .padding()
                             .foregroundColor(.black)
                         }
@@ -120,25 +108,11 @@ struct MonthlyView: View {
         MonthlyView(
             month: "January",
             notes: [
-
-                ArchiveNote(
-                    text: "Anna's Birthday 🎂",
-                    date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 10))!,
-                    cardColor: HexColor("#FFF5DA")   // pastel yellow
-                ),
-                ArchiveNote(
-                    text: "Trip to Paris 🇫🇷",
-                    date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 20))!,
-                    cardColor: HexColor("#F1D3CE")   // pastel pink
-                ),
-                ArchiveNote(
-                    text: "New School Year 📚",
-                    date: Calendar.current.date(from: DateComponents(year: 2025, month: 9, day: 1))!,
-                    cardColor: HexColor("#D1E9F6")   // pastel blue
-                )
-            ]
-        )
-
+                ArchiveNote(text: "Buy groceries", date: Date(), color: .yellow),
+                ArchiveNote(text: "Meeting notes", date: Date(), color: .pink),
+                ArchiveNote(text: "Vacation plan", date: Date(), color: .blue)
+            ])
+        
     }
 
 

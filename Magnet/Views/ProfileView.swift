@@ -6,7 +6,7 @@ struct FamilyCard: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             RoundedRectangle(cornerRadius: 0, style: .continuous)
-                .fill(family.cardColor.color)
+                .fill(family.cardColor)
                 .aspectRatio(1, contentMode: .fit)
                 .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 4)
 
@@ -28,25 +28,10 @@ struct ProfileView: View {
     private let magnetBlue    = Color(red: 0.820, green: 0.914, blue: 0.965) // #D1E9F6
 
     // Sample “notes”/“family” data
-    fileprivate let families: [Family] = [
-        Family(
-            id: UUID().uuidString,
-            name: "Family 1",
-            icon: "😍",
-            cardColor: HexColor("#FFF5DA")
-        ),
-        Family(
-            id: UUID().uuidString,
-            name: "Family 2",
-            icon: "🌸",
-            cardColor: HexColor("#F1D3CE")
-        ),
-        Family(
-            id: UUID().uuidString,
-            name: "Family 3",
-            icon: "💞",
-            cardColor: HexColor("#D1E9F6")
-        )
+    private let families: [Family] = [
+        Family(name: "Family 1", icon: "😍", cardColor: Color(red: 1.000, green: 0.961, blue: 0.855)), // #FFF5DA
+        Family(name: "Family 2", icon: "🌸", cardColor: Color(red: 0.945, green: 0.827, blue: 0.808)), // #F1D3CE
+        Family(name: "Family 3", icon: "💞", cardColor: Color(red: 0.820, green: 0.914, blue: 0.965))  // #D1E9F6
     ]
     
 
@@ -121,7 +106,7 @@ struct ProfileView: View {
                             destination: FamilyGroupView(
                                 familyName: fam.name,
                                 familyEmoji: fam.icon,
-                                backgroundColor: fam.cardColor.color
+                                backgroundColor: fam.cardColor
                             )
                         ) {
                             FamilyCard(family: fam,textColor: magnetBrown)
