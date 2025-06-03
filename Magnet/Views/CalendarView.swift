@@ -14,6 +14,24 @@
 
 //
 import SwiftUI
+let sampleNotes: [ArchiveNote] = [
+    ArchiveNote(
+        text: "Anna's Birthday 🎂",
+        date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 10))!,
+        cardColor: HexColor("#FFF5DA")   // pastel yellow
+    ),
+    ArchiveNote(
+        text: "Trip to Paris 🇫🇷",
+        date: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 20))!,
+        cardColor: HexColor("#F1D3CE")   // pastel pink
+    ),
+    ArchiveNote(
+        text: "New School Year 📚",
+        date: Calendar.current.date(from: DateComponents(year: 2025, month: 9, day: 1))!,
+        cardColor: HexColor("#D1E9F6")   // pastel blue
+    )
+]
+
 
 struct CalendarView: View {
     private let magnetBrown   = Color(red: 0.294, green: 0.212, blue: 0.129) // #4B3621
@@ -26,7 +44,7 @@ struct CalendarView: View {
            Dictionary(grouping: sampleNotes) { note in
                let formatter = DateFormatter()
                formatter.dateFormat = "LLLL yyyy"
-               return formatter.string(from: note.date)
+               return formatter.string(from: note.date.dateValue())
            }
        }
     @State private var selectedMonth: String? = nil

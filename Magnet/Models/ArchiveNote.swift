@@ -6,15 +6,25 @@
 //
 
 import SwiftUI
+import FirebaseFirestoreCombineSwift   // gives us @DocumentID
+import FirebaseFirestore
 
-struct ArchiveNote: Identifiable {
-    let id = UUID()
-    let text: String
-    let date: Date
-    let color: Color
+struct ArchiveNote: Identifiable, Codable, Hashable {
+    @DocumentID var id      : String?      // Firestore document ID
+    var text            : String          // e.g. "Anna's Birthday 🎂"
+    var date   : Timestamp       // Firestore Timestamp instead of Date
+    var cardColor        : HexColor        // stored as hex string
+    
+    init(id: String? = nil,
+         text: String,
+         date: Date,
+         cardColor: HexColor) {
+        self.id            = id
+        self.text          = text
+        self.date = Timestamp(date: date)
+        self.cardColor      = cardColor
+    }
 }
-let sampleNotes: [ArchiveNote] = [
-    ArchiveNote(text: "Anna's Birthday 🎂", date: DateComponents(calendar: .current, year: 2025, month: 5, day: 10).date!, color: .yellow),
-    ArchiveNote(text: "Trip to Paris 🇫🇷", date: DateComponents(calendar: .current, year: 2025, month: 5, day: 20).date!, color: .pink),
-    ArchiveNote(text: "New School Year 📚", date: DateComponents(calendar: .current, year: 2025, month: 9, day: 1).date!, color: .blue)
-]
+
+ 
+
