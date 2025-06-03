@@ -47,6 +47,8 @@ struct CalendarView: View {
                return formatter.string(from: note.date.dateValue())
            }
        }
+    @State private var selectedMonth: String? = nil
+
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
@@ -90,32 +92,82 @@ struct CalendarView: View {
             )
             // Ensure it stretches horizontally
             .frame(maxWidth: .infinity)
+            HStack{
+                // Events text immediately below the yellow bar
+                Text("2025")
+                    .font(.system(size: 50, weight: .bold))
+                    .foregroundColor(magnetBrown)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 16)
+            
+                Menu {
+                    ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
+                        Button(action: {
+                            selectedMonth = month
+                        }) {
+                            Text(month.capitalized)
+                        }
+                    }
+                } label: {
+                    Label("Select Month", systemImage: "calendar")
+                }
+                if let month = selectedMonth, let notes = groupedNotes[month] {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                        ForEach(notes) { note in
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(note.color)
+                                .frame(height: 120)
+                                .overlay(
+                                    Text(note.text)
+                                        .padding()
+                                        .font(.body)
+                                        .foregroundColor(.black),
+                                    alignment: .bottomLeading
+                                )
+                        }
+                    }
+                    .padding()
+                    
+                }
 
-            // Events text immediately below the yellow bar
-            Text("2025")
-                .font(.system(size: 50, weight: .bold))
-                .foregroundColor(magnetBrown)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 16)
-                .padding(.horizontal, 24)
+
+
+                    
+                Text("Events")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .font(.system(size: 50, weight: .bold))
+                    .foregroundColor(magnetBrown)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 16)
+                
+            }
             
             ScrollView {
                 LazyVStack(spacing: 16) {
                     ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
                         NavigationLink(destination: MonthlyView(month: month, notes: groupedNotes[month]!)) {
+                            let notes = groupedNotes[month]!
+                            let previewNote = notes.first ?? ArchiveNote(text: "No Notes", date: Date(), color: .gray)
+
                             ZStack(alignment: .bottomLeading) {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white)
-                                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 4)
-                                    .frame(height: 100)
-                                
-                                Text(month)
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                    .padding()
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(previewNote.color)
+                                    .frame(height: 120)
+                                    .shadow(radius: 2)
+
+                                VStack(alignment: .leading) {
+                                    Text(month)
+                                        .font(.headline)
+                                    Text(previewNote.text)
+                                        .font(.subheadline)
+                                        .lineLimit(1)
+                                }
+                                .padding()
+                                .foregroundColor(.black)
                             }
                             .padding(.horizontal)
                         }
+
                     }
                 }
                 .padding(.top)
