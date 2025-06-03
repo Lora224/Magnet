@@ -10,9 +10,10 @@ struct CaptureConfirmationView: View {
                 
                 HStack {
                     VStack {
-                        CircleActionButton(
+                        // → Replaced: use CircleExitButton instead of CircleActionButton
+                        CircleExitButton(
                             systemImage: "xmark",
-                            backgroundColor: Color(Color.red)
+                            backgroundColor: .red
                         )
                         Spacer()
                     }
@@ -34,7 +35,6 @@ struct CaptureConfirmationView: View {
                     Spacer()
                     
                     VStack {
-                        
                         RoundedRectangle(cornerRadius: 15)
                             .fill(Color(red: 0.88, green: 0.80, blue: 0.70))
                             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
@@ -61,7 +61,6 @@ struct CaptureConfirmationView: View {
                     }
                     .padding(.trailing, 16)
                     .padding([.top, .bottom], 20)
-
                 }
             }
         }
@@ -74,21 +73,16 @@ struct PolaroidPhotoView: View {
     let maxHeight: CGFloat
     
     @State private var polaroidSize: CGSize = .zero
-    
-    // Using a placeholder image
     private let placeholderImage = Image("cameraPlaceholder")
     
     var body: some View {
         VStack(spacing: 0) {
-            // Photo area with dynamic sizing
             ZStack {
-                // Polaroid frame background
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.white)
                     .shadow(color: .black.opacity(0.3), radius: 12, x: 0, y: 8)
                 
                 VStack(spacing: 0) {
-                    // Image container
                     ZStack {
                         Color.black.opacity(0.05)
                         
@@ -101,7 +95,6 @@ struct PolaroidPhotoView: View {
                     .padding(.horizontal, 20)
                     .frame(height: calculateImageHeight())
                     
-                    // Caption area
                     VStack {
                         TextField("Enter caption here...", text: $caption)
                             .font(.system(size: 24, weight: .regular, design: .serif))
@@ -125,10 +118,8 @@ struct PolaroidPhotoView: View {
     }
     
     private func calculatePolaroidWidth() -> CGFloat {
-        // Using a standard aspect ratio for placeholder
-        let imageAspectRatio: CGFloat = 4.0 / 3.0 // Standard camera aspect ratio
-        let availableImageHeight = maxHeight - 120 // Subtract space for caption and padding
-        
+        let imageAspectRatio: CGFloat = 4.0 / 3.0
+        let availableImageHeight = maxHeight - 120
         let imageWidth = min(availableImageHeight * imageAspectRatio, maxWidth - 40)
         return imageWidth + 40
     }
@@ -138,11 +129,9 @@ struct PolaroidPhotoView: View {
     }
     
     private func calculateImageHeight() -> CGFloat {
-        // Using a standard aspect ratio for placeholder
-        let imageAspectRatio: CGFloat = 4.0 / 3.0 // Standard camera aspect ratio
+        let imageAspectRatio: CGFloat = 4.0 / 3.0
         let polaroidWidth = calculatePolaroidWidth()
-        let availableImageWidth = polaroidWidth - 40 // Subtract padding
-        
+        let availableImageWidth = polaroidWidth - 40
         return availableImageWidth / imageAspectRatio
     }
     
@@ -150,31 +139,6 @@ struct PolaroidPhotoView: View {
         let width = calculatePolaroidWidth()
         let height = calculatePolaroidHeight()
         polaroidSize = CGSize(width: width, height: height)
-    }
-}
-
-struct CircleActionButton: View {
-    let systemImage: String
-    let backgroundColor: Color
-    let size: CGFloat
-    
-    init(systemImage: String, backgroundColor: Color, size: CGFloat = 80) {
-        self.systemImage = systemImage
-        self.backgroundColor = backgroundColor
-        self.size = size
-    }
-    
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(backgroundColor)
-                .frame(width: size, height: size)
-                .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 4)
-            
-            Image(systemName: systemImage)
-                .font(.system(size: size * 0.4, weight: .bold))
-                .foregroundColor(.white)
-        }
     }
 }
 
