@@ -16,7 +16,7 @@ struct CaptureConfirmationView: View {
                         )
                         Spacer()
                     }
-                    .padding(.leading, 16)
+                    .padding(.leading, 20)
                     .padding(.top, 20)
                     
                     Spacer()
