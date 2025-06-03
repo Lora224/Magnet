@@ -15,7 +15,7 @@ extension Color {
 
 }
 
-// hwo to use:
+// how to use:
 // Text("Hello Magnet!")
 //     .foregroundStyle(Color.magnetBlue)
 //
