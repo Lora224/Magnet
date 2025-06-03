@@ -13,6 +13,7 @@ struct ArchiveNote: Identifiable {
     let date: Date
     let color: Color
 }
+
 let sampleNotes: [ArchiveNote] = [
     ArchiveNote(text: "Anna's Birthday 🎂", date: DateComponents(calendar: .current, year: 2025, month: 5, day: 10).date!, color: .yellow),
     ArchiveNote(text: "Trip to Paris 🇫🇷", date: DateComponents(calendar: .current, year: 2025, month: 5, day: 20).date!, color: .pink),
