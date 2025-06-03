@@ -95,7 +95,7 @@ struct VoiceNoteSticky: View {
     @State private var isPlaying = false
     
     var body: some View {
-        StickyNoteView(backgroundColor: magnetBlue, size: CGSize(width: 140, height: 140)) {
+        StickyNoteView(backgroundColor: magnetBlue, content:  {
             VStack(alignment: .leading, spacing: 8) {
                 // 1) Transcribed text at the top
                 Text("Hey Ma! I just\nfinished my class.\nReally miss you. I\nlove you!")
@@ -148,7 +148,7 @@ struct VoiceNoteSticky: View {
                 .padding(.bottom, 8)
             }
             .padding(8)
-        }
+        }, size: CGSize(width: 140, height: 140))
     }
 }
 

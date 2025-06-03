@@ -24,9 +24,8 @@ struct MagnetApp: App {
 
   var body: some Scene {
     WindowGroup {
-      NavigationView {
           MainView()
-      }
+      
     }
   }
 }
