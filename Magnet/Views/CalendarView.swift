@@ -1,4 +1,11 @@
 //
+//  TopFamilyBar.swift
+//  Magnet
+//
+//  Created by Yutong Li on 2/6/2025.
+//
+
+//
 //  CalendarView.swift
 //  Magnet
 //
@@ -14,64 +21,96 @@ struct CalendarView: View {
     private let magnetYellow  = Color(red: 1.000, green: 0.961, blue: 0.855) // #FFF5DA
     private let magnetBlue    = Color(red: 0.820, green: 0.914, blue: 0.965) // #D1E9F6
 
+
+    private var groupedNotes: [String: [ArchiveNote]] {
+           Dictionary(grouping: sampleNotes) { note in
+               let formatter = DateFormatter()
+               formatter.dateFormat = "LLLL yyyy"
+               return formatter.string(from: note.date)
+           }
+       }
     var body: some View {
-        VStack {
-            HStack {
-                
-                
-                // Wrap the text and rectangle together
-                ZStack {
-                        Rectangle()
-                            .fill(magnetYellow)
-                            .frame(height: 100)
+        VStack(spacing: 0) {
+            ZStack {
+                Rectangle()
+                    .fill(magnetYellow)
+                    .frame(height: 100)
 
-                        // Centered chevrons + emoji + title
-                        HStack(spacing: 10) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 50))
-//hahahah
+                HStack(spacing: 10) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 50))
 
-                            Text("🎉")
-                                .font(.system(size: 50))
-                                .padding(.leading, 35)
+                    Text("🎉")
+                        .font(.system(size: 50))
+                        .padding(.leading, 35)
 
-                            Text("Family 1")
-                                .font(.system(size: 50, weight: .bold))
-                                .foregroundColor(magnetBrown)
-                                .textCase(.uppercase)
-                                .padding(.trailing, 35)
+                    Text("Family 1")
+                        .font(.system(size: 50, weight: .bold))
+                        .foregroundColor(magnetBrown)
+                        .textCase(.uppercase)
+                        .padding(.trailing, 35)
 
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 50))
-                                
-                        }
-                        .font(.system(size: 20)) // Default symbol size if not individually set
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    }
-                    .overlay(
-                        HStack {
-                            Image(systemName: "line.horizontal.3")
-                                .resizable()
-                                .frame(width: 65, height: 35)
-                                .foregroundColor(magnetBrown)
-                                .padding(.leading, 30)
-
-                            Spacer()
-
-                            Image(systemName: "ellipsis") // Invisible to balance layout
-                                .opacity(0)
-                                .padding(.trailing, 16)
-                        }
-                    )
-
-                
-                .frame(maxHeight: .infinity, alignment: .top) // this line helps when inside a parent with defined height
-
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 50))
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
-            .frame(maxWidth: .infinity, alignment: .top)
+            .overlay(
+                HStack {
+                    Image(systemName: "line.horizontal.3")
+                        .resizable()
+                        .frame(width: 80, height: 40)
+                        .foregroundColor(magnetBrown)
+                        .padding(.leading, 40)
+
+                    Spacer()
+
+                    Image(systemName: "ellipsis")
+                        .opacity(0)
+                        .padding(.trailing, 16)
+                }
+            )
+            // Ensure it stretches horizontally
+            .frame(maxWidth: .infinity)
+
+            // Events text immediately below the yellow bar
+            Text("2025")
+                .font(.system(size: 50, weight: .bold))
+                .foregroundColor(magnetBrown)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 16)
+                .padding(.horizontal, 24)
+            
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
+                        NavigationLink(destination: MonthlyView(month: month, notes: groupedNotes[month]!)) {
+                            ZStack(alignment: .bottomLeading) {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white)
+                                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 4)
+                                    .frame(height: 100)
+                                
+                                Text(month)
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                                    .padding()
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+                .padding(.top)
+            }
+
+                    .navigationTitle("Archive")
+            
+
+            Spacer()
         }
         .ignoresSafeArea(.all, edges: .top)
     }
+
 }
 
 
