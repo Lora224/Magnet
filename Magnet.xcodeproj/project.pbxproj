@@ -1,9 +1,18 @@
+// !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
 	};
 	objectVersion = 77;
 	objects = {
+
+/* Begin PBXBuildFile section */
+		6E7E19602DEE7E420040569F /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E195F2DEE7E420040569F /* FirebaseAI */; };
+		6E7E19622DEE7E420040569F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19612DEE7E420040569F /* FirebaseAnalytics */; };
+		6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */; };
+		6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19672DEE7E420040569F /* FirebaseAppCheck */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Magnet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -22,6 +31,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E7E19622DEE7E420040569F /* FirebaseAnalytics in Frameworks */,
+				6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				6E7E19602DEE7E420040569F /* FirebaseAI in Frameworks */,
+				6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */,
+				6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,6 +78,11 @@
 			);
 			name = Magnet;
 			packageProductDependencies = (
+				6E7E195F2DEE7E420040569F /* FirebaseAI */,
+				6E7E19612DEE7E420040569F /* FirebaseAnalytics */,
+				6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */,
+				6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */,
+				6E7E19672DEE7E420040569F /* FirebaseAppCheck */,
 			);
 			productName = Magnet;
 			productReference = 0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */;
@@ -93,6 +112,9 @@
 			);
 			mainGroup = 0B89ABB22DE93EFC0024EFB4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B89ABBC2DE93EFC0024EFB4 /* Products */;
 			projectDirPath = "";
@@ -246,6 +268,7 @@
 				CODE_SIGN_ENTITLEMENTS = Magnet/Magnet.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A29LFL2Q26;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -283,6 +306,7 @@
 				CODE_SIGN_ENTITLEMENTS = Magnet/Magnet.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A29LFL2Q26;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -334,6 +358,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6E7E195F2DEE7E420040569F /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAI;
+		};
+		6E7E19612DEE7E420040569F /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		6E7E19672DEE7E420040569F /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0B89ABB32DE93EFC0024EFB4 /* Project object */;
 }
