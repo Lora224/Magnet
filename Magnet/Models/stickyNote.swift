@@ -39,8 +39,9 @@ enum ReactionType: String, Codable {
 // ────────────────────────────────────────────────────────────────
 
 /// A single payload attached to a StickyNote (either text or a URL).
-struct Payload: Identifiable, Codable {
-    let id: UUID
+@Model
+final class Payload: Identifiable {
+    var id: UUID
     var text: String?
     var url: String?
     
@@ -61,8 +62,10 @@ struct Payload: Identifiable, Codable {
 
 /// A single “sticky note” that lives within a family/board.
 /// Designed for local use now, but fields match what Firestore would store.
-struct StickyNote: Identifiable, Codable {
-    let id: UUID
+
+@Model
+final class StickyNote: Identifiable{
+    var id: UUID
     var senderID: String               // ID of the user who created this note
     var familyID: String               // ID of the family/board this belongs to
     var type: MediaType                // image, video, text, or audio

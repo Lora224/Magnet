@@ -27,6 +27,9 @@ struct MagnetApp: App {
     WindowGroup {
           MainView()
     }
-    .modelContainer(for: Counter.self)
+    .modelContainer(for: [
+      StickyNote.self,
+      Payload.self
+    ])
   }
 }
