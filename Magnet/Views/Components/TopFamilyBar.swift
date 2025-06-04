@@ -5,12 +5,7 @@
 //  Created by Yutong Li on 2/6/2025.
 //
 
-//
-//  CalendarView.swift
-//  Magnet
-//
-//  Created by Muze Lyu on 30/5/2025.
-//
+
 
 //
 import SwiftUI
@@ -55,7 +50,10 @@ struct TopFamilyBar: View {
                     HStack {
                         Button(action: {
                             withAnimation {
-                                isSidebarVisible = true
+                                if(!isSidebarVisible){isSidebarVisible = true}
+                                else {isSidebarVisible = false}
+                                
+                                
                             }
                         }) {
                             Image(systemName: "line.horizontal.3")
@@ -70,29 +68,27 @@ struct TopFamilyBar: View {
                 )
 
                 
-                .frame(maxHeight: .infinity, alignment: .top) // this line helps when inside a parent with defined height
+                   .frame(alignment: .top) // this line helps when inside a parent with defined height
 
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
         
         .ignoresSafeArea(.all, edges: .top)
-        // ─────────────────── Overlay the Sidebar ───────────────────
-        if isSidebarVisible {
-            // Background dimmer: tap it to close sidebar
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation {
-                        isSidebarVisible = false
-                    }
-                }
 
-            // SidebarView itself, sliding in from the left
+        // Sidebar Overlay
+      //1) dim other parts of the screen
+
+            // 2) Sidebar content: sits above the dimming layer
             SideBarView()
+                .frame(width: 280)              // fixed width
+                .offset(y: 90)                  // positioned directly under the top bar
                 .transition(.move(edge: .leading))
-                .zIndex(1)
-        }
+                .zIndex(1)                      // higher zIndex than the dimming
+        
+
+        
+
 
     }
 }
