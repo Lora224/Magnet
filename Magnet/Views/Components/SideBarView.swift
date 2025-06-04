@@ -38,7 +38,16 @@ struct SideBarView: View {
                 }
 
                 // ARCHIVE ROW
-                NavigationLink(destination: CalendarView())  {
+                NavigationLink(destination: CalendarView(notes: [
+                    StickyNote(
+                        senderID: "user1",
+                        familyID: "fam1",
+                        type: .text,
+                        timeStamp: Date(),
+                        seen: [:],
+                        payloads: [Payload(text: "Example note", url: nil)]
+                    )
+                ]))  {
                     HStack(spacing: 16) {
                         ZStack {
                             Circle()
