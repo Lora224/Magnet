@@ -1,10 +1,9 @@
 import SwiftUI
 
 struct FamilyGroupView: View {
-    let familyName: String
+    @State var familyName: String
     let familyEmoji: String
-    let backgroundColor: Color
-
+    @State var backgroundColor: Color
     
     // Using placeholder avatars; replace "avatarPlaceholder" with real asset names.
     private let leftMembers: [String] = ["Margaret", "Anna", "George", "Amanda"]
@@ -45,7 +44,7 @@ struct FamilyGroupView: View {
                 }
                 // Respect iPad’s top safe area
                 .padding(.top, 20)
-                .background(magnetYellow)
+                .background(backgroundColor)
 
                 
                 // MARK: – Emoji avatar + back arrow
@@ -74,11 +73,9 @@ struct FamilyGroupView: View {
                             )
                     }
                         
-                            .offset(x: 40, y: 40)
-                    
+                            .offset(x: 50, y: 50)
                     
                     // Back arrow (sized 50×50)
-
                         HStack {
                             NavigationLink(destination: MainView()) {
                                 Image(systemName: "arrowshape.backward.fill")
@@ -96,61 +93,88 @@ struct FamilyGroupView: View {
                 .padding(.top, 8)
                 
                 // MARK: – Family name
-                Text(familyName)
-                    .font(.title)
-                    .bold()
-                    .foregroundColor(.black)
-                    .padding(.top, 8)
+                HStack(spacing: 16) {
+                    TextField("Enter family name", text: $familyName)
+                        .font(.title)
+                        .bold()
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(Color.gray.opacity(0.5), lineWidth: 1.0)
+                                )
+                        )
+                        .frame(width: 240)
+
+                    ColorPicker("", selection: $backgroundColor, supportsOpacity: false)
+                        .labelsHidden()
+                        .frame(width: 64, height: 64)
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.gray.opacity(0.6), lineWidth: 1.0)
+                        )
+                }
+                .padding(.top, 24)
+                .padding(.horizontal, 40)
+
+
                 
                 // MARK: – Members list (two columns)
-                HStack(alignment: . top, spacing: 48) {
-                    // Left column
-                    VStack(alignment: .leading, spacing: 24) {
-                        ForEach(leftMembers, id: \.self) { member in
-                            HStack(spacing: 12) {
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 75, height: 75)
-                                    .overlay(
-                                        Image("avatarPlaceholder") // replace with actual member image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 56, height: 56)
-                                            .clipShape(Circle())
-                                    )
-                                    .shadow(radius: 2)
-                                
-                                Text(member)
-                                    .font(.headline)
-                                    .foregroundColor(magnetBrown)
+                ScrollView {
+                    HStack(alignment: . top, spacing: 48) {
+                        // Left column
+                        VStack(alignment: .leading, spacing: 24) {
+                            ForEach(leftMembers, id: \.self) { member in
+                                HStack(spacing: 12) {
+                                    Circle()
+                                        .fill(Color.white)
+                                        .frame(width: 75, height: 75)
+                                        .overlay(
+                                            Image("avatarPlaceholder") // replace with actual member image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 56, height: 56)
+                                                .clipShape(Circle())
+                                        )
+                                        .shadow(radius: 2)
+                                    
+                                    Text(member)
+                                        .font(.headline)
+                                        .foregroundColor(magnetBrown)
+                                }
+                            }
+                        }
+                        
+                        // Right column
+                        VStack(alignment: .leading, spacing: 24) {
+                            ForEach(rightMembers, id: \.self) { member in
+                                HStack(spacing: 12) {
+                                    Circle()
+                                        .fill(Color.white)
+                                        .frame(width: 75, height: 75)
+                                        .overlay(
+                                            Image("avatarPlaceholder") // replace with actual member image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 56, height: 56)
+                                                .clipShape(Circle())
+                                        )
+                                        .shadow(radius: 2)
+                                    
+                                    Text(member)
+                                        .font(.headline)
+                                        .foregroundColor(magnetBrown)
+                                }
                             }
                         }
                     }
-                    
-                    // Right column
-                    VStack(alignment: .leading, spacing: 24) {
-                        ForEach(rightMembers, id: \.self) { member in
-                            HStack(spacing: 12) {
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 75, height: 75)
-                                    .overlay(
-                                        Image("avatarPlaceholder") // replace with actual member image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 56, height: 56)
-                                            .clipShape(Circle())
-                                    )
-                                    .shadow(radius: 2)
-                                
-                                Text(member)
-                                    .font(.headline)
-                                    .foregroundColor(magnetBrown)
-                            }
-                        }
-                    }
+                    .padding(.horizontal, 40)
                 }
-                .padding(.top, 32)
+                .padding(.top, 24)
                 
                 Spacer()
                 
@@ -171,6 +195,7 @@ struct FamilyGroupView: View {
                     .shadow(radius: 2)
                 }
                 .padding(.bottom, 32)
+                .padding(.top, 24)
             }
         }
     }
