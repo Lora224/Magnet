@@ -1,4 +1,3 @@
-//
 //  MagnetApp.swift
 //  Magnet
 //
@@ -17,7 +16,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   }
 }
 
-
 @main
 struct MagnetApp: App {
   // register app delegate for Firebase setup
@@ -25,8 +23,13 @@ struct MagnetApp: App {
 
   var body: some Scene {
     WindowGroup {
-          MainView()
+      MainView()
     }
-    .modelContainer(for: Counter.self)
+    .modelContainer(
+      for: [
+        StickyNote.self,
+        Payload.self,
+      ]
+    )
   }
 }
