@@ -20,7 +20,7 @@ struct TopFamilyBar: View {
     private let magnetPink    = Color(red: 0.945, green: 0.827, blue: 0.808) // #F1D3CE
     private let magnetYellow  = Color(red: 1.000, green: 0.961, blue: 0.855) // #FFF5DA
     private let magnetBlue    = Color(red: 0.820, green: 0.914, blue: 0.965) // #D1E9F6
-
+    @State private var isSidebarVisible = false
     var body: some View {
         VStack {
             HStack {
@@ -53,12 +53,17 @@ struct TopFamilyBar: View {
                 }
                 .overlay(
                     HStack {
-                        Image(systemName: "line.horizontal.3")
-                            .resizable()
-                            .frame(width: 60, height: 30)
-                            .foregroundColor(magnetBrown)
-                            .padding(.leading, 30)
-
+                        Button(action: {
+                            withAnimation {
+                                isSidebarVisible = true
+                            }
+                        }) {
+                            Image(systemName: "line.horizontal.3")
+                                .resizable()
+                                .frame(width: 60, height: 30)
+                                .foregroundColor(magnetBrown)
+                                .padding(.leading, 30)
+                       }
                         Spacer()
 
                     }
@@ -70,7 +75,25 @@ struct TopFamilyBar: View {
             }
             .frame(maxWidth: .infinity, alignment: .top)
         }
+        
         .ignoresSafeArea(.all, edges: .top)
+        // ─────────────────── Overlay the Sidebar ───────────────────
+        if isSidebarVisible {
+            // Background dimmer: tap it to close sidebar
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation {
+                        isSidebarVisible = false
+                    }
+                }
+
+            // SidebarView itself, sliding in from the left
+            SideBarView()
+                .transition(.move(edge: .leading))
+                .zIndex(1)
+        }
+
     }
 }
 
