@@ -75,7 +75,6 @@ struct FamilyManagerView: View {
                     .padding(8)
                 }
             }
-
         }
     }
 
@@ -105,7 +104,6 @@ struct FamilyManagerView: View {
     }
 }
 
-#Preview("Using real model container") {
+#Preview{
     FamilyManagerView()
-        .modelContainer(for: Family.self)
 }

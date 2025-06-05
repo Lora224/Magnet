@@ -8,6 +8,21 @@ struct MainView: View {
 
                 VStack(spacing: 0) {
                     TopFamilyBar()
+                    
+                    // for test database
+                    HStack {
+                        Spacer()
+                        NavigationLink(destination: FamilyManagerView()) {
+                            Text("Debug Family View")
+                                .font(.caption)
+                                .padding(8)
+                                .background(Color.gray.opacity(0.2))
+                                .foregroundColor(.blue)
+                                .cornerRadius(8)
+                                .padding(.trailing, 12)
+                        }
+                    }
+                    
                     Spacer()
                 }
 
