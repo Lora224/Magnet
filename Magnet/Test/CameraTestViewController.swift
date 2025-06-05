@@ -1,71 +1,48 @@
-//
-//  CameraTestViewController.swift
-//  Magnet
-//
-//  Created by Muze Lyu on 5/6/2025.
-//
-
 import UIKit
 import AVFoundation
 
-/// This UIViewController builds its entire UI programmatically (no Storyboards).
-/// It requests camera permission, then shows a live back‐camera preview inside `cameraView`.
 class CameraTestViewController: UIViewController {
-    
-    // MARK: – Subviews
-    
-    /// This is the container where the live camera preview will appear.
-    /// We’ll pin it to the edges of the screen.
+    // 用来展示摄像头预览的 UIView
     private let cameraView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .black     // In case the preview isn’t ready yet
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+        let v = UIView()
+        v.backgroundColor = .black
+        v.translatesAutoresizingMaskIntoConstraints = false
+        return v
     }()
     
-    
-    // MARK: – AVFoundation Properties
-    
-    /// The session coordinates input (camera) → output (preview layer).
     private let captureSession = AVCaptureSession()
-    
-    /// The `AVCaptureVideoPreviewLayer` that will show “what the camera sees.”
     private var videoPreviewLayer: AVCaptureVideoPreviewLayer?
-    
-    /// The `AVCaptureDeviceInput` wrapping the back camera.
     private var cameraInput: AVCaptureDeviceInput?
-    
-    
-    // MARK: – View Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .white
-        title = "Camera Test"
         
-        // 1. Build the UI hierarchy (everywhere in code)
         setupViews()
-        
-        // 2. Configure the capture session preset (use .photo for high resolution still-capable)
         captureSession.sessionPreset = .photo
         
-        // 3. Check/request camera permission & then configure the session
+        // 先判断权限状态
         checkCameraAuthorization()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        // Whenever the view’s size changes (e.g. rotation), update the preview layer’s frame.
+        // 确保 previewLayer 始终与 cameraView 大小同步
         videoPreviewLayer?.frame = cameraView.bounds
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // 如果 previewLayer 还没有创建，就在这里创建，保证 cameraView.bounds 已经有值
+        if videoPreviewLayer == nil {
+            configurePreviewLayerIfPossible()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        // Start the session if it isn’t already running
-        if captureSession.isRunning == false {
+        // 启动 session 在后台线程
+        if !captureSession.isRunning {
             DispatchQueue.global(qos: .userInitiated).async {
                 self.captureSession.startRunning()
             }
@@ -74,18 +51,16 @@ class CameraTestViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        // Stop the session to free up the camera
+        // 停止 session 释放摄像头
         if captureSession.isRunning {
             captureSession.stopRunning()
         }
     }
     
-    /// Handle device rotation so the preview stays oriented
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        
         coordinator.animate(alongsideTransition: { _ in
+            // 更新方向 & 尺寸
             if let connection = self.videoPreviewLayer?.connection {
                 connection.videoOrientation = self.currentVideoOrientation()
                 self.videoPreviewLayer?.frame = self.cameraView.bounds
@@ -93,24 +68,31 @@ class CameraTestViewController: UIViewController {
         })
     }
     
+    // MARK: - UI 布局
+    private func setupViews() {
+        view.addSubview(cameraView)
+        NSLayoutConstraint.activate([
+            cameraView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            cameraView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            cameraView.topAnchor.constraint(equalTo: view.topAnchor),
+            cameraView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
     
-
-    // MARK: – Camera Permission & Session Configuration
+    // MARK: - 权限 & Session 配置
     
-    /// Checks the authorization status for video (camera). If `.notDetermined`, requests access.
-    /// If authorized, calls `setupCaptureSession()`. Otherwise, shows a “permission denied” alert.
     private func checkCameraAuthorization() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            // Already have permission → configure the session immediately
-            setupCaptureSession()
+            // 已有权限，尝试配置摄像头
+            configurePreviewLayerIfPossible()
             
         case .notDetermined:
-            // First‐time: ask the user
+            // 第一次请求权限
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
                     if granted {
-                        self.setupCaptureSession()
+                        self.configurePreviewLayerIfPossible()
                     } else {
                         self.showPermissionDeniedAlert()
                     }
@@ -118,77 +100,78 @@ class CameraTestViewController: UIViewController {
             }
             
         case .denied, .restricted:
-            // User previously denied, or system restricted
+            // 用户拒绝过或受限
             showPermissionDeniedAlert()
             
         @unknown default:
-            // A future case we don’t know about yet
             showPermissionDeniedAlert()
         }
     }
     
-    /// Presents an alert telling the user to go to Settings → Privacy → Camera.
     private func showPermissionDeniedAlert() {
         let alert = UIAlertController(
-            title: "Camera Access Required",
-            message: "Please allow camera access in Settings → Privacy → Camera.",
+            title: "需要访问相机权限",
+            message: "请前往 设置 → 隐私 → 相机，允许访问后再试。",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Open Settings", style: .default) { _ in
-            guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
-            UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
-        })
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "打开设置", style: .default, handler: { _ in
+            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
     }
     
-    /// Finds the back‐facing camera, creates an AVCaptureDeviceInput, attaches it to `captureSession`,
-    /// and inserts an AVCaptureVideoPreviewLayer into `cameraView`.
-    private func setupCaptureSession() {
-        // 1. Find the default back camera
+    /// 只有在确定有权限、且 cameraView.bounds 已经准备好之后调用才安全
+    private func configurePreviewLayerIfPossible() {
+        // 1. 如果已经有 previewLayer，不要重复创建
+        if videoPreviewLayer != nil { return }
+        
+        // 2. 模拟器里没有摄像头时直接返回
+        #if targetEnvironment(simulator)
+        print("当前是模拟器，没有摄像头，跳过相机初始化")
+        return
+        #endif
+        
+        // 3. 查找后置摄像头
         guard let backCamera = AVCaptureDevice.default(.builtInWideAngleCamera,
                                                        for: .video,
                                                        position: .back) else {
-            print("ERROR: No back camera available.")
+            print("ERROR: 找不到后置摄像头")
             return
         }
         
+        // 4. 尝试生成输入对象
         do {
-            // 2. Wrap that camera in an AVCaptureDeviceInput
             let input = try AVCaptureDeviceInput(device: backCamera)
             cameraInput = input
             
-            // 3. Add the input to our session
+            // 5. 将输入添加到 session
             guard captureSession.canAddInput(input) else {
-                print("ERROR: Cannot add camera input to session.")
+                print("ERROR: 无法将摄像头输入添加到 Session")
                 return
             }
             captureSession.addInput(input)
-            
-            // 4. Create & configure the preview layer
-            let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-            previewLayer.videoGravity = .resizeAspectFill
-            previewLayer.connection?.videoOrientation = currentVideoOrientation()
-            previewLayer.frame = cameraView.bounds
-            
-            // 5. Insert the preview layer as the bottom‐most layer of cameraView
-            cameraView.layer.insertSublayer(previewLayer, at: 0)
-            self.videoPreviewLayer = previewLayer
-            
-            // 6. Start the session on a background queue
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.captureSession.startRunning()
-            }
         }
         catch {
-            print("ERROR: Unable to initialize back camera: \(error.localizedDescription)")
+            print("ERROR: 初始化摄像头输入失败：\(error.localizedDescription)")
+            return
+        }
+        
+        // 6. 在主线程中创建并插入 PreviewLayer
+        DispatchQueue.main.async {
+            let previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+            previewLayer.videoGravity = .resizeAspectFill
+            previewLayer.connection?.videoOrientation = self.currentVideoOrientation()
+            previewLayer.frame = self.cameraView.bounds
+            self.cameraView.layer.insertSublayer(previewLayer, at: 0)
+            self.videoPreviewLayer = previewLayer
         }
     }
     
-    /// Returns the proper `AVCaptureVideoOrientation` matching the device’s UI orientation.
     private func currentVideoOrientation() -> AVCaptureVideoOrientation {
-        let statusBarOrientation = UIApplication.shared.statusBarOrientation
-        switch statusBarOrientation {
+        let orientation = UIApplication.shared.statusBarOrientation
+        switch orientation {
         case .portrait:            return .portrait
         case .portraitUpsideDown:  return .portraitUpsideDown
         case .landscapeLeft:       return .landscapeRight
@@ -196,63 +179,4 @@ class CameraTestViewController: UIViewController {
         default:                   return .portrait
         }
     }
-    // MARK: – Setup UI in Code
-
-    /// Adds `cameraView` to the root view and pins it to all edges.
-    private func setupViews() {
-        view.addSubview(cameraView)
-        
-        NSLayoutConstraint.activate([
-            cameraView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            cameraView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            cameraView.topAnchor.constraint(equalTo: view.topAnchor),
-            cameraView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        
-        // (Optional) If you want an overlay button to “snap” a photo, you could add it here:
-        // let snapButton = makeSnapButton()
-        // view.addSubview(snapButton)
-        // …add constraints…
-        // and then hook up snapButton.addTarget(self, action: #selector(snapButtonTapped), for: .touchUpInside)
-    }
-
-    
-    // MARK: – (Optional) Photo Capture Example
-    
-    // If you want to add a “Snap” button and capture a still image, uncomment the code below and add a UIButton in `setupViews()`:
-    //
-    // private let photoOutput = AVCapturePhotoOutput()
-    //
-    // @objc private func snapButtonTapped() {
-    //     let settings = AVCapturePhotoSettings()
-    //     photoOutput.capturePhoto(with: settings, delegate: self)
-    // }
-    //
-    // Then in setupCaptureSession(), after adding `input` to the session, do:
-    //     if captureSession.canAddOutput(photoOutput) {
-    //         captureSession.addOutput(photoOutput)
-    //     }
-    //
-    // And add this extension:
-    // extension CameraTestViewController: AVCapturePhotoCaptureDelegate {
-    //     func photoOutput(_ output: AVCapturePhotoOutput,
-    //                      didFinishProcessingPhoto photo: AVCapturePhoto,
-    //                      error: Error?) {
-    //         if let error = error {
-    //             print("Photo capture error: \(error.localizedDescription)")
-    //             return
-    //         }
-    //         guard let data = photo.fileDataRepresentation(),
-    //               let image = UIImage(data: data) else {
-    //             return
-    //         }
-    //         // Save to Photos for testing
-    //         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-    //         print("Photo captured and saved to Photos.")
-    //     }
-    // }
-    //
-    // If you do enable photo capture, don’t forget to add `NSPhotoLibraryAddUsageDescription`
-    // to Info.plist as well, since we’re saving to the Camera Roll.
 }
-

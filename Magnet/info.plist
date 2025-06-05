@@ -4,5 +4,9 @@
 <dict>
 	<key>Privacy – Camera Usage</key>
 	<string>Allow access to camera for testing the preview</string>
+	<key>NSCameraUsageDescription</key>
+	<string></string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save photo to the camera</string>
 </dict>
 </plist>
