@@ -1,3 +1,5 @@
+//decide to not make it responsive to portrait for now as it might be changed according to how we use the camera API later - muze
+
 import SwiftUI
 struct CameraView: View {
     var body: some View {

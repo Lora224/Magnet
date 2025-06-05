@@ -1,120 +1,83 @@
-//
-//  TopFamilyBar.swift
-//  Magnet
-//
-//  Created by Yutong Li on 2/6/2025.
-//
-
-//
-//  CalendarView.swift
-//  Magnet
-//
-//  Created by Muze Lyu on 30/5/2025.
-//
-
-//
 import SwiftUI
+import SwiftData
+import Foundation
 
 struct CalendarView: View {
-    private let magnetBrown   = Color(red: 0.294, green: 0.212, blue: 0.129) // #4B3621
-    private let magnetPink    = Color(red: 0.945, green: 0.827, blue: 0.808) // #F1D3CE
-    private let magnetYellow  = Color(red: 1.000, green: 0.961, blue: 0.855) // #FFF5DA
-    private let magnetBlue    = Color(red: 0.820, green: 0.914, blue: 0.965) // #D1E9F6
+    let notes: [StickyNote]
 
+        init(notes: [StickyNote] = generateDummyStickyNotes()) {
+            self.notes = notes
+        }
+    @State private var selectedMonth: String = Calendar.current.monthSymbols[Calendar.current.component(.month, from: Date()) - 1]
+    @State private var isSidebarVisible = false
 
-    private var groupedNotes: [String: [ArchiveNote]] {
-           Dictionary(grouping: sampleNotes) { note in
-               let formatter = DateFormatter()
-               formatter.dateFormat = "LLLL yyyy"
-               return formatter.string(from: note.date)
-           }
-       }
-    @State private var selectedMonth: String? = nil
+    private var columns: [GridItem] = [
+        GridItem(.flexible()), GridItem(.flexible())
+    ]
+
+    private var groupedNotes: [String: [StickyNote]] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM"
+        return Dictionary(grouping: notes) {
+            formatter.string(from: $0.timeStamp)
+        }
+    }
+
+    private var sortedMonths: [String] {
+        Calendar.current.monthSymbols
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                Rectangle()
-                    .fill(magnetYellow)
-                    .frame(height: 100)
+        VStack {
+            // Header
+            HStack {
+                ZStack {
+                    Rectangle()
+                        .fill(Color.magnetYellow)
+                        .frame(height: 90)
 
-                HStack(spacing: 10) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 50))
+                    HStack(spacing: 10) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 40))
 
-                    Text("🎉")
-                        .font(.system(size: 50))
-                        .padding(.leading, 35)
+                        Text("🎉")
+                            .font(.system(size: 45))
+                            .padding(.leading, 35)
 
-                    Text("Family 1")
-                        .font(.system(size: 50, weight: .bold))
-                        .foregroundColor(magnetBrown)
-                        .textCase(.uppercase)
-                        .padding(.trailing, 35)
+                        Text("Family 1")
+                            .font(.system(size: 45, weight: .bold))
+                            .foregroundColor(Color.magnetBrown)
+                            .textCase(.uppercase)
+                            .padding(.trailing, 35)
 
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 50))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 40))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-            }
-            .overlay(
-                HStack {
-                    Image(systemName: "line.horizontal.3")
-                        .resizable()
-                        .frame(width: 80, height: 40)
-                        .foregroundColor(magnetBrown)
-                        .padding(.leading, 40)
-
-                    Spacer()
-
-                    Image(systemName: "ellipsis")
-                        .opacity(0)
-                        .padding(.trailing, 16)
-                }
-            )
-            // Ensure it stretches horizontally
-            .frame(maxWidth: .infinity)
-            HStack{
-                // Events text immediately below the yellow bar
-//                Text("2025")
-//                    .font(.system(size: 50, weight: .bold))
-//                    .foregroundColor(magnetBrown)
-//                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .padding(.top, 16)
-            
-                Menu {
-                    ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
+                .overlay(
+                    HStack {
                         Button(action: {
-                            selectedMonth = month
+                            withAnimation {
+                                isSidebarVisible.toggle()
+                            }
                         }) {
-                            Text(month.capitalized)
+                            Image(systemName: "line.horizontal.3")
+                                .resizable()
+                                .frame(width: 60, height: 30)
+                                .foregroundColor(Color.magnetBrown)
+                                .padding(.leading, 30)
                         }
+                        Spacer()
                     }
-                } label: {
-                    Label("Select Year", systemImage: "calendar")
-                        .font(.system(size: 50, weight: .bold))
-                        
-                }
-                if let month = selectedMonth, let notes = groupedNotes[month] {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        ForEach(notes) { note in
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(note.color)
-                                .frame(height: 120)
-                                .overlay(
-                                    Text(note.text)
-                                        .padding()
-                                        .font(.body)
-                                        .foregroundColor(.black),
-                                    alignment: .bottomLeading
-                                )
-                        }
-                    }
-                    .padding()
-                    
-                }
+                )
+            }
+            .frame(maxWidth: .infinity, alignment: .top)
+
+            // Month selector and grid
+            VStack {
                 Menu {
-                    ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
+                    ForEach(sortedMonths, id: \.self) { month in
                         Button(action: {
                             selectedMonth = month
                         }) {
@@ -123,82 +86,114 @@ struct CalendarView: View {
                     }
                 } label: {
                     Label("Select Month", systemImage: "calendar")
-                        .font(.system(size: 50, weight: .bold))
-                        
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(Color.magnetBrown)
                 }
-                if let month = selectedMonth, let notes = groupedNotes[month] {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        ForEach(notes) { note in
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(note.color)
-                                .frame(height: 120)
-                                .overlay(
-                                    Text(note.text)
-                                        .padding()
-                                        .font(.body)
-                                        .foregroundColor(.black),
-                                    alignment: .bottomLeading
-                                )
-                        }
+
+                .padding(.top, 16)
+
+                Picker("Select Month", selection: $selectedMonth) {
+                    ForEach(Array(groupedNotes.keys).sorted(), id: \.self) { month in
+                        Text(month).tag(month)
                     }
-                    .padding()
-                    
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding()
+                
+                var notesForSelectedMonth: [StickyNote]? {
+                    groupedNotes[selectedMonth]
                 }
 
-
-//                    
-//                Text("Events")
-//                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .font(.system(size: 50, weight: .bold))
-//                    .foregroundColor(magnetBrown)
-//                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .padding(.top, 16)
-                
+                if let notes = notesForSelectedMonth {
+                            ScrollView {
+                                LazyVGrid(columns: columns, spacing: 16) {
+                                    ForEach(notes, id: \.id) { note in
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(backgroundColor(for: note))
+                                    .frame(height: 120)
+                                    .overlay(
+                                        Text(previewText(for: note))
+                                            .padding()
+                                            .font(.body)
+                                            .foregroundColor(.black),
+                                        alignment: .bottomLeading
+                                    )
+                            }
+                        }
+                        .padding()
+                    }
+                } else {
+                    Text("No notes for this month.")
+                        .foregroundColor(.gray)
+                        .padding()
+                }
             }
-            
-//            ScrollView {
-//                LazyVStack(spacing: 16) {
-//                    ForEach(groupedNotes.keys.sorted(), id: \.self) { month in
-//                        NavigationLink(destination: MonthlyView(month: month, notes: groupedNotes[month]!)) {
-//                            let notes = groupedNotes[month]!
-//                            let previewNote = notes.first ?? ArchiveNote(text: "No Notes", date: Date(), color: .gray)
-//
-//                            ZStack(alignment: .bottomLeading) {
-//                                RoundedRectangle(cornerRadius: 16)
-//                                    .fill(previewNote.color)
-//                                    .frame(height: 120)
-//                                    .shadow(radius: 2)
-//
-//                                VStack(alignment: .leading) {
-//                                    Text(month)
-//                                        .font(.headline)
-//                                    Text(previewNote.text)
-//                                        .font(.subheadline)
-//                                        .lineLimit(1)
-//                                }
-//                                .padding()
-//                                .foregroundColor(.black)
-//                            }
-//                            .padding(.horizontal)
-//                        }
-//
-//                    }
-//                }
-//                .padding(.top)
-//            }
-
-                    .navigationTitle("Archive")
-            
-
             Spacer()
         }
-        .ignoresSafeArea(.all, edges: .top)
+        .ignoresSafeArea(edges: .top)
+//        .navigationTitle("Calendar")
     }
 
+    func previewText(for note: StickyNote) -> String {
+        note.payloads.first?.text ?? "Media note"
+    }
+
+    func backgroundColor(for note: StickyNote) -> Color {
+        switch note.type {
+        case .text: return Color.magnetPink.opacity(0.3)
+        case .image: return Color.magnetYellow.opacity(0.3)
+        case .video: return Color.magnetBlue.opacity(0.3)
+        case .audio: return Color.magnetBrown.opacity(0.2)
+        }
+    }
+
+    static func generateDummyStickyNotes() -> [StickyNote] {
+        let sampleTextPayload = Payload(text: "Don't forget the milk!")
+        let sampleImagePayload = Payload(url: "https://example.com/image1.jpg")
+        let sampleVideoPayload = Payload(url: "https://example.com/video1.mov")
+        let sampleAudioPayload = Payload(url: "https://example.com/audio1.m4a")
+
+        return [
+            StickyNote(
+                senderID: "user001",
+                familyID: "fam001",
+                type: .text,
+                timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 1))!,
+                seen: ["user002": .smile, "user003": nil],
+                payloads: [sampleTextPayload]
+            ),
+            StickyNote(
+                senderID: "user002",
+                familyID: "fam001",
+                type: .image,
+                timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 2))!,
+                seen: ["user001": .clap],
+                payloads: [sampleImagePayload]
+            ),
+            StickyNote(
+                senderID: "user003",
+                familyID: "fam002",
+                type: .video,
+                timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 3))!,
+                seen: ["user001": nil, "user002": .liked],
+                payloads: [sampleVideoPayload]
+            ),
+            StickyNote(
+                senderID: "user004",
+                familyID: "fam001",
+                type: .audio,
+                timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 4))!,
+                seen: [:],
+                payloads: [sampleAudioPayload]
+            )
+        ]
+    }
 }
 
-
-
-#Preview(traits: .landscapeLeft) {
-    CalendarView()
+struct CalendarView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationStack {
+            CalendarView()
+        }
+    }
 }

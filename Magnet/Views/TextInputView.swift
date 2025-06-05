@@ -5,87 +5,317 @@ struct TextInputView: View {
     @State private var canvasView = PKCanvasView()
     @State private var isDrawing = false
     @State private var showScribbleHint = true
-    @State private var promptText = "A time you went crazy" // Example prompt
+    @State private var selectedColor = Color.black
+    @State private var blockedAreaHeight: CGFloat = 30
+    @State private var typedNote: String = ""
+
+    @State private var promptText = "What made you smile/laugh today?😊"
     @State private var promptIndex = 0
     @State private var prompts = [
-        "A time you went crazy",
-        "The best day of your life",
-        "A place you want to visit",
-        "Something funny that happened to you"
+        "What frustrated you most today?😤",
+        "What did you eat today?🍝",
+        "How did the weather affect your mood today?🌞",
+        "What was the best part of your day?✨"
     ]
 
     var body: some View {
-        ZStack {
-            GridPatternBackground()
-            VStack(spacing: 24) {
-                // Prompt Bar (Top bar with changing prompt text)
-                Text(promptText)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                    .padding(.top, 16)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white.opacity(0.8))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .shadow(color: .gray.opacity(0.3), radius: 5, x: 0, y: 5)
-                
-                // Main Content Area
-                ZStack {
-                    // Your sticky note image
-                    Image("whiteNote1") // Replace with your asset
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(width: 300, height: 300)
-                        .rotationEffect(.degrees(-3))
-                        .shadow(color: .gray.opacity(0.2), radius: 8, x: 0, y: 5)
-                    
-                    // Drawing canvas (appears on tap)
-                    if isDrawing {
-                        DrawingCanvasView(canvasView: $canvasView)
-                            .frame(width: 300, height: 300)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .transition(.opacity)
-                    }
-                    
-                    // Hint when drawing is not active
-                    if !isDrawing && showScribbleHint {
-                        VStack(spacing: 6) {
-                            Image(systemName: "pencil.tip.crop.circle")
-                                .font(.system(size: 32))
-                                .foregroundColor(.orange)
-                            Text("Tap to draw")
-                                .font(.footnote)
-                                .foregroundColor(.gray)
+        GeometryReader { geometry in
+            // 1. Detect orientation
+            let isPortrait = geometry.size.height > geometry.size.width
+
+            ZStack(alignment: .topLeading) {
+                GridPatternBackground()
+
+                // 2. Portrait: stack everything in a VStack, button at bottom
+                if isPortrait {
+                    VStack(spacing: 0) {
+                        // Top “Exit” + (empty spacer to mimic left side)
+                        HStack {
+                            VStack {
+                                CircleExitButton(
+                                    systemImage: "xmark",
+                                    backgroundColor: Color.red
+                                )
+                                .padding(.top, 20)
+                                .padding(.leading, 16)
+                                Spacer()
+                            }
+                            Spacer()
+                        }
+
+                        // Middle content (prompt + drawing + textfield)
+                        VStack(spacing: 24) {
+                            Text(promptText)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                                .padding([.top, .bottom], 24)
+                                .frame(width: 560)
+                                .background(Color.white)
+                                .cornerRadius(15)
+                                .shadow(color: .gray.opacity(0.3), radius: 5, x: 0, y: 5)
+
+                            ZStack {
+                                Image("whiteNote1")
+                                    .resizable()
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .frame(width: 480, height: 480)
+                                    .shadow(color: .gray.opacity(0.2), radius: 8, x: 0, y: 5)
+
+                                if isDrawing {
+                                    DrawingCanvasView(canvasView: $canvasView)
+                                        .frame(width: 420, height: 420)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .mask(
+                                            Rectangle()
+                                                .frame(width: 420, height: 420)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(width: 420, height: blockedAreaHeight)
+                                                        .blendMode(.destinationOut),
+                                                    alignment: .top
+                                                )
+                                        )
+                                }
+
+                                if !isDrawing && showScribbleHint {
+                                    VStack(spacing: 6) {
+                                        Image(systemName: "pencil.tip.crop.circle")
+                                            .font(.system(size: 50))
+                                            .foregroundColor(Color(red: 0.88, green: 0.80, blue: 0.70))
+                                        Text("Tap to draw")
+                                            .font(.body)
+                                            .foregroundColor(Color(red: 75 / 255, green: 54 / 255, blue: 33 / 255))
+                                    }
+                                }
+                            }
+                            .onTapGesture {
+                                withAnimation {
+                                    isDrawing = true
+                                    showScribbleHint = false
+                                    setTool(.pen)
+                                }
+                            }
+
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                                )
+                                .frame(width: 560, height: 50)
+                                .overlay(
+                                    TextField("Type something…", text: $typedNote)
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 32),
+                                    alignment: .leading
+                                )
+
+                            if isDrawing {
+                                HStack(spacing: 20) {
+                                    Button(action: { setTool(.pen) }) {
+                                        Image(systemName: "pencil.tip")
+                                    }
+
+                                    Button(action: { setTool(.eraser) }) {
+                                        Image(systemName: "eraser")
+                                    }
+
+                                    ColorPicker("", selection: $selectedColor, supportsOpacity: false)
+                                        .labelsHidden()
+                                        .frame(width: 40, height: 40)
+                                        .background(Circle().fill(selectedColor))
+                                        .overlay(Circle().stroke(Color.gray, lineWidth: 1))
+                                        .onChange(of: selectedColor) {
+                                            setTool(.pen)
+                                        }
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.95))
+                                .cornerRadius(12)
+                                .shadow(radius: 5)
+                            }
+                        }
+                        .frame(maxWidth: 600)
+                        .frame(height: geometry.size.height * 0.8) // leave some space at bottom
+                        .frame(maxHeight: .infinity)
+
+                        Spacer()
+
+                        // Bottom button (when in portrait)
+                        HStack {
+                            Spacer()
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color(red: 0.80, green: 1, blue: 0.85))
+                                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                .frame(width: 350, height: 100) // shallower in portrait
+                                .overlay(
+                                    RectangleButton(
+                                        systemImage: "checkmark",
+                                        color: Color(red: 0.2, green: 0.7, blue: 0.4)
+                                    )
+                                )
+                                .padding(.bottom, 20)
+                            Spacer()
                         }
                     }
-                }
-                .onTapGesture {
-                    withAnimation {
-                        isDrawing = true
-                        showScribbleHint = false
+                    .onAppear {
+                        startPromptTimer()
+                    }
+
+                } else {
+                    // 3. Landscape: original HStack (button on the right)
+                    HStack {
+                        VStack {
+                            // Exit button
+                            CircleExitButton(
+                                systemImage: "xmark",
+                                backgroundColor: Color.red
+                            )
+                            .padding(.top, 20)
+                            .padding(.leading, 16)
+                            Spacer()
+                        }
+                        Spacer()
+
+                        VStack(spacing: 24) {
+                            Text(promptText)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                                .padding([.top, .bottom], 24)
+                                .frame(width: 560)
+                                .background(Color.white)
+                                .cornerRadius(15)
+                                .shadow(color: .gray.opacity(0.3), radius: 5, x: 0, y: 5)
+
+                            ZStack {
+                                Image("whiteNote1")
+                                    .resizable()
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .frame(width: 480, height: 480)
+                                    .shadow(color: .gray.opacity(0.2), radius: 8, x: 0, y: 5)
+
+                                if isDrawing {
+                                    DrawingCanvasView(canvasView: $canvasView)
+                                        .frame(width: 420, height: 420)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .mask(
+                                            Rectangle()
+                                                .frame(width: 420, height: 420)
+                                                .overlay(
+                                                    Rectangle()
+                                                        .frame(width: 420, height: blockedAreaHeight)
+                                                        .blendMode(.destinationOut),
+                                                    alignment: .top
+                                                )
+                                        )
+                                }
+
+                                if !isDrawing && showScribbleHint {
+                                    VStack(spacing: 6) {
+                                        Image(systemName: "pencil.tip.crop.circle")
+                                            .font(.system(size: 50))
+                                            .foregroundColor(Color(red: 0.88, green: 0.80, blue: 0.70))
+                                        Text("Tap to draw")
+                                            .font(.body)
+                                            .foregroundColor(Color(red: 75 / 255, green: 54 / 255, blue: 33 / 255))
+                                    }
+                                }
+                            }
+                            .onTapGesture {
+                                withAnimation {
+                                    isDrawing = true
+                                    showScribbleHint = false
+                                    setTool(.pen)
+                                }
+                            }
+
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                                )
+                                .frame(width: 560, height: 50)
+                                .overlay(
+                                    TextField("Type something…", text: $typedNote)
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 32),
+                                    alignment: .leading
+                                )
+
+                            if isDrawing {
+                                HStack(spacing: 20) {
+                                    Button(action: { setTool(.pen) }) {
+                                        Image(systemName: "pencil.tip")
+                                    }
+
+                                    Button(action: { setTool(.eraser) }) {
+                                        Image(systemName: "eraser")
+                                    }
+
+                                    ColorPicker("", selection: $selectedColor, supportsOpacity: false)
+                                        .labelsHidden()
+                                        .frame(width: 40, height: 40)
+                                        .background(Circle().fill(selectedColor))
+                                        .overlay(Circle().stroke(Color.gray, lineWidth: 1))
+                                        .onChange(of: selectedColor) {
+                                            setTool(.pen)
+                                        }
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.95))
+                                .cornerRadius(12)
+                                .shadow(radius: 5)
+                            }
+                        }
+                        .frame(maxWidth: 600)
+                        .frame(height: geometry.size.height)
+                        .frame(maxHeight: .infinity)
+
+                        Spacer()
+
+                        // Right‐side button (landscape)
+                        VStack {
+                            Spacer()
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color(red: 0.80, green: 1, blue: 0.85))
+                                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                                .frame(width: 100)
+                                .frame(maxHeight: .infinity)
+                                .padding([.top, .bottom], 20)
+                                .overlay(
+                                    RectangleButton(
+                                        systemImage: "checkmark",
+                                        color: Color(red: 0.2, green: 0.7, blue: 0.4)
+                                    )
+                                )
+                            Spacer()
+                        }
+                        .padding(.trailing, 16)
+                    }
+                    .onAppear {
+                        startPromptTimer()
                     }
                 }
-                
-                // Text input area below the sticky note
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.systemGray6))
-                    .frame(height: 50)
-                    .padding(.horizontal)
-                    .overlay(
-                        Text("Type something…")
-                            .foregroundColor(.gray)
-                            .padding(.horizontal),
-                        alignment: .leading
-                    )
-            }
-            .onAppear {
-                startPromptTimer()
             }
         }
     }
 
-    // Timer to change prompt every few seconds
+    func setTool(_ type: ToolType) {
+        switch type {
+        case .pen:
+            canvasView.tool = PKInkingTool(.pen, color: UIColor(selectedColor), width: 5)
+        case .eraser:
+            canvasView.tool = PKEraserTool(.vector)
+        }
+    }
+
+    enum ToolType {
+        case pen, eraser
+    }
+
     func startPromptTimer() {
         Timer.scheduledTimer(withTimeInterval: 4, repeats: true) { _ in
             promptIndex = (promptIndex + 1) % prompts.count
@@ -98,7 +328,6 @@ struct TextInputView: View {
     TextInputView()
 }
 
-// PencilKit wrapper
 struct DrawingCanvasView: UIViewRepresentable {
     @Binding var canvasView: PKCanvasView
 
@@ -106,19 +335,8 @@ struct DrawingCanvasView: UIViewRepresentable {
         let canvas = canvasView
         canvas.drawingPolicy = .anyInput
         canvas.backgroundColor = .clear
-        canvas.tool = PKInkingTool(.pen, color: .black, width: 5)
-
-        if UIApplication.shared.connectedScenes.first is UIWindowScene {
-            let toolPicker = PKToolPicker()
-            toolPicker.setVisible(true, forFirstResponder: canvas)
-            toolPicker.addObserver(canvas)
-            canvas.becomeFirstResponder()
-        }
-
         return canvas
     }
 
-    func updateUIView(_ uiView: PKCanvasView, context: Context) {
-        // Update logic here
-    }
+    func updateUIView(_ uiView: PKCanvasView, context: Context) {}
 }
