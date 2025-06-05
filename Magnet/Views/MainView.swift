@@ -8,8 +8,35 @@ struct MainView: View {
 
                 VStack(spacing: 0) {
                     TopFamilyBar()
+                    
+                    // 🧪 Debug buttons for database testing
+                    HStack(spacing: 12) {
+                        Spacer()
+                        
+                        NavigationLink(destination: FamilyManagerView()) {
+                            Text("Family DB")
+                                .font(.caption)
+                                .padding(8)
+                                .background(Color.gray.opacity(0.2))
+                                .foregroundColor(.blue)
+                                .cornerRadius(8)
+                        }
+
+                        NavigationLink(destination: UserManagerView()) {
+                            Text("User DB")
+                                .font(.caption)
+                                .padding(8)
+                                .background(Color.gray.opacity(0.2))
+                                .foregroundColor(.green)
+                                .cornerRadius(8)
+                        }
+                        .padding(.trailing, 12)
+                    }
+                    .padding(.top, 6)
+
                     Spacer()
                 }
+
 
                 ZStack {
                     NavigationLink(destination: NotesDetailView()) {

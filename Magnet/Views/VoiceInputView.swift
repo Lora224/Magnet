@@ -28,25 +28,14 @@ struct VoiceInputView: View {
                 .padding(.top, 20)
 
                 ZStack {
-                    // 1. “Recording…” / “Paused” text (always centered)
                     Text(isRecording ? "Recording…" : (hasRecording ? "Recorded" : "Paused"))
                         .font(.system(size: 40, weight: .semibold))
                         .foregroundColor(Color.black.opacity(0.7))
-                        .position(
-                            x: geometry.size.width / 2,
-                            y: geometry.size.height / 6
-                        )
 
-                    // 2. Big timer (always centered)
                     Text(formattedTime)
                         .font(.system(size: 120, weight: .medium, design: .monospaced))
                         .foregroundColor(Color.black.opacity(0.8))
-                        .position(
-                            x: geometry.size.width / 2,
-                            y: geometry.size.height / 3.5
-                        )
 
-                    // 3. When a recording exists, show the slider + its time, but offset it downward
                     if hasRecording {
                         VStack(spacing: 4) {
                             Slider(
@@ -55,17 +44,18 @@ struct VoiceInputView: View {
                                 step: 1
                             )
                             .frame(width: geometry.size.width * 0.6)
-                            .disabled(isPlaying)
+                            .disabled(isPlaying) // disable slider drag during playback
 
                             Text(formattedPlaybackTime)
                                 .font(.system(size: 20, design: .monospaced))
                                 .foregroundColor(.gray)
                         }
-
-
                     }
                 }
-
+                .position(
+                    x: geometry.size.width / 2,
+                    y: geometry.size.height / 3.5
+                )
 
                 // Big record/stop button
                 if !hasRecording {
