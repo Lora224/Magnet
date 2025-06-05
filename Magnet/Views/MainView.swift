@@ -71,6 +71,15 @@ struct MainView: View {
                     Spacer()
                     HStack {
                         Spacer()
+                        NavigationLink(destination: CameraTestView()) {
+                            Image(systemName: "camera.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 28)
+                                .padding(12)
+                                .foregroundColor(.magnetBrown) // or whatever color
+                        }
+                    
                         Button(action: {
                             print("Add tapped")
                         }) {

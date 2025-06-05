@@ -3,7 +3,7 @@ import SwiftData
 
 struct UserManagerView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var users: [user]
+    @Query private var users: [User]
 
     @State private var name: String = ""
     @State private var appleID: String = ""
@@ -38,6 +38,8 @@ struct UserManagerView: View {
                 ForEach(users) { user in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(user.name).font(.headline)
+                        Text("id:  \(user.id.uuidString)")
+                            .font(.caption)
                         Text("Apple ID: \(user.appleID)").font(.caption)
                         Text("Families: \(user.families.joined(separator: ", "))").font(.subheadline)
                         if let url = user.profilePictureURL, !url.isEmpty {
@@ -70,7 +72,7 @@ struct UserManagerView: View {
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
 
-        let newUser = user(
+        let newUser = User(
             name: name,
             profilePictureURL: profilePictureURL,
             families: families,
@@ -84,7 +86,7 @@ struct UserManagerView: View {
         profilePictureURL = ""
     }
 
-    private func deleteUser(_ user: user) {
+    private func deleteUser(_ user: User) {
         modelContext.delete(user)
     }
 }
