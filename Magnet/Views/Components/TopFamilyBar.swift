@@ -65,9 +65,8 @@ struct TopFamilyBar: View {
             // Sidebar slide-in
             if isSidebarVisible {
                 SideBarView()
-                    .frame(width: 280)
+                    .frame(maxWidth: 280, maxHeight: .infinity)
                     .transition(.move(edge: .leading))
-                    .zIndex(1)
             }
         }
         .ignoresSafeArea(edges: .top)
