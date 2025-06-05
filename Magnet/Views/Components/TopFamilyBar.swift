@@ -14,6 +14,23 @@ struct TopFamilyBar: View {
                         .fill(magnetYellow)
                         .frame(height: 90)
                     
+                    // Centered Family Title
+                    HStack(spacing: 24) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 40))
+
+                        Text("🎉")
+                            .font(.system(size: 45))
+
+                        Text("Family 1")
+                            .font(.system(size: 45, weight: .bold))
+                            .foregroundColor(magnetBrown)
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 40))
+                    }
+
+                    // Leading Hamburger Menu
                     HStack {
                         Button(action: {
                             withAnimation {
@@ -26,25 +43,6 @@ struct TopFamilyBar: View {
                                 .foregroundColor(magnetBrown)
                                 .padding(.leading, 20)
                         }
-
-                        Spacer()
-
-                        HStack(spacing: 10) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 40))
-
-                            Text("🎉")
-                                .font(.system(size: 45))
-
-                            Text("Family 1")
-                                .font(.system(size: 45, weight: .bold))
-                                .foregroundColor(magnetBrown)
-                                .textCase(.uppercase)
-
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 40))
-                        }
-
                         Spacer()
                     }
                     .padding(.horizontal)
