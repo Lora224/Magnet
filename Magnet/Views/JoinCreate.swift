@@ -32,7 +32,7 @@ struct JoinCreate: View {
                     .frame(width: geo.size.width * 0.85)
                     .rotationEffect(.degrees(-20))
                     .position(
-                        x: geo.size.width * 0.75,
+                        x: geo.size.width * 0.65,
                         y: geo.size.height * 0.88
                     )
                 
