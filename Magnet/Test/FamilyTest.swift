@@ -48,6 +48,8 @@ struct FamilyManagerView: View {
                 ForEach(families) { family in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(family.name).font(.headline)
+                        Text("id:  \(family.id.uuidString)")
+                            .font(.caption)
                         Text("Invite URL: \(family.inviteURL)").font(.caption)
                         Text("Members: \(family.memberIDs.joined(separator: ", "))").font(.subheadline)
                         Text(String(format: "Color RGB: R %.2f, G %.2f, B %.2f", family.red, family.green, family.blue))
@@ -75,7 +77,6 @@ struct FamilyManagerView: View {
                     .padding(8)
                 }
             }
-
         }
     }
 
@@ -105,7 +106,6 @@ struct FamilyManagerView: View {
     }
 }
 
-#Preview("Using real model container") {
+#Preview{
     FamilyManagerView()
-        .modelContainer(for: Family.self)
 }
