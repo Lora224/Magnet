@@ -7,34 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0BFD26F12DF28026009AFBED /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0BFD26F02DF28026009AFBED /* FirebaseFirestore */; };
 		6E7E19602DEE7E420040569F /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E195F2DEE7E420040569F /* FirebaseAI */; };
 		6E7E19622DEE7E420040569F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19612DEE7E420040569F /* FirebaseAnalytics */; };
 		6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */; };
 		6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19672DEE7E420040569F /* FirebaseAppCheck */; };
+		6E7E19F02DF280290040569F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19EF2DF280290040569F /* FirebaseAuth */; };
+		9F410DEB2DF2A007001B316F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9F410DEA2DF2A007001B316F /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Magnet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0BFD26F32DF28388009AFBED /* Exceptions for "Magnet" folder in "Magnet" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 0B89ABBA2DE93EFC0024EFB4 /* Magnet */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B89ABBD2DE93EFC0024EFB4 /* Magnet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0BFD26F32DF28388009AFBED /* Exceptions for "Magnet" folder in "Magnet" target */,
-			);
 			path = Magnet;
 			sourceTree = "<group>";
 		};
@@ -46,11 +34,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E7E19622DEE7E420040569F /* FirebaseAnalytics in Frameworks */,
+				6E7E19F02DF280290040569F /* FirebaseAuth in Frameworks */,
 				6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				6E7E19602DEE7E420040569F /* FirebaseAI in Frameworks */,
 				6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */,
 				6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
-				0BFD26F12DF28026009AFBED /* FirebaseFirestore in Frameworks */,
+				9F410DEB2DF2A007001B316F /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +50,7 @@
 			isa = PBXGroup;
 			children = (
 				0B89ABBD2DE93EFC0024EFB4 /* Magnet */,
-				0BFD26EF2DF28026009AFBED /* Frameworks */,
+				6E7E19EE2DF280290040569F /* Frameworks */,
 				0B89ABBC2DE93EFC0024EFB4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -74,7 +63,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0BFD26EF2DF28026009AFBED /* Frameworks */ = {
+		6E7E19EE2DF280290040569F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -106,7 +95,8 @@
 				6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */,
 				6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */,
 				6E7E19672DEE7E420040569F /* FirebaseAppCheck */,
-				0BFD26F02DF28026009AFBED /* FirebaseFirestore */,
+				6E7E19EF2DF280290040569F /* FirebaseAuth */,
+				9F410DEA2DF2A007001B316F /* FirebaseFirestore */,
 			);
 			productName = Magnet;
 			productReference = 0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */;
@@ -295,9 +285,6 @@
 				DEVELOPMENT_TEAM = 67773XH7QH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Magnet/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera to preview";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save photo";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -336,9 +323,6 @@
 				DEVELOPMENT_TEAM = 67773XH7QH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Magnet/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera to preview";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save photo";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -401,11 +385,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0BFD26F02DF28026009AFBED /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestore;
-		};
 		6E7E195F2DEE7E420040569F /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -430,6 +409,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
+		};
+		6E7E19EF2DF280290040569F /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		9F410DEA2DF2A007001B316F /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

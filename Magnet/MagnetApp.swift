@@ -25,7 +25,7 @@ struct MagnetApp: App {
 
   var body: some Scene {
     WindowGroup {
-          MainView()
+          Login()
     }
     .modelContainer(for: [
       StickyNote.self,
@@ -35,3 +35,4 @@ struct MagnetApp: App {
     ])
   }
 }
+
