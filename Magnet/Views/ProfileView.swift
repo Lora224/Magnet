@@ -66,7 +66,7 @@ struct ProfileAvatarView: View {
 
 struct ProfileView: View {
     @State private var isSidebarVisible: Bool = false
-    @State private var userName: String = "Loading..."
+    @State private var userName: String = ""
     @FocusState private var nameFieldIsFocused: Bool
 
     private let avatarImage = Image("avatarPlaceholder") // Replace with Avatar pic
@@ -142,7 +142,7 @@ struct ProfileView: View {
                     .padding(.top, 8)
 
                     // User name TextField
-                    TextField("Enter your name", text: $userName, onCommit: {
+                    TextField("Enter name", text: $userName, onCommit: {
                         FirestoreManager.shared.updateCurrentUserName(to: userName) { result in
                             switch result {
                             case .success:
@@ -168,6 +168,7 @@ struct ProfileView: View {
                     .frame(width: 240)
                     .focused($nameFieldIsFocused)
                     .padding(.top, 24)
+
 
                     // Family grid
                     ScrollView {
@@ -243,11 +244,12 @@ struct ProfileView: View {
             case .failure(let error):
                 print("Failed to fetch name: \(error)")
                 DispatchQueue.main.async {
-                    self.userName = "No name found"
+                    self.userName = ""
                 }
             }
         }
     }
+
 }
 
 #Preview {
