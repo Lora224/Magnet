@@ -35,3 +35,4 @@ struct MagnetApp: App {
     ])
   }
 }
+
