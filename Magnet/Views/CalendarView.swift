@@ -6,9 +6,10 @@ struct CalendarView: View {
     let notes: [StickyNote]
 
         init(notes: [StickyNote] = generateDummyStickyNotes()) {
-            self.notes = notes
+            self.notes = CalendarView.generateDummyStickyNotes()
         }
     @State private var selectedMonth: String = Calendar.current.monthSymbols[Calendar.current.component(.month, from: Date()) - 1]
+    
     @State private var isSidebarVisible = false
 
     private var columns: [GridItem] = [
@@ -18,14 +19,32 @@ struct CalendarView: View {
     private var groupedNotes: [String: [StickyNote]] {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM"
-        return Dictionary(grouping: notes) {
+
+        let filteredNotes = notes.filter {
+            let year = Calendar.current.component(.year, from: $0.timeStamp)
+            return String(year) == selectedYear
+        }
+
+        return Dictionary(grouping: filteredNotes) {
             formatter.string(from: $0.timeStamp)
         }
     }
 
+
     private var sortedMonths: [String] {
         Calendar.current.monthSymbols
     }
+    private var sortedYears: [String] {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let range = (2021...currentYear)
+        return range.map { String($0) }
+    }
+
+    @State private var selectedYear: String = {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        var years = ["2021", "2022", "2023", "2024", "2025"]
+        return years.contains("\(currentYear)") ? "\(currentYear)" : years.last!
+    }()
 
     var body: some View {
         VStack {
@@ -76,18 +95,33 @@ struct CalendarView: View {
 
             // Month selector and grid
             VStack {
-                Menu {
-                    ForEach(sortedMonths, id: \.self) { month in
-                        Button(action: {
-                            selectedMonth = month
-                        }) {
-                            Text(month.capitalized)
+                HStack{
+                    Menu {
+                        ForEach(sortedYears, id: \.self) { year in
+                            Button(action: {
+                                selectedYear = year
+                            }) {
+                                Text(year.capitalized)
+                            }
                         }
+                    } label: {
+                        Label("Select Year", systemImage: "calendar")
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundColor(Color.magnetBrown)
                     }
-                } label: {
-                    Label("Select Month", systemImage: "calendar")
-                        .font(.system(size: 30, weight: .bold))
-                        .foregroundColor(Color.magnetBrown)
+                    Menu {
+                        ForEach(sortedMonths, id: \.self) { month in
+                            Button(action: {
+                                selectedMonth = month
+                            }) {
+                                Text(month.capitalized)
+                            }
+                        }
+                    } label: {
+                        Label("Select Month", systemImage: "calendar")
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundColor(Color.magnetBrown)
+                    }
                 }
 
                 .padding(.top, 16)
