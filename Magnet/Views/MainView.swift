@@ -3,7 +3,8 @@ import SwiftUI
 struct MainView: View {
     @State private var isMenuOpen = false
     @State private var navigationTarget: String?
-
+   
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -47,7 +48,9 @@ struct MainView: View {
 
                 // Notes
                 ZStack {
-                    NavigationLink(destination: NotesDetailView()) {
+                    NavigationLink(destination: NotesDetailView()
+                            .navigationBarBackButtonHidden(true)
+                    ) {
                         Image("blueNoteLines")
                             .resizable()
                             .frame(width: 250, height: 250)

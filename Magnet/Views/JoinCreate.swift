@@ -132,6 +132,7 @@ struct JoinCreate: View {
                                         // Create button → navigation to MainView
                                         NavigationLink {
                                             MainView()
+                                                .navigationBarBackButtonHidden(true)
                                         } label: {
                                             Text("Create")
                                                 .font(.system(size: 30, weight: .bold))
