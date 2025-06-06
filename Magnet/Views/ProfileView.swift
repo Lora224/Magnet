@@ -1,4 +1,8 @@
 import SwiftUI
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
+
 
 struct FamilyCard: View {
     let family: Family
@@ -21,6 +25,9 @@ struct FamilyCard: View {
         }
     }
 }
+
+private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129) // #4B3621
+
 
 struct ProfileAvatarView: View {
     let avatarImage: Image
@@ -59,10 +66,11 @@ struct ProfileAvatarView: View {
 
 struct ProfileView: View {
     @State private var isSidebarVisible: Bool = false
-    // Placeholder data for UI layout only
+    @State private var userName: String = "Loading..."
+    @FocusState private var nameFieldIsFocused: Bool
+
     private let avatarImage = Image("avatarPlaceholder") // Replace with Avatar pic
-    private let userName = "Margaret"
-    
+
     private let families: [Family] = [
         Family(
             inviteURL: "https://magnet.app/invite/family1",
@@ -89,7 +97,7 @@ struct ProfileView: View {
             profilePic: UIImage(named: "laughMagnet")?.pngData()
         )
     ]
-    
+
     private let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
@@ -133,11 +141,33 @@ struct ProfileView: View {
                     }
                     .padding(.top, 8)
 
-                    // User name
-                    Text(userName)
-                        .font(.title)
-                        .bold()
-                        .padding(.top, 8)
+                    // User name TextField
+                    TextField("Enter your name", text: $userName, onCommit: {
+                        FirestoreManager.shared.updateCurrentUserName(to: userName) { result in
+                            switch result {
+                            case .success:
+                                print("Name updated successfully.")
+                            case .failure(let error):
+                                print("Failed to update name: \(error)")
+                            }
+                        }
+                    })
+                    .font(.title)
+                    .bold()
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1.0)
+                            )
+                    )
+                    .frame(width: 240)
+                    .focused($nameFieldIsFocused)
+                    .padding(.top, 24)
 
                     // Family grid
                     ScrollView {
@@ -179,6 +209,9 @@ struct ProfileView: View {
                 .edgesIgnoringSafeArea(.bottom)
                 .disabled(isSidebarVisible)
                 .blur(radius: isSidebarVisible ? 2 : 0)
+                .onAppear {
+                    loadUserName()
+                }
 
                 if isSidebarVisible {
                     Color.black.opacity(0.4)
@@ -195,6 +228,22 @@ struct ProfileView: View {
                         .frame(width: 280)
                         .transition(.move(edge: .leading))
                         .zIndex(1)
+                }
+            }
+        }
+    }
+
+    private func loadUserName() {
+        FirestoreManager.shared.getCurrentUserName { result in
+            switch result {
+            case .success(let name):
+                DispatchQueue.main.async {
+                    self.userName = name
+                }
+            case .failure(let error):
+                print("Failed to fetch name: \(error)")
+                DispatchQueue.main.async {
+                    self.userName = "No name found"
                 }
             }
         }

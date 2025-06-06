@@ -170,6 +170,7 @@ struct JoinCreate: View {
             }
             .ignoresSafeArea(.keyboard) // prevent squishing when keyboard appears
         }
+        .navigationBarHidden(true)
     }
 }
 
