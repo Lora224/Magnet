@@ -6,32 +6,23 @@
 //
 
 import SwiftUI
-import FirebaseAuth
-import FirebaseFirestore
 
 struct Login: View {
     @State private var email = ""
     @State private var password = ""
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
-
-    // Firestore reference
-    private let db = Firestore.firestore()
+    @StateObject private var authManager = AuthManager()
 
     var body: some View {
         ZStack {
-            // MARK: – Background Image + Overlay
             Image("loginBackground")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
 
-            Color.black.opacity(0.3)
+            Color.white.opacity(0.4)
                 .ignoresSafeArea()
 
-            // MARK: – Login Card
             VStack(spacing: 30) {
-                // Title & Subtitle
                 VStack(spacing: 8) {
                     Text("Welcome to Magnet!")
                         .font(.largeTitle)
@@ -44,7 +35,6 @@ struct Login: View {
                         .foregroundColor(Color(red: 110/255, green: 110/255, blue: 110/255))
                 }
 
-                // Email & Password Fields
                 Group {
                     TextField("Email", text: $email)
                         .keyboardType(.emailAddress)
@@ -65,118 +55,28 @@ struct Login: View {
                 }
                 .frame(maxWidth: 400)
 
-                // Buttons: Sign Up and Log In
                 HStack {
                     Button("Sign Up") {
-                        register()
+                        authManager.register(email: email, password: password)
                     }
 
                     Spacer()
 
                     Button("Log In") {
-                        login()
+                        authManager.login(email: email, password: password)
                     }
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: 400)
             }
             .padding(40)
-            .background(.ultraThinMaterial)
+            .background(Color.white.opacity(0.85))
             .cornerRadius(20)
             .shadow(radius: 10)
             .padding()
         }
-        .alert(alertMessage, isPresented: $showingAlert) {
+        .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
             Button("OK", role: .cancel) { }
         }
-    }
-
-    // MARK: – Create New User and write UID to Firestore
-    func register() {
-        guard !email.isEmpty, !password.isEmpty else {
-            alertMessage = "Email and password must not be empty."
-            showingAlert = true
-            return
-        }
-
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                alertMessage = "Registration Error: \(error.localizedDescription)"
-                showingAlert = true
-                return
-            }
-
-            // Registration succeeded – grab the new user’s UID
-            guard let uid = result?.user.uid else {
-                alertMessage = "Couldn’t read user UID."
-                showingAlert = true
-                return
-            }
-
-            // Build the data to store
-            let userData: [String: Any] = [
-                "uid": uid,
-                "email": self.email,
-                "createdAt": Timestamp(date: Date())
-            ]
-
-            // Write it under a document named “uid” in the “users” collection
-            db.collection("users")
-                .document(uid)
-                .setData(userData) { firestoreError in
-                    if let firestoreError = firestoreError {
-                        alertMessage = "Firestore write failed: \(firestoreError.localizedDescription)"
-                    } else {
-                        alertMessage = "Registration succeeded and UID saved."
-                    }
-                    showingAlert = true
-                }
-        }
-    }
-
-    // MARK: – Log In Existing User and update Firestore timestamp
-    func login() {
-        guard !email.isEmpty, !password.isEmpty else {
-            alertMessage = "Email and password must not be empty."
-            showingAlert = true
-            return
-        }
-
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                alertMessage = "Login Error: \(error.localizedDescription)"
-                showingAlert = true
-                return
-            }
-
-            // Login succeeded – grab the current user’s UID
-            guard let uid = Auth.auth().currentUser?.uid else {
-                alertMessage = "Couldn’t read user UID after login."
-                showingAlert = true
-                return
-            }
-
-            // Optionally update a “lastLogin” field in Firestore
-            let updateData: [String: Any] = [
-                "lastLogin": Timestamp(date: Date())
-            ]
-
-            db.collection("users")
-                .document(uid)
-                .updateData(updateData) { firestoreError in
-                    if let firestoreError = firestoreError {
-                        alertMessage = "Firestore update failed: \(firestoreError.localizedDescription)"
-                    } else {
-                        alertMessage = "Login succeeded and Firestore updated."
-                    }
-                    showingAlert = true
-                }
-        }
-    }
-}
-
-struct Login_Previews: PreviewProvider {
-    static var previews: some View {
-        Login()
     }
 }

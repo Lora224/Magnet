@@ -13,6 +13,7 @@ struct TopFamilyBar: View {
                     Rectangle()
                         .fill(magnetYellow)
                         .frame(height: 90)
+                        .shadow(color: .gray.opacity(0.1), radius: 10, x: 0, y: 4)
                     
                     // Centered Family Title
                     HStack(spacing: 24) {

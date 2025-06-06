@@ -7,7 +7,12 @@ struct MainView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.white.ignoresSafeArea()
+                Image("MainBack")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .opacity(0.2)
+
 
                 VStack(spacing: 0) {
                     TopFamilyBar()
