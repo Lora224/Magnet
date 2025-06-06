@@ -8,8 +8,7 @@
 import SwiftUI
 import UIKit
 import AVFoundation
-import SwiftUI
-import UIKit
+
 
 /// A SwiftUI “wrapper” that presents your existing CameraTestViewController.
 struct CameraTestView: UIViewControllerRepresentable {

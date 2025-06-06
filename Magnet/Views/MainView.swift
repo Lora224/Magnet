@@ -3,7 +3,8 @@ import SwiftUI
 struct MainView: View {
     @State private var isMenuOpen = false
     @State private var navigationTarget: String?
-
+   
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -47,7 +48,9 @@ struct MainView: View {
 
                 // Notes
                 ZStack {
-                    NavigationLink(destination: NotesDetailView()) {
+                    NavigationLink(destination: NotesDetailView()
+                            .navigationBarBackButtonHidden(true)
+                    ) {
                         Image("blueNoteLines")
                             .resizable()
                             .frame(width: 250, height: 250)
@@ -89,10 +92,15 @@ struct MainView: View {
                             } label: {
                                 Circle()
                                     .fill(Color.gray.opacity(0.2))
-                                    .frame(width: 50, height: 50)
-                                    .overlay(Text("T").font(.title3).bold().foregroundColor(.black))
+                                    .frame(width: 100, height: 100)
+                                    .overlay(Text("T")
+                                        .font(.system(size: 30))
+                                        .bold()
+                                        .foregroundColor(.black)
+                                        )
+            
                             }
-                            .offset(y: isMenuOpen ? -110 : 0)
+                            .offset(y: isMenuOpen ? -120 : 0)
                             .opacity(isMenuOpen ? 1 : 0)
 
                             // Camera Input
@@ -104,10 +112,15 @@ struct MainView: View {
                             } label: {
                                 Circle()
                                     .fill(Color.gray.opacity(0.2))
-                                    .frame(width: 50, height: 50)
-                                    .overlay(Image(systemName: "camera.fill").foregroundColor(.black))
+                                    .frame(width: 100, height: 100)
+                                    .overlay(
+                                        Image(systemName: "camera.fill")
+                                            .font(.system(size: 30))
+                                            .foregroundColor(.black)
+                                    )
+
                             }
-                            .offset(x: isMenuOpen ? -60 : 0, y: isMenuOpen ? -60 : 0)
+                            .offset(x: isMenuOpen ? -100 : 0, y: isMenuOpen ? -40 : 0)
                             .opacity(isMenuOpen ? 1 : 0)
 
                             // Voice Input
@@ -119,10 +132,14 @@ struct MainView: View {
                             } label: {
                                 Circle()
                                     .fill(Color.gray.opacity(0.2))
-                                    .frame(width: 50, height: 50)
-                                    .overlay(Image(systemName: "mic.fill").foregroundColor(.black))
+                                    .frame(width: 100, height: 100)
+                                    .overlay(
+                                        Image(systemName: "mic.fill")
+                                            .font(.system(size: 30))
+                                            .foregroundColor(.black)
+                                    )
                             }
-                            .offset(x: isMenuOpen ? 60 : 0, y: isMenuOpen ? -60 : 0)
+                            .offset(x: isMenuOpen ? 100 : 0, y: isMenuOpen ? -40 : 0)
                             .opacity(isMenuOpen ? 1 : 0)
                         }
                         .animation(.spring(), value: isMenuOpen)
@@ -135,10 +152,11 @@ struct MainView: View {
                         } label: {
                             Circle()
                                 .fill(Color.magnetBrown)
-                                .frame(width: 70, height: 70)
+                                .frame(width: 80, height: 80)
                                 .overlay(
                                     Image(systemName: isMenuOpen ? "xmark" : "plus")
                                         .font(.system(size: 30))
+                                        .bold()
                                         .foregroundColor(.white)
                                 )
                                 .shadow(radius: 6)
