@@ -60,10 +60,11 @@ class AuthManager: ObservableObject {
         }
     }
 
-    func login(email: String, password: String) {
+    func login(email: String, password: String, completion: @escaping (Bool) -> Void) {
         guard !email.isEmpty, !password.isEmpty else {
             alertMessage = "Email and password must not be empty."
             showingAlert = true
+            completion(false)
             return
         }
 
@@ -71,12 +72,14 @@ class AuthManager: ObservableObject {
             if let error = error {
                 self.alertMessage = "Login Error: \(error.localizedDescription)"
                 self.showingAlert = true
+                completion(false)
                 return
             }
 
             guard let uid = Auth.auth().currentUser?.uid else {
                 self.alertMessage = "Couldn’t read user UID after login."
                 self.showingAlert = true
+                completion(false)
                 return
             }
 
@@ -89,10 +92,11 @@ class AuthManager: ObservableObject {
                 .updateData(updateData) { firestoreError in
                     if let firestoreError = firestoreError {
                         self.alertMessage = "Firestore update failed: \(firestoreError.localizedDescription)"
+                        self.showingAlert = true
+                        completion(false)
                     } else {
-                        self.alertMessage = "Login succeeded and Firestore updated."
+                        completion(true)
                     }
-                    self.showingAlert = true
                 }
         }
     }
