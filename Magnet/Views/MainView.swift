@@ -71,7 +71,7 @@ struct MainView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        NavigationLink(destination: CameraTestView()) {
+                        NavigationLink(destination: CameraView()) {
                             Image(systemName: "camera.fill")
                                 .resizable()
                                 .scaledToFit()
