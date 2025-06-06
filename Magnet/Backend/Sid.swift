@@ -19,3 +19,18 @@
 //    // Firestore reference
 //    private let db = Firestore.firestore()
 //}
+import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
+class Sid: ObservableObject {
+    
+    
+    @Published var email = ""
+    @Published var password = ""
+    @Published var showingAlert = false
+    @Published var alertMessage = ""
+    
+    private let db = Firestore.firestore()
+    
+    func addFamily
+}
