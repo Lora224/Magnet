@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct MainView: View {
+    @State private var isMenuOpen = false
+    @State private var navigationTarget: String?
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -8,11 +11,11 @@ struct MainView: View {
 
                 VStack(spacing: 0) {
                     TopFamilyBar()
-                    
-                    // 🧪 Debug buttons for database testing
+
+                    // Debug DB buttons
                     HStack(spacing: 12) {
                         Spacer()
-                        
+
                         NavigationLink(destination: FamilyManagerView()) {
                             Text("Family DB")
                                 .font(.caption)
@@ -37,7 +40,7 @@ struct MainView: View {
                     Spacer()
                 }
 
-
+                // Notes
                 ZStack {
                     NavigationLink(destination: NotesDetailView()) {
                         Image("blueNoteLines")
@@ -47,7 +50,7 @@ struct MainView: View {
                             .rotationEffect(.degrees(-8))
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+
                     NavigationLink(destination: NotesDetailView()) {
                         Image("pinkNote")
                             .resizable()
@@ -56,7 +59,7 @@ struct MainView: View {
                             .rotationEffect(.degrees(8))
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+
                     NavigationLink(destination: NotesDetailView()) {
                         Image("yellowNote")
                             .resizable()
@@ -67,36 +70,97 @@ struct MainView: View {
                     .buttonStyle(PlainButtonStyle())
                 }
 
+                // Floating Action Button and Radial Menu
                 VStack {
                     Spacer()
-                    HStack {
-                        Spacer()
-                        NavigationLink(destination: CameraTestView()) {
-                            Image(systemName: "camera.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 32, height: 28)
-                                .padding(12)
-                                .foregroundColor(.magnetBrown) // or whatever color
+                    ZStack {
+                        Group {
+                            // Text Input
+                            Button {
+                                navigationTarget = "text"
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isMenuOpen = false
+                                }
+                            } label: {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: 50, height: 50)
+                                    .overlay(Text("T").font(.title3).bold().foregroundColor(.black))
+                            }
+                            .offset(y: isMenuOpen ? -110 : 0)
+                            .opacity(isMenuOpen ? 1 : 0)
+
+                            // Camera Input
+                            Button {
+                                navigationTarget = "camera"
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isMenuOpen = false
+                                }
+                            } label: {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: 50, height: 50)
+                                    .overlay(Image(systemName: "camera.fill").foregroundColor(.black))
+                            }
+                            .offset(x: isMenuOpen ? -60 : 0, y: isMenuOpen ? -60 : 0)
+                            .opacity(isMenuOpen ? 1 : 0)
+
+                            // Voice Input
+                            Button {
+                                navigationTarget = "mic"
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isMenuOpen = false
+                                }
+                            } label: {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.2))
+                                    .frame(width: 50, height: 50)
+                                    .overlay(Image(systemName: "mic.fill").foregroundColor(.black))
+                            }
+                            .offset(x: isMenuOpen ? 60 : 0, y: isMenuOpen ? -60 : 0)
+                            .opacity(isMenuOpen ? 1 : 0)
                         }
-                    
-                        Button(action: {
-                            print("Add tapped")
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .resizable()
+                        .animation(.spring(), value: isMenuOpen)
+
+                        // Plus / X Button
+                        Button {
+                            withAnimation(.spring()) {
+                                isMenuOpen.toggle()
+                            }
+                        } label: {
+                            Circle()
+                                .fill(Color.magnetBrown)
                                 .frame(width: 70, height: 70)
-                                .foregroundStyle(Color.magnetBrown)
+                                .overlay(
+                                    Image(systemName: isMenuOpen ? "xmark" : "plus")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.white)
+                                )
                                 .shadow(radius: 6)
                         }
-                        Spacer()
                     }
+                    .frame(height: 70)
                     .padding(.bottom, 40)
+                }
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea(edges: .bottom)
+
+                // Navigation trigger (always present)
+                NavigationLink(value: navigationTarget, label: { EmptyView() })
+            }
+
+            .navigationDestination(item: $navigationTarget) { target in
+                switch target {
+                case "text": TextInputView()
+                case "camera": CameraView()
+                case "mic": VoiceInputView()
+                default: EmptyView()
                 }
             }
         }
     }
 }
+
 
 #Preview {
     MainView()
