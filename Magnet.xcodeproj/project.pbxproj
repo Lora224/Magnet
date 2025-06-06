@@ -20,9 +20,22 @@
 		0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Magnet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0BA910CE2DF2D0C6004699B0 /* Exceptions for "Magnet" folder in "Magnet" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0B89ABBA2DE93EFC0024EFB4 /* Magnet */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B89ABBD2DE93EFC0024EFB4 /* Magnet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0BA910CE2DF2D0C6004699B0 /* Exceptions for "Magnet" folder in "Magnet" target */,
+			);
 			path = Magnet;
 			sourceTree = "<group>";
 		};
@@ -285,6 +298,10 @@
 				DEVELOPMENT_TEAM = 67773XH7QH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Magnet/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to show a live preview and take photos.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need photo library access to save your captured images";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to choose an existing photo.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -323,6 +340,10 @@
 				DEVELOPMENT_TEAM = 67773XH7QH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Magnet/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to show a live preview and take photos.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need photo library access to save your captured images";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to choose an existing photo.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

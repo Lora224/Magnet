@@ -32,6 +32,8 @@ struct CaptureConfirmationView: View {
                                 backgroundColor: .red,
                                 action: onRetake
                             )
+                            .padding(.top, 20)
+                            .padding(.leading, 16)
                             Spacer()
                         }
                         .padding(.leading, 20)
@@ -89,7 +91,10 @@ struct CaptureConfirmationView: View {
                                 backgroundColor: .red,
                                 action: onRetake
                             )
+                            .padding(.top, 20)
+                            .padding(.leading, 16)
                             Spacer()
+                         
                         }
                         .padding(.leading, 20)
                         .padding(.top, 20)
@@ -161,7 +166,7 @@ struct CameraCircleExitButton: View {
             ZStack {
                 Circle()
                     .fill(backgroundColor)
-                    .frame(width: 60, height: 60)
+                    .frame(width: 80, height: 80)
                     .shadow(radius: 5)
                 Image(systemName: systemImage)
                     .resizable()
