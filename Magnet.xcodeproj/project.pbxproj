@@ -12,6 +12,7 @@
 		6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */; };
 		6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19672DEE7E420040569F /* FirebaseAppCheck */; };
+		6E7E19F02DF280290040569F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19EF2DF280290040569F /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E7E19622DEE7E420040569F /* FirebaseAnalytics in Frameworks */,
+				6E7E19F02DF280290040569F /* FirebaseAuth in Frameworks */,
 				6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				6E7E19602DEE7E420040569F /* FirebaseAI in Frameworks */,
 				6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */,
@@ -46,6 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				0B89ABBD2DE93EFC0024EFB4 /* Magnet */,
+				6E7E19EE2DF280290040569F /* Frameworks */,
 				0B89ABBC2DE93EFC0024EFB4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +59,13 @@
 				0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		6E7E19EE2DF280290040569F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -83,6 +93,7 @@
 				6E7E19632DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion */,
 				6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */,
 				6E7E19672DEE7E420040569F /* FirebaseAppCheck */,
+				6E7E19EF2DF280290040569F /* FirebaseAuth */,
 			);
 			productName = Magnet;
 			productReference = 0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */;
@@ -395,6 +406,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
+		};
+		6E7E19EF2DF280290040569F /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

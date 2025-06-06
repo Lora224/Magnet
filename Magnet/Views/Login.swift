@@ -1,6 +1,13 @@
 import SwiftUI
+import Firebase
+import FirebaseAuth
 
 struct Login: View {
+    @State private var email = ""
+    @State private var password = ""
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
+    
     var body: some View {
         ZStack {
             // Background image
@@ -32,28 +39,70 @@ struct Login: View {
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(red: 110 / 255, green: 110 / 255, blue: 110 / 255))
                 }
+                
+                Group {
+                    TextField("email", text: $email)
+                        .frame(width: 400, height: 8)
+                        .keyboardType(.emailAddress)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .submitLabel(.next)
 
-                Button(action: {
-                    // Handle Apple Sign-In
-                }) {
-                    HStack {
-                        Image(systemName: "apple.logo")
-                        Text("Continue with Apple")
-                            .fontWeight(.semibold)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.black)
-                    .foregroundColor(.white)
-                    .cornerRadius(15)
+                    SecureField("password", text: $password)
+                        .frame(width: 400, height: 8)
+                        .submitLabel(.next)
                 }
-                .frame(width: 300)
+                .textFieldStyle(.roundedBorder)
+                
+                HStack {
+                    Button("Sign Up") {
+                        
+                    }
+                    Spacer()
+                    Button("Log In") {
+                        
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: 400)
+
+//                Button(action: {
+//                    // Handle Apple Sign-In
+//                }) {
+//                    HStack {
+//                        Image(systemName: "apple.logo")
+//                        Text("Continue with Apple")
+//                            .fontWeight(.semibold)
+//                    }
+//                    .frame(maxWidth: .infinity)
+//                    .padding()
+//                    .background(Color.black)
+//                    .foregroundColor(.white)
+//                    .cornerRadius(15)
+//                }
+//                .frame(width: 300)
             }
             .padding(40)
             .background(.ultraThinMaterial)
             .cornerRadius(20)
             .shadow(radius: 10)
             .padding()
+        }
+        .alert(alertMessage, isPresented: $showingAlert) {
+            Button("OK", role: .cancel) {}
+        }
+    }
+    func register () {
+        Auth.auth().createUser(withEmail: email, password: password) { result,
+            error in
+            if let error = error {
+                print("😡 LOGIN ERROR:\(error.localizedDescription)")
+                alertMessage = "LOGIN ERROR: \(error.localizedDescription)"
+                showingAlert = true
+                
+            } else {
+                print("SUCCESS")
+            }
         }
     }
 }
