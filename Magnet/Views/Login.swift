@@ -26,7 +26,7 @@ struct Login: View {
                 .scaledToFill()
                 .ignoresSafeArea()
 
-            Color.black.opacity(0.3)
+            Color.white.opacity(0.4)
                 .ignoresSafeArea()
 
             // MARK: – Login Card
@@ -81,7 +81,7 @@ struct Login: View {
                 .frame(maxWidth: 400)
             }
             .padding(40)
-            .background(.ultraThinMaterial)
+            .background(Color.white.opacity(0.85))
             .cornerRadius(20)
             .shadow(radius: 10)
             .padding()
