@@ -97,19 +97,6 @@ struct CalendarView: View {
             VStack {
                 HStack{
                     Menu {
-                        ForEach(sortedYears, id: \.self) { year in
-                            Button(action: {
-                                selectedYear = year
-                            }) {
-                                Text(year.capitalized)
-                            }
-                        }
-                    } label: {
-                        Label("Select Year", systemImage: "calendar")
-                            .font(.system(size: 30, weight: .bold))
-                            .foregroundColor(Color.magnetBrown)
-                    }
-                    Menu {
                         ForEach(sortedMonths, id: \.self) { month in
                             Button(action: {
                                 selectedMonth = month
@@ -118,21 +105,27 @@ struct CalendarView: View {
                             }
                         }
                     } label: {
-                        Label("Select Month", systemImage: "calendar")
-                            .font(.system(size: 30, weight: .bold))
+                        Label(selectedMonth, systemImage: "calendar")
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(Color.magnetBrown)
+
+                    }
+                    Menu {
+                        ForEach(sortedYears, id: \.self) { year in
+                            Button(action: {
+                                selectedYear = year
+                            }) {
+                                Text(year.capitalized)
+                            }
+                        }
+                    } label: {
+                        Label(selectedYear, systemImage: "calendar")
+                            .font(.system(size: 40, weight: .bold))
                             .foregroundColor(Color.magnetBrown)
                     }
                 }
 
                 .padding(.top, 16)
-
-                Picker("Select Month", selection: $selectedMonth) {
-                    ForEach(Array(groupedNotes.keys).sorted(), id: \.self) { month in
-                        Text(month).tag(month)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
                 
                 var notesForSelectedMonth: [StickyNote]? {
                     groupedNotes[selectedMonth]
