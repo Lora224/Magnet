@@ -9,33 +9,39 @@ struct StickyCanvasView: View {
 
     var body: some View {
         ZStack {
-            ForEach(stickyManager.viewportNotes) { note in
-                StickyNoteView(note: note.note, reactions: note.reactions)
-                    .rotationEffect(note.rotationAngle)
-                    .position(note.position)
-                    .zIndex(1)
+            Color.clear
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture()
+                        .updating($dragDelta) { value, state, _ in
+                            state = value.translation
+                        }
+                        .onEnded { value in
+                            canvasOffset.width += value.translation.width
+                            canvasOffset.height += value.translation.height
+                        }
+                )
+                .gesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            zoomScale = min(max(value, 0.8), 2.5)
+                        }
+                )
+
+            ZStack {
+                ForEach(stickyManager.viewportNotes) { note in
+                    StickyNoteView(note: note.note, reactions: note.reactions)
+                        .rotationEffect(note.rotationAngle)
+                        .position(note.position)
+                        .id(note.id)
+                        .zIndex(1)
+                }
             }
+            .offset(x: canvasOffset.width + dragDelta.width,
+                    y: canvasOffset.height + dragDelta.height)
+            .scaleEffect(zoomScale)
+            .drawingGroup() 
         }
-        .offset(x: canvasOffset.width + dragDelta.width,
-                y: canvasOffset.height + dragDelta.height)
-        .scaleEffect(zoomScale)
-        .drawingGroup()
-        .simultaneousGesture(
-            DragGesture()
-                .updating($dragDelta) { value, state, _ in
-                    state = value.translation
-                }
-                .onEnded { value in
-                    canvasOffset.width += value.translation.width
-                    canvasOffset.height += value.translation.height
-                }
-        )
-        .simultaneousGesture(
-            MagnificationGesture()
-                .onChanged { value in
-                    zoomScale = min(max(value, 0.8), 2.5)
-                }
-        )
     }
 }
 
