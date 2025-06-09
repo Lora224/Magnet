@@ -78,7 +78,7 @@ struct StickyNoteView: View {
                             image
                                 .resizable()
                                 .aspectRatio(1, contentMode: .fit)
-                                .frame(width: 140, height: 140)
+                                .frame(width: 120, height: 120)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         case .failure(_):
@@ -139,14 +139,14 @@ struct StickyNoteView: View {
         let index = abs(note.id.hashValue) % backgrounds.count
 
         switch note.type {
-        case .text, .audio:
+        case .text, .audio, .drawing:
             return AnyView(
                 Image(backgrounds[index])
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             )
 
-        case .image, .video, .drawing:
+        case .image, .video:
             return AnyView(Color.clear)
         }
     }
