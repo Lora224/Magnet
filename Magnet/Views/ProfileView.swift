@@ -3,9 +3,10 @@ import Firebase
 import FirebaseAuth
 import FirebaseFirestore
 import PhotosUI
+import SDWebImageSwiftUI
 
 struct ProfileAvatarView: View {
-    let avatarImage: Image
+    let avatarURL: URL?
     let editAction: () -> Void
 
     var body: some View {
@@ -14,9 +15,15 @@ struct ProfileAvatarView: View {
                 .fill(Color.white)
                 .frame(width: 150, height: 150)
                 .overlay(
-                    avatarImage
+                    WebImage(url: avatarURL)
                         .resizable()
+                        .indicator(.activity)
                         .scaledToFill()
+                        .background(
+                            Image("avatarPlaceholder")
+                                .resizable()
+                                .scaledToFill()
+                        )
                         .clipShape(Circle())
                         .padding(4)
                 )
@@ -38,6 +45,7 @@ struct ProfileAvatarView: View {
         }
     }
 }
+
 
 struct FamilyCard: View {
     let family: Family
@@ -67,33 +75,29 @@ struct ProfileView: View {
     @State private var userName: String = ""
     @FocusState private var nameFieldIsFocused: Bool
 
-    @State private var selectedImageData: Data? = nil
+    @State private var avatarURL: URL? = nil // use avatarURL
     @State private var selectedImageItem: PhotosPickerItem? = nil
     @State private var isShowingImagePicker = false
-    
+
     private func loadUserAvatar() {
         UserProfileManager.shared.fetchUserProfilePictureURL { result in
             switch result {
             case .success(let urlString):
                 if let urlString = urlString, let url = URL(string: urlString) {
-                    URLSession.shared.dataTask(with: url) { data, response, error in
-                        if let data = data {
-                            DispatchQueue.main.async {
-                                self.selectedImageData = data
-                            }
-                        } else {
-                            print("Failed to download avatar image: \(error?.localizedDescription ?? "Unknown error")")
-                        }
-                    }.resume()
+                    DispatchQueue.main.async {
+                        self.avatarURL = url
+                    }
                 } else {
                     print("No profile picture URL found.")
+                    DispatchQueue.main.async {
+                        self.avatarURL = nil
+                    }
                 }
             case .failure(let error):
                 print("Failed to fetch avatar URL: \(error)")
             }
         }
     }
-
 
     private let families: [Family] = [
         Family(
@@ -158,11 +162,9 @@ struct ProfileView: View {
                     }
                     .padding(.top, 20)
 
-                    // Avatar + pencil overlay
+                    // Avatar + pencil overlay ✅ 改这里用 avatarURL
                     ProfileAvatarView(
-                        avatarImage: selectedImageData != nil
-                            ? Image(uiImage: UIImage(data: selectedImageData!)!)
-                            : Image("avatarPlaceholder")
+                        avatarURL: avatarURL
                     ) {
                         isShowingImagePicker = true
                     }
@@ -240,28 +242,29 @@ struct ProfileView: View {
                     loadUserName()
                     loadUserAvatar()
                 }
+                
                 // photosPicker
                 .photosPicker(isPresented: $isShowingImagePicker, selection: $selectedImageItem, matching: .images)
-                .onChange(of: selectedImageItem) { _, newItem in
+                .onChange(of: selectedImageItem) {
                     Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                            selectedImageData = data
+                        if let data = try? await selectedImageItem?.loadTransferable(type: Data.self),
+                           let uiImage = UIImage(data: data) {
 
-                            if let uiImage = UIImage(data: data) {
-                                UserProfileManager.shared.uploadUserProfilePicture(image: uiImage) { result in
-                                    switch result {
-                                    case .success(let url):
-                                        print("Uploaded avatar to URL: \(url)")
-                                    case .failure(let error):
-                                        print("Failed to upload avatar: \(error)")
-                                    }
+                            // 上传头像 ✅
+                            UserProfileManager.shared.uploadUserProfilePicture(image: uiImage) { result in
+                                switch result {
+                                case .success(let url):
+                                    print("Uploaded avatar to URL: \(url)")
+                                    loadUserAvatar() // ✅ 上传成功后自动刷新
+                                case .failure(let error):
+                                    print("Failed to upload avatar: \(error)")
                                 }
                             }
                         }
                     }
                 }
 
-
+                // Sidebar
                 if isSidebarVisible {
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
@@ -298,6 +301,7 @@ struct ProfileView: View {
         }
     }
 }
+
 
 #Preview {
     ProfileView()
