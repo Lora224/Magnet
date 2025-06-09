@@ -45,7 +45,8 @@ struct SideBarView: View {
                         type: .text,
                         timeStamp: Date(),
                         seen: [:],
-                        payloads: [Payload(text: "Example note", url: nil)]
+                        text: "Sample Note",
+                        payloadURL:nil
                     )
                 ]))  {
                     HStack(spacing: 16) {
