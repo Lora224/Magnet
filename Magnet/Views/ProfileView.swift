@@ -14,7 +14,7 @@ struct ProfileView: View {
     @State private var selectedImageItem: PhotosPickerItem? = nil
     @State private var isShowingImagePicker = false
 
-    @State private var families: [Family] = [] // 动态加载 families 🚀
+    @State private var families: [Family] = [] 
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -131,7 +131,7 @@ struct ProfileView: View {
                 .onAppear {
                     loadUserName()
                     loadUserAvatar()
-                    loadFamilies() // 🚀 加载 families
+                    loadFamilies() // 🚀 families
                 }
 
                 .photosPicker(isPresented: $isShowingImagePicker, selection: $selectedImageItem, matching: .images)
