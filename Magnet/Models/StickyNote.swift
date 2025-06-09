@@ -1,7 +1,7 @@
 import SwiftData
 import Foundation
 import Foundation
-
+/* will be stored as string in db */
 enum MediaType: String, Codable {
     case image
     case video
@@ -15,6 +15,10 @@ enum ReactionType: String, Codable {
     case clap
 }
 
+/*for image/video type, text is the caption*/
+/*for voice type, text is the voice to text content*/
+/*for text type, text is the content*/
+
 @Model
 final class StickyNote: Identifiable {
     var id: UUID
@@ -23,7 +27,8 @@ final class StickyNote: Identifiable {
     var type: MediaType
     var timeStamp: Date
     var seen: [String: ReactionType?]
-    var payloads: [Payload]
+    var text: String?
+    var payloadURL: String?
 
     init(
         id: UUID = .init(),
@@ -32,7 +37,8 @@ final class StickyNote: Identifiable {
         type: MediaType,
         timeStamp: Date = .init(),
         seen: [String: ReactionType?] = [:],
-        payloads: [Payload] = []
+        text:String,
+        payloadURL: String?
     ) {
         self.id = id
         self.senderID = senderID
@@ -40,7 +46,17 @@ final class StickyNote: Identifiable {
         self.type = type
         self.timeStamp = timeStamp
         self.seen = seen
-        self.payloads = payloads
+        self.text = text
+        self.payloadURL = payloadURL
+
     }
 }
+
+0E9CCB7B-0522-4E44-84D4-E4DB70273E0D"
+(string)
+S6KEzK9eSHaSQACvUH9nm83MbGi1"
+(string)
+
+
+
 

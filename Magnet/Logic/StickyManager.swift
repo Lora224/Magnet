@@ -4,11 +4,12 @@
 //
 //  Created by Lora on 2025/6/9.
 //
+//StickyNote display logic for main view, notes detail view, and archive view(?)
 
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 
-class StickyManager: ObservableObject{
+class StickyDisplayManager: ObservableObject{
     
 }
