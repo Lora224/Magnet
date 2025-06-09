@@ -1,97 +1,122 @@
 import SwiftUI
 import SwiftData
+import FirebaseAuth
+import Foundation
+import Firebase
+import FirebaseFirestore
+
+struct UserDTO: Codable, Identifiable {
+    @DocumentID var id: String? = nil
+    var name: String
+    var profilePictureURL: String?
+    var families: [String?]
+    var email: String
+    var uid: UUID
+}
+
+
 
 struct UserManagerView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var users: [User]
-
-    @State private var name: String = ""
-    @State private var appleID: String = ""
-    @State private var familiesText: String = ""
-    @State private var profilePictureURL: String = ""
+    @State private var users: [UserDTO] = []
+    @State private var selectedFamilyID: String = ""
+    @State private var message = ""
 
     var body: some View {
-        VStack {
-            Form {
-                Section(header: Text("Create a New User")) {
-                    TextField("Name", text: $name)
-                    TextField("Apple ID", text: $appleID)
-                    TextField("Family IDs (comma-separated)", text: $familiesText)
-                    TextField("Profile Picture URL", text: $profilePictureURL)
-
-                    Button("Add User") {
-                        addUser()
-                    }
-                    .disabled(name.isEmpty || appleID.isEmpty)
-                }
+        VStack(spacing: 20) {
+            Button("Read All Users") {
+                fetchUsers()
             }
 
-            Divider()
+            TextField("Target Family ID", text: $selectedFamilyID)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
 
-            if users.isEmpty {
-                Text("No users yet.")
-                    .foregroundColor(.gray)
-                    .padding()
+            Button("Add Me to Family") {
+                addCurrentUserToFamily()
             }
 
-            List {
-                ForEach(users) { user in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(user.name).font(.headline)
-                        Text("id:  \(user.id.uuidString)")
-                            .font(.caption)
-                        Text("Apple ID: \(user.appleID)").font(.caption)
-                        Text("Families: \(user.families.joined(separator: ", "))").font(.subheadline)
-                        if let url = user.profilePictureURL, !url.isEmpty {
-                            Text("Profile Picture URL: \(url)")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack {
-                            Spacer()
-                            Button(role: .destructive) {
-                                deleteUser(user)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundColor(.red)
-                                    .padding(6)
-                                    .background(Color(.systemGray6))
-                                    .clipShape(Circle())
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(users) { user in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(user.name).font(.headline)
+                            Text("UID: \(user.uid.uuidString)")
+                            Text("Email: \(user.email)")
+                            Text("Families: \(user.families.compactMap { $0 }.joined(separator: ", "))")
+                            if let url = user.profilePictureURL {
+                                Text("Profile: \(url)").font(.caption2).foregroundColor(.gray)
                             }
+                            Divider()
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(8)
                 }
+            }
+
+            Text(message).foregroundColor(.gray)
+        }
+        .padding(.top)
+    }
+
+    func fetchUsers() {
+        let db = Firestore.firestore()
+        db.collection("users").getDocuments { snapshot, error in
+            if let error = error {
+                message = "Error: \(error.localizedDescription)"
+                return
+            }
+            do {
+                users = try snapshot?.documents.compactMap {
+                    try $0.data(as: UserDTO.self)
+                } ?? []
+                message = "Fetched \(users.count) users"
+            } catch {
+                message = "Decode error: \(error.localizedDescription)"
             }
         }
     }
 
-    private func addUser() {
-        let families = familiesText
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+    func addCurrentUserToFamily() {
+        guard let firebaseUser = Auth.auth().currentUser else {
+            message = "Not logged in"
+            return
+        }
 
-        let newUser = User(
-            name: name,
-            profilePictureURL: profilePictureURL,
-            families: families,
-            appleID: appleID
-        )
-        modelContext.insert(newUser)
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(firebaseUser.uid)
 
-        name = ""
-        appleID = ""
-        familiesText = ""
-        profilePictureURL = ""
-    }
+        userRef.getDocument { snapshot, error in
+            if let snapshot = snapshot, snapshot.exists {
+                do {
+                    var user = try snapshot.data(as: UserDTO.self)
 
-    private func deleteUser(_ user: User) {
-        modelContext.delete(user)
+                    if !user.families.contains(where: { $0 == selectedFamilyID }) {
+                        user.families.append(selectedFamilyID)
+                        try userRef.setData(from: user)
+                        message = "User added to family: \(selectedFamilyID)"
+                    } else {
+                        message = "Already in that family"
+                    }
+                } catch {
+                    message = "Error updating user: \(error.localizedDescription)"
+                }
+            } else {
+                // If user doc doesn't exist, create a new one
+                let newUser = UserDTO(
+                    name: firebaseUser.displayName ?? "Anonymous",
+                    profilePictureURL: firebaseUser.photoURL?.absoluteString,
+                    families: [selectedFamilyID],
+                    email: firebaseUser.email ?? "unknown",
+                    uid: UUID()
+                )
+
+                do {
+                    try userRef.setData(from: newUser)
+                    message = "New user created and added to family."
+                } catch {
+                    message = "Failed to create user: \(error.localizedDescription)"
+                }
+            }
+        }
     }
 }
-
-#Preview {
-    UserManagerView()
-}
-

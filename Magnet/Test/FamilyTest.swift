@@ -1,110 +1,100 @@
 import SwiftUI
 import SwiftData
+import FirebaseAuth
+import Foundation
+import Firebase
+import FirebaseFirestore
+
+
+
+
+struct FamilyDTO: Codable, Identifiable {
+    @DocumentID var id: String? = nil
+    var name: String
+    var inviteURL: String
+    var memberIDs: [String]
+    var red: Double
+    var green: Double
+    var blue: Double
+}
+
+
 
 struct FamilyManagerView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var families: [Family]
-
-    @State private var name: String = ""
-    @State private var inviteURL: String = ""
-    @State private var memberText: String = ""
-    @State private var red: Double = 1.0
-    @State private var green: Double = 0.96
-    @State private var blue: Double = 0.85
+    @State private var families: [FamilyDTO] = []
+    @State private var message = ""
 
     var body: some View {
-        VStack {
-            Form {
-                Section(header: Text("Create a New Family")) {
-                    TextField("Family Name", text: $name)
-                    TextField("Invite URL", text: $inviteURL)
-                    TextField("Member IDs (comma-separated)", text: $memberText)
-                    ColorPicker("Choose Color", selection: Binding(
-                        get: { Color(red: red, green: green, blue: blue) },
-                        set: { newColor in
-                            if let components = UIColor(newColor).cgColor.components {
-                                red = components[0]
-                                green = components.count >= 3 ? components[1] : components[0]
-                                blue = components.count >= 3 ? components[2] : components[0]
-                            }
+        VStack(spacing: 16) {
+            Button("Read Families") {
+                fetchFamilies()
+            }
+
+            Button("Write New Family (with logged-in user)") {
+                createFamilyWithLoggedInUser()
+            }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(families) { family in
+                        VStack(alignment: .leading) {
+                            Text(family.name).bold()
+                            Text("Members: \(family.memberIDs.joined(separator: ", "))")
+                            Text("Color: R:\(family.red) G:\(family.green) B:\(family.blue)")
+                            Divider()
                         }
-                    ))
-                    Button("Add Family") {
-                        addFamily()
                     }
-                    .disabled(name.isEmpty || inviteURL.isEmpty)
                 }
             }
 
-            Divider()
-            
-            if families.isEmpty {
-                Text("No families yet.")
-                .foregroundColor(.gray)
-                .padding()
+            Text(message).foregroundColor(.gray)
+        }
+        .padding()
+    }
+
+    func fetchFamilies() {
+        Firestore.firestore().collection("families").getDocuments { snapshot, error in
+            if let error = error {
+                message = "Error: \(error.localizedDescription)"
+                return
             }
-
-            List {
-                ForEach(families) { family in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(family.name).font(.headline)
-                        Text("id:  \(family.id.uuidString)")
-                            .font(.caption)
-                        Text("Invite URL: \(family.inviteURL)").font(.caption)
-                        Text("Members: \(family.memberIDs.joined(separator: ", "))").font(.subheadline)
-                        Text(String(format: "Color RGB: R %.2f, G %.2f, B %.2f", family.red, family.green, family.blue))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-
-                        Rectangle()
-                            .fill(family.swiftUIColor)
-                            .frame(height: 10)
-                            .cornerRadius(5)
-
-                        HStack {
-                            Spacer()
-                            Button(role: .destructive) {
-                                deleteFamily(family)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundColor(.red)
-                                    .padding(6)
-                                    .background(Color(.systemGray6))
-                                    .clipShape(Circle())
-                            }
-                        }
-                    }
-                    .padding(8)
-                }
+            do {
+                self.families = try snapshot?.documents.compactMap {
+                    try $0.data(as: FamilyDTO.self)
+                } ?? []
+                message = "Fetched \(families.count) families"
+            } catch {
+                message = "Decode error: \(error.localizedDescription)"
             }
         }
     }
 
-    private func addFamily() {
-        let members = memberText.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+    func createFamilyWithLoggedInUser() {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            message = "No user logged in"
+            return
+        }
+        let idString = UUID().uuidString
 
-        let newFamily = Family(
-            name: name,
-            inviteURL: inviteURL,
-            memberIDs: members,
-            red: red,
-            green: green,
-            blue: blue
+        let db = Firestore.firestore()
+        let docRef = db.collection("families").document() // Let Firestore create the ID
+        let newFamily = FamilyDTO(
+            id: idString, 
+            name: "Test Family",
+            inviteURL: "https://...",
+            memberIDs: [uid],
+            red: 1.0, green: 0.96, blue: 0.85
         )
-        modelContext.insert(newFamily)
 
-        name = ""
-        inviteURL = ""
-        memberText = ""
-        red = 1.0
-        green = 0.96
-        blue = 0.85
-    }
-
-    private func deleteFamily(_ family: Family) {
-        modelContext.delete(family)
+        do {
+            try Firestore.firestore().collection("families").addDocument(from: newFamily)
+            message = "Family created: \(newFamily.name)"
+        } catch {
+            message = "Write error: \(error.localizedDescription)"
+        }
     }
 }
+
 
 #Preview{
     FamilyManagerView()

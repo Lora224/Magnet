@@ -8,18 +8,35 @@
 import SwiftUI
 import FirebaseCore
 import SwiftData
+import Firebase
+import FirebaseAppCheck
+
+import Firebase
+import FirebaseAppCheck
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-    return true
-  }
+//    override init() {
+//        // ✅ 🔒 Register Debug provider FIRST
+//        AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+//        super.init()
+//    }
+
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+
+        print("✅ FirebaseApp configured successfully in AppDelegate")
+        return true
+    }
 }
+
 
 
 @main
 struct MagnetApp: App {
+    
   // register app delegate for Firebase setup
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
