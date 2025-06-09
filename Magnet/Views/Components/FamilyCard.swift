@@ -14,7 +14,7 @@ struct FamilyCard: View {
                 .aspectRatio(1, contentMode: .fit)
                 .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 4)
 
-            Text("icon + \(family.name)")
+            Text("\(family.name)")
                 .font(.headline)
                 .foregroundColor(textColor)
                 .padding(8)

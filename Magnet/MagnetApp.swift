@@ -47,7 +47,7 @@ struct MagnetApp: App {
     .modelContainer(for: [
      // StickyNote.self,
     //  Payload.self,
-      Family.self,
+     // Family.self,
       User.self
     ])
   }
