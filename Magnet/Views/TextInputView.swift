@@ -29,7 +29,7 @@ struct TextInputView: View {
                 // 2. Portrait: stack everything in a VStack, button at bottom
                 if isPortrait {
                     VStack(spacing: 0) {
-                        // Top “Exit” + (empty spacer to mimic left side)
+                        // Top "Exit" + (empty spacer to mimic left side)
                         HStack {
                             VStack {
                                 CircleExitButton(
@@ -78,7 +78,25 @@ struct TextInputView: View {
                                         )
                                 }
 
-                                if !isDrawing && showScribbleHint {
+                                // Display typed text on the sticky note
+                                if !typedNote.isEmpty {
+                                    VStack {
+                                        Spacer()
+                                            .frame(height: blockedAreaHeight)
+                                        
+                                        Text(typedNote)
+                                            .font(.body)
+                                            .foregroundColor(.black)
+                                            .multilineTextAlignment(.leading)
+                                            .padding(.horizontal, 20)
+                                            .frame(width: 420, alignment: .topLeading)
+                                        
+                                        Spacer()
+                                    }
+                                    .frame(width: 420, height: 420)
+                                }
+
+                                if !isDrawing && showScribbleHint && typedNote.isEmpty {
                                     VStack(spacing: 6) {
                                         Image(systemName: "pencil.tip.crop.circle")
                                             .font(.system(size: 50))
@@ -212,7 +230,25 @@ struct TextInputView: View {
                                         )
                                 }
 
-                                if !isDrawing && showScribbleHint {
+                                // Display typed text on the sticky note
+                                if !typedNote.isEmpty {
+                                    VStack {
+                                        Spacer()
+                                            .frame(height: blockedAreaHeight)
+                                        
+                                        Text(typedNote)
+                                            .font(.body)
+                                            .foregroundColor(.black)
+                                            .multilineTextAlignment(.leading)
+                                            .padding(.horizontal, 20)
+                                            .frame(width: 420, alignment: .topLeading)
+                                        
+                                        Spacer()
+                                    }
+                                    .frame(width: 420, height: 420)
+                                }
+
+                                if !isDrawing && showScribbleHint && typedNote.isEmpty {
                                     VStack(spacing: 6) {
                                         Image(systemName: "pencil.tip.crop.circle")
                                             .font(.system(size: 50))
