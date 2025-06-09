@@ -147,11 +147,25 @@ struct TextInputView: View {
                 )
                 .frame(width: 560, height: 50)
                 .overlay(
-                    TextField("Type something…", text: $typedNote)
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 32),
-                    alignment: .leading
+                    ZStack(alignment: .leading) {
+                        TextField("Type something…", text: $typedNote)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 32)
+                            .onChange(of: typedNote) { _, newValue in
+                                if newValue.count > 20 {
+                                    typedNote = String(newValue.prefix(20))
+                                }
+                            }
+                        HStack {
+                            Spacer()
+                            Text("\(typedNote.count)/20")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .padding(.trailing, 8)
+                        }
+                    }
                 )
+
 
             if isDrawing {
                 HStack(spacing: 20) {
