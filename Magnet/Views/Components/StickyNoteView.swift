@@ -1,6 +1,6 @@
 import SwiftUI
 import AVFoundation
-
+import UIKit
 
 struct StickyNoteView: View {
     let note: StickyNote
@@ -14,16 +14,22 @@ struct StickyNoteView: View {
     @State private var audioPlayer: AVPlayer?
 
     private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
-
+    func shorten(_ text: String) -> String {
+        if text.count <= 60 {
+            return text
+        } else {
+            return String(text.prefix(57)) + "..."
+        }
+    }
     var body: some View {
         ZStack {
             noteContentView()
-                .frame(width: 150, height: 150)
+                .frame(width: 170, height: 170)
                 .background(
                     backgroundForNote()
-                        .frame(width: 150, height: 150)
-                        .clipped()
+                        .frame(width: 170, height: 170)
                 )
+
 
                 .cornerRadius(16)
                 .shadow(radius: 6)
@@ -44,12 +50,10 @@ struct StickyNoteView: View {
             ForEach(Array(reactions.enumerated()), id: \.offset) { index, reaction in
                 reactionIcon(for: reaction)
                     .resizable()
-                    .frame(width: 28, height: 28)
-                    .background(Color.white)
-                    .clipShape(Circle())
-                    .shadow(radius: 2)
-                    .offset(offset(for: index, total: reactions.count))
+                    .frame(width: 40, height: 40) // larger
+                    .offset(offset(for: index, total: reactions.count)) // still surrounds the note
             }
+
 
             NavigationLink("", destination: NotesDetailView(note: note), isActive: $isPresentingDetail)
                 .opacity(0)
@@ -65,6 +69,37 @@ struct StickyNoteView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.black)
                 .padding()
+        case .drawing:
+            if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
+                VStack(spacing: 4) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fit)
+                                .frame(width: 140, height: 140)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                        case .failure(_):
+                            Image(systemName: "exclamationmark.triangle")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(.red)
+
+                        default:
+                            ProgressView()
+                        }
+                    }
+
+                    if let text = note.text, !text.isEmpty {
+                        Text(shorten(text))
+                            .font(.footnote)
+                            .foregroundColor(.black)
+                            .lineLimit(1)
+                    }
+                }
+            }
 
         case .image, .video:
             if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
@@ -77,7 +112,7 @@ struct StickyNoteView: View {
                     }
                 }
             }
-
+   
         case .audio:
             VStack {
                 Text(note.text ?? "[Voice Preview]")
@@ -111,7 +146,7 @@ struct StickyNoteView: View {
                     .aspectRatio(contentMode: .fill)
             )
 
-        case .image, .video:
+        case .image, .video, .drawing:
             return AnyView(Color.clear)
         }
     }
@@ -136,3 +171,4 @@ struct StickyNoteView: View {
         )
     }
 }
+

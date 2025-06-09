@@ -11,6 +11,7 @@ struct MainView: View {
     @StateObject private var stickyManager = StickyDisplayManager()
     @State private var canvasOffset = CGSize.zero
     @GestureState private var dragOffset = CGSize.zero
+    @State private var zoomScale: CGFloat = 1.0
 
 //replace with real source
     let currentFamilyID = "gmfQH98GinBcb26abjnY"
@@ -41,6 +42,13 @@ struct MainView: View {
                     }
                     .offset(x: canvasOffset.width + dragOffset.width,
                             y: canvasOffset.height + dragOffset.height)
+                    .scaleEffect(zoomScale)
+                    .gesture(
+                           MagnificationGesture()
+                               .onChanged { value in
+                                   zoomScale = min(max(value, 0.8), 2.5) // clamp zoom
+                               }
+                       )
                     .gesture(
                         DragGesture()
                             .updating($dragOffset) { value, state, _ in
