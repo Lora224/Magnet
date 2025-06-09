@@ -187,19 +187,38 @@ struct TextInputView: View {
                 Button(action: {
                     let senderID = userID
 
-                    StickyNoteService.saveTextNote(
-                        text: typedNote,
-                        senderID: senderID,
-                        familyID: familyID
-                    ) { error in
-                        if let error = error {
-                            print("❌ Error saving note: \(error.localizedDescription)")
+                    if isDrawing && !canvasView.drawing.bounds.isEmpty {
+                        if let drawingImage = exportDrawingAsImage() {
+                            StickyNoteService.saveDrawingNote(
+                                image: drawingImage,
+                                senderID: senderID,
+                                familyID: familyID
+                            ) { error in
+                                if let error = error {
+                                    print("❌ Error saving drawing: \(error.localizedDescription)")
+                                } else {
+                                    print("✅ Drawing note saved successfully.")
+                                    resetNoteInputs()
+                                }
+                            }
                         } else {
-                            print("✅ Note saved successfully.")
-                            typedNote = ""
-                            isDrawing = false
-                            showScribbleHint = true
+                            print("❌ Failed to export drawing.")
                         }
+                    } else if !typedNote.isEmpty {
+                        StickyNoteService.saveTextNote(
+                            text: typedNote,
+                            senderID: senderID,
+                            familyID: familyID
+                        ) { error in
+                            if let error = error {
+                                print("❌ Error saving text note: \(error.localizedDescription)")
+                            } else {
+                                print("✅ Text note saved successfully.")
+                                resetNoteInputs()
+                            }
+                        }
+                    } else {
+                        print("⚠️ Nothing to save (no drawing or text).")
                     }
                 })
                 {
@@ -230,6 +249,13 @@ struct TextInputView: View {
             canvasView.tool = PKEraserTool(.vector)
         }
     }
+    
+    func resetNoteInputs() {
+        typedNote = ""
+        isDrawing = false
+        showScribbleHint = true
+        canvasView.drawing = PKDrawing() // clear canvas
+    }
 
     enum ToolType {
         case pen, eraser
@@ -240,6 +266,10 @@ struct TextInputView: View {
             promptIndex = (promptIndex + 1) % prompts.count
             promptText = prompts[promptIndex]
         }
+    }
+    func exportDrawingAsImage() -> UIImage? {
+        let image = canvasView.drawing.image(from: canvasView.bounds, scale: 1.0)
+        return image
     }
 }
 
