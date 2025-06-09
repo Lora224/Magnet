@@ -14,7 +14,7 @@ struct ProfileView: View {
     @State private var selectedImageItem: PhotosPickerItem? = nil
     @State private var isShowingImagePicker = false
 
-    @State private var families: [Family] = [] 
+    @State private var families: [Family] = []
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),

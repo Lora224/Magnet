@@ -14,6 +14,7 @@ struct StickyNoteView: View {
     @State private var audioPlayer: AVPlayer?
 
     private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
+
     func shorten(_ text: String) -> String {
         if text.count <= 60 {
             return text
@@ -21,6 +22,7 @@ struct StickyNoteView: View {
             return String(text.prefix(57)) + "..."
         }
     }
+
     var body: some View {
         ZStack {
             noteContentView()
@@ -29,11 +31,10 @@ struct StickyNoteView: View {
                     backgroundForNote()
                         .frame(width: 170, height: 170)
                 )
-
-
                 .cornerRadius(16)
                 .shadow(radius: 6)
                 .scaleEffect(showVideoPreview ? 1.3 : 1.0)
+                .animation(nil, value: showVideoPreview)
                 .onTapGesture {
                     isPresentingDetail = true
                 }
@@ -50,13 +51,13 @@ struct StickyNoteView: View {
             ForEach(Array(reactions.enumerated()), id: \.offset) { index, reaction in
                 reactionIcon(for: reaction)
                     .resizable()
-                    .frame(width: 40, height: 40) // larger
-                    .offset(offset(for: index, total: reactions.count)) // still surrounds the note
+                    .frame(width: 40, height: 40)
+                    .offset(offset(for: index, total: reactions.count))
             }
 
-
-            NavigationLink("", destination: NotesDetailView(note: note), isActive: $isPresentingDetail)
-                .opacity(0)
+            .navigationDestination(isPresented: $isPresentingDetail) {
+                NotesDetailView(note: note)
+            }
         }
     }
 
@@ -69,6 +70,7 @@ struct StickyNoteView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.black)
                 .padding()
+
         case .drawing:
             if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
                 VStack(spacing: 4) {
@@ -80,15 +82,13 @@ struct StickyNoteView: View {
                                 .aspectRatio(1, contentMode: .fit)
                                 .frame(width: 120, height: 120)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-
                         case .failure(_):
                             Image(systemName: "exclamationmark.triangle")
                                 .resizable()
                                 .frame(width: 40, height: 40)
                                 .foregroundColor(.red)
-
                         default:
-                            ProgressView()
+                            SwiftUISpinner()
                         }
                     }
 
@@ -105,14 +105,23 @@ struct StickyNoteView: View {
             if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
                 AsyncImage(url: url) { phase in
                     switch phase {
-                    case .success(let img):
-                        PolaroidPhotoView(image: UIImage.image, caption: $caption, maxWidth: 150, maxHeight: 150)
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 150, height: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    case .failure(_):
+                        Image(systemName: "exclamationmark.triangle")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(.red)
                     default:
                         ProgressView()
                     }
                 }
             }
-   
+
         case .audio:
             VStack {
                 Text(note.text ?? "[Voice Preview]")
@@ -145,13 +154,10 @@ struct StickyNoteView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             )
-
         case .image, .video:
             return AnyView(Color.clear)
         }
     }
-
-
 
     func reactionIcon(for type: ReactionType) -> Image {
         switch type {
@@ -160,7 +166,6 @@ struct StickyNoteView: View {
         case .clap: return Image("clapMagnet")
         }
     }
-
 
     func offset(for index: Int, total: Int) -> CGSize {
         let angle = Double(index) / Double(total) * 2 * .pi

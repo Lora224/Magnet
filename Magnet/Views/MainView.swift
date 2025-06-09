@@ -2,24 +2,13 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
 
-
-
-
 struct MainView: View {
     @State private var isMenuOpen = false
     @State private var navigationTarget: String?
     @StateObject private var stickyManager = StickyDisplayManager()
     @State private var canvasOffset = CGSize.zero
-    @GestureState private var dragOffset = CGSize.zero
     @State private var zoomScale: CGFloat = 1.0
 
-//replace with real source
-    let currentFamilyID = "gmfQH98GinBcb26abjnY"
-    let currentFamilyMemberIDs = ["S6KEzK9eSHaSQACvUH9nm83MbGi1"]
-
-
-
-    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -28,81 +17,29 @@ struct MainView: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                     .opacity(0.2)
-                
-                // Notes
-                ZStack {
-                    ZStack {
-                        ForEach(stickyManager.displayedNotes) { positioned in
-                            StickyNoteView(note: positioned.note, reactions: positioned.reactions)
-                                .rotationEffect(positioned.rotationAngle)
-                                .position(positioned.position)
-                                .transition(.scale.combined(with: .opacity))
-                                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: positioned.id)
-                        }
-                    }
-                    .offset(x: canvasOffset.width + dragOffset.width,
-                            y: canvasOffset.height + dragOffset.height)
-                    .scaleEffect(zoomScale)
-                    .gesture(
-                           MagnificationGesture()
-                               .onChanged { value in
-                                   zoomScale = min(max(value, 0.8), 2.5) // clamp zoom
-                               }
-                       )
-                    .gesture(
-                        DragGesture()
-                            .updating($dragOffset) { value, state, _ in
-                                state = value.translation
-                            }
-                            .onEnded { value in
-                                canvasOffset.width += value.translation.width
-                                canvasOffset.height += value.translation.height
-                            }
-                    )
-                }
 
-
+                StickyCanvasView(
+                    stickyManager: stickyManager,
+                    canvasOffset: $canvasOffset,
+                    zoomScale: $zoomScale
+                )
 
                 VStack(spacing: 0) {
                     TopFamilyBar()
 
-                    // Debug DB buttons
                     HStack(spacing: 12) {
                         Spacer()
-
-//                        NavigationLink(destination: FamilyManagerView()) {
-//                            Text("Family DB")
-//                                .font(.caption)
-//                                .padding(8)
-//                                .background(Color.gray.opacity(0.2))
-//                                .foregroundColor(.blue)
-//                                .cornerRadius(8)
-//                        }
-//
-//                        NavigationLink(destination: UserManagerView()) {
-//                            Text("User DB")
-//                                .font(.caption)
-//                                .padding(8)
-//                                .background(Color.gray.opacity(0.2))
-//                                .foregroundColor(.green)
-//                                .cornerRadius(8)
-//                        }
-                        //Debug Sticky Note test view
-                                                NavigationLink(destination: StickyNoteTestView()) {
-                                                    Text("StickyNote")
-                                                        .font(.caption)
-                                                        .padding(8)
-                                                        .background(Color.gray.opacity(0.2))
-                                                        .foregroundColor(.blue)
-                                                        .cornerRadius(8)
-                                                }
-                    
+                        NavigationLink(destination: StickyNoteTestView()) {
+                            Text("StickyNote")
+                                .font(.caption)
+                                .padding(8)
+                                .background(Color.gray.opacity(0.2))
+                                .foregroundColor(.blue)
+                                .cornerRadius(8)
+                        }
                         .padding(.trailing, 12)
                     }
                     .padding(.top, 6)
-                   
-
-
                     Spacer()
                 }
 
@@ -121,12 +58,12 @@ struct MainView: View {
                                 Circle()
                                     .fill(Color.gray.opacity(0.2))
                                     .frame(width: 100, height: 100)
-                                    .overlay(Text("T")
-                                        .font(.system(size: 30))
-                                        .bold()
-                                        .foregroundColor(.black)
-                                        )
-            
+                                    .overlay(
+                                        Text("T")
+                                            .font(.system(size: 30))
+                                            .bold()
+                                            .foregroundColor(.black)
+                                    )
                             }
                             .offset(y: isMenuOpen ? -120 : 0)
                             .opacity(isMenuOpen ? 1 : 0)
@@ -146,7 +83,6 @@ struct MainView: View {
                                             .font(.system(size: 30))
                                             .foregroundColor(.black)
                                     )
-
                             }
                             .offset(x: isMenuOpen ? -100 : 0, y: isMenuOpen ? -40 : 0)
                             .opacity(isMenuOpen ? 1 : 0)
@@ -199,7 +135,6 @@ struct MainView: View {
                 // Navigation trigger (always present)
                 NavigationLink(value: navigationTarget, label: { EmptyView() })
             }
-
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {
                 case "text":
@@ -254,13 +189,10 @@ struct MainView: View {
                 print("❌ No user is logged in")
             }
         }
-
-
-
     }
 }
-
 
 #Preview {
     MainView()
 }
+
