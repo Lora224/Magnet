@@ -13,39 +13,7 @@ struct MainView: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                     .opacity(0.2)
-
-
-                VStack(spacing: 0) {
-                    TopFamilyBar()
-
-                    // Debug DB buttons
-                    HStack(spacing: 12) {
-                        Spacer()
-
-                        NavigationLink(destination: FamilyManagerView()) {
-                            Text("Family DB")
-                                .font(.caption)
-                                .padding(8)
-                                .background(Color.gray.opacity(0.2))
-                                .foregroundColor(.blue)
-                                .cornerRadius(8)
-                        }
-
-                        NavigationLink(destination: UserManagerView()) {
-                            Text("User DB")
-                                .font(.caption)
-                                .padding(8)
-                                .background(Color.gray.opacity(0.2))
-                                .foregroundColor(.green)
-                                .cornerRadius(8)
-                        }
-                        .padding(.trailing, 12)
-                    }
-                    .padding(.top, 6)
-
-                    Spacer()
-                }
-
+                
                 // Notes
                 ZStack {
                     NavigationLink(destination: NotesDetailView()
@@ -76,6 +44,38 @@ struct MainView: View {
                             .position(x: 770, y: 420)
                     }
                     .buttonStyle(PlainButtonStyle())
+                }
+
+
+                VStack(spacing: 0) {
+                    TopFamilyBar()
+
+//                    // Debug DB buttons
+//                    HStack(spacing: 12) {
+//                        Spacer()
+//
+//                        NavigationLink(destination: FamilyManagerView()) {
+//                            Text("Family DB")
+//                                .font(.caption)
+//                                .padding(8)
+//                                .background(Color.gray.opacity(0.2))
+//                                .foregroundColor(.blue)
+//                                .cornerRadius(8)
+//                        }
+//
+//                        NavigationLink(destination: UserManagerView()) {
+//                            Text("User DB")
+//                                .font(.caption)
+//                                .padding(8)
+//                                .background(Color.gray.opacity(0.2))
+//                                .foregroundColor(.green)
+//                                .cornerRadius(8)
+//                        }
+//                        .padding(.trailing, 12)
+//                    }
+//                    .padding(.top, 6)
+
+                    Spacer()
                 }
 
                 // Floating Action Button and Radial Menu
