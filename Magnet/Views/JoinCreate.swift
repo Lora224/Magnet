@@ -2,6 +2,13 @@ import SwiftUI
 
 struct JoinCreate: View {
     // Dark brown for text/buttons
+    @State private var familyName = ""
+    @State private var familyEmoji = ""
+    @State private var backgroundColor = ""
+
+    
+    @StateObject private var famManager = Sid()
+    
     private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129) // #4B3621
     private let magnetBlue  = Color(red: 0.820, green: 0.914, blue: 0.965) // #D1E9F6
 
@@ -130,11 +137,14 @@ struct JoinCreate: View {
                                         }
 
                                         // Create button → navigation to MainView
-                                        NavigationLink {
-                                            MainView()
-                                                .navigationBarBackButtonHidden(true)
-
-                                        } label: {
+                                        Button(action: {
+                                            famManager.regoFam(
+                                                familyName: "Family 1",
+                                                familyEmoji: "💀",
+                                                backgroundColor: Color.red // or use a picker to choose
+                                            )
+                                            
+                                        }) {
                                             Text("Create")
                                                 .font(.system(size: 30, weight: .bold))
                                                 .foregroundColor(.white)
@@ -146,8 +156,11 @@ struct JoinCreate: View {
                                                 .background(magnetBrown)
                                                 .cornerRadius(16)
                                         }
+                                        
+
                                     }
                                     .padding(.bottom, 70)
+                                    
                                 }
                             )
                             .position(
@@ -171,7 +184,14 @@ struct JoinCreate: View {
             }
             .ignoresSafeArea(.keyboard) // prevent squishing when keyboard appears
         }
-        .navigationBarHidden(true)
+        .navigationDestination(isPresented: $famManager.navigateToHome) {
+            FamilyGroupView(
+                familyName: famManager.familyName,
+                familyEmoji: famManager.familyEmoji,
+                backgroundColor: famManager.backgroundColor
+            )
+        }
+
     }
 }
 

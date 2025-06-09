@@ -1,14 +1,15 @@
 import SwiftUI
+import FirebaseAuth
 
 struct FamilyGroupView: View {
     @State var familyName: String
     let familyEmoji: String
     @State var backgroundColor: Color
+//    @State var users: [String] 
+
     
     // Using placeholder avatars; replace "avatarPlaceholder" with real asset names.
-    private let leftMembers: [String] = ["Margaret", "Anna", "George", "Amanda"]
-    private let rightMembers: [String] = ["Margaret 2", "Anna 2", "George 2", "Amanda 2"]
-    
+    @StateObject private var famManager = Sid()
     // MARK: – Custom colors
     private let magnetBrown  = Color(red: 0.294, green: 0.212, blue: 0.129)  // #4B3621
     private let magnetYellow = Color(red: 1.000, green: 0.961, blue: 0.855)  // #FFF5DA
@@ -121,59 +122,27 @@ struct FamilyGroupView: View {
                 .padding(.top, 24)
                 .padding(.horizontal, 40)
 
+                
 
                 
                 // MARK: – Members list (two columns)
                 ScrollView {
-                    HStack(alignment: . top, spacing: 48) {
-                        // Left column
-                        VStack(alignment: .leading, spacing: 24) {
-                            ForEach(leftMembers, id: \.self) { member in
-                                HStack(spacing: 12) {
-                                    Circle()
-                                        .fill(Color.white)
-                                        .frame(width: 75, height: 75)
-                                        .overlay(
-                                            Image("avatarPlaceholder") // replace with actual member image
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 56, height: 56)
-                                                .clipShape(Circle())
-                                        )
-                                        .shadow(radius: 2)
-                                    
-                                    Text(member)
-                                        .font(.headline)
-                                        .foregroundColor(magnetBrown)
-                                }
+                    VStack(spacing: 12) {
+                        ForEach(famManager.userNames, id: \.self) { name in
+                            HStack {
+                                Image(systemName: "person.fill")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                Text(name)
+                                    .font(.headline)
+                                Spacer()
                             }
-                        }
-                        
-                        // Right column
-                        VStack(alignment: .leading, spacing: 24) {
-                            ForEach(rightMembers, id: \.self) { member in
-                                HStack(spacing: 12) {
-                                    Circle()
-                                        .fill(Color.white)
-                                        .frame(width: 75, height: 75)
-                                        .overlay(
-                                            Image("avatarPlaceholder") // replace with actual member image
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 56, height: 56)
-                                                .clipShape(Circle())
-                                        )
-                                        .shadow(radius: 2)
-                                    
-                                    Text(member)
-                                        .font(.headline)
-                                        .foregroundColor(magnetBrown)
-                                }
-                            }
+                            .padding(.horizontal)
                         }
                     }
-                    .padding(.horizontal, 40)
                 }
+
+
                 .padding(.top, 24)
                 
                 Spacer()
@@ -197,8 +166,13 @@ struct FamilyGroupView: View {
                 .padding(.bottom, 32)
                 .padding(.top, 24)
             }
+            .onAppear {
+                famManager.loadCurrentUserFamily()
+            }
         }
+
     }
+    
 }
 
 // MARK: – Preview
