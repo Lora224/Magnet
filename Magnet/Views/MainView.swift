@@ -188,7 +188,7 @@ struct MainView: View {
 
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {
-                case "text": TextInputView()
+                case "text": TextInputView(familyID: "gmfQH98GinBcb26abjnY")
                 case "camera": CameraView()
                 case "mic": VoiceInputView()
                 default: EmptyView()
