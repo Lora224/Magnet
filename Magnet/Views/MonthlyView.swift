@@ -75,14 +75,15 @@ struct MonthlyView: View {
 
                         // Use the first payload for preview text (or URL)
                         let previewText: String = {
-                            if let text = previewNote.payloads.first?.text {
+                            if let text = previewNote.text {
                                 return text
-                            } else if let url = previewNote.payloads.first?.url {
-                                return URL(string: url)?.lastPathComponent ?? url
+                            } else if let url = previewNote.payloadURL {
+                                return URL(string: url)?.lastPathComponent ?? "Media file"
                             } else {
                                 return "No preview"
                             }
                         }()
+
 
                         NavigationLink(
                             destination: MonthlyView(month: monthString, notes: notesForMonth)
@@ -128,7 +129,9 @@ struct MonthlyView_Previews: PreviewProvider {
                 type: .text,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 10))!,
                 seen: [:],
-                payloads: [Payload(text: "Anna's Birthday 🎂", url: nil)]
+                text: "Anna's Birthday",
+                payloadURL: nil
+            
             ),
             StickyNote(
                 senderID: "user_002",
@@ -136,7 +139,9 @@ struct MonthlyView_Previews: PreviewProvider {
                 type: .text,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 5, day: 20))!,
                 seen: [:],
-                payloads: [Payload(text: "Trip to Paris 🇫🇷", url: nil)]
+                text: "Trip to Paris 🇫🇷",
+                payloadURL:nil
+              
             ),
             StickyNote(
                 senderID: "user_003",
@@ -144,7 +149,9 @@ struct MonthlyView_Previews: PreviewProvider {
                 type: .text,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 9, day: 1))!,
                 seen: [:],
-                payloads: [Payload(text: "New School Year 📚", url: nil)]
+                text: "New School Year 📚",
+                payloadURL:nil
+        
             )
         ]
 

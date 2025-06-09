@@ -1,7 +1,7 @@
 import SwiftUI
 import Firebase
 import FirebaseFirestore
-
+import FirebaseAuth
 
 struct StickyNoteTestView: View {
     @State private var stickyNotes: [StickyNote] = []
@@ -12,7 +12,7 @@ struct StickyNoteTestView: View {
             Button("Write Test StickyNote") {
                 writeTestStickyNote()
             }
-            
+
             Button("Read StickyNotes") {
                 readStickyNotes()
             }
@@ -23,6 +23,7 @@ struct StickyNoteTestView: View {
                         Text("Note ID: \(note.id.uuidString)")
                         Text("Type: \(note.type.rawValue)")
                         Text("Text: \(note.text ?? "")")
+                        Text("Seen: \(note.seen.map { "\($0.key): \($0.value?.rawValue ?? "nil")" }.joined(separator: ", "))")
                         Divider()
                     }
                 }
@@ -36,14 +37,21 @@ struct StickyNoteTestView: View {
 
     func writeTestStickyNote() {
         let db = Firestore.firestore()
+        
+        // Replace this with real Auth user ID if available
+        let currentUserID = Auth.auth().currentUser?.uid ?? "test_user_001"
+
         let note = StickyNote(
-            senderID: "test_user_001",
+            id: UUID(),
+            senderID: currentUserID,
             familyID: "test_family_001",
             type: .text,
-            text: "Hello Firestore!",
+            timeStamp: Date(),
+            seen: [currentUserID: .liked],
+            text: "Hello Firestore with reaction!",
             payloadURL: nil
         )
-        
+
         do {
             try db.collection("StickyNotes").document(note.id.uuidString).setData(from: note)
             message = "Write success: \(note.id)"

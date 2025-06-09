@@ -74,6 +74,20 @@ struct MainView: View {
 //                        .padding(.trailing, 12)
 //                    }
 //                    .padding(.top, 6)
+                    //Debug Sticky Note test view
+                    HStack(spacing: 12){
+                        Spacer()
+                        
+                                                NavigationLink(destination: StickyNoteTestView()) {
+                                                    Text("StickyNote")
+                                                        .font(.caption)
+                                                        .padding(8)
+                                                        .background(Color.gray.opacity(0.2))
+                                                        .foregroundColor(.blue)
+                                                        .cornerRadius(8)
+                                                }
+                        
+                    }
 
                     Spacer()
                 }
