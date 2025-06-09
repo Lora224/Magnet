@@ -5,70 +5,6 @@ import FirebaseFirestore
 import PhotosUI
 import SDWebImageSwiftUI
 
-struct ProfileAvatarView: View {
-    let avatarURL: URL?
-    let editAction: () -> Void
-
-    var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Circle()
-                .fill(Color.white)
-                .frame(width: 150, height: 150)
-                .overlay(
-                    WebImage(url: avatarURL)
-                        .resizable()
-                        .indicator(.activity)
-                        .scaledToFill()
-                        .background(
-                            Image("avatarPlaceholder")
-                                .resizable()
-                                .scaledToFill()
-                        )
-                        .clipShape(Circle())
-                        .padding(4)
-                )
-                .shadow(radius: 6)
-
-            Button(action: editAction) {
-                Circle()
-                    .fill(Color.magnetBrown)
-                    .frame(width: 50, height: 50)
-                    .overlay(
-                        Image(systemName: "pencil")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                            .foregroundColor(.white)
-                    )
-                    .offset(x: 8, y: 8)
-            }
-        }
-    }
-}
-
-
-struct FamilyCard: View {
-    let family: Family
-    let textColor: Color
-
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 0, style: .continuous)
-                .fill(Color(
-                    red: family.red,
-                    green: family.green,
-                    blue: family.blue))
-                .aspectRatio(1, contentMode: .fit)
-                .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 4)
-
-            Text("icon + \(family.name)")
-                .font(.headline)
-                .foregroundColor(textColor)
-                .padding(8)
-        }
-    }
-}
-
 
 struct ProfileView: View {
     @State private var isSidebarVisible: Bool = false
@@ -162,7 +98,7 @@ struct ProfileView: View {
                     }
                     .padding(.top, 20)
 
-                    // Avatar + pencil overlay ✅ 改这里用 avatarURL
+                    //  avatarURL
                     ProfileAvatarView(
                         avatarURL: avatarURL
                     ) {
@@ -250,12 +186,11 @@ struct ProfileView: View {
                         if let data = try? await selectedImageItem?.loadTransferable(type: Data.self),
                            let uiImage = UIImage(data: data) {
 
-                            // 上传头像 ✅
                             UserProfileManager.shared.uploadUserProfilePicture(image: uiImage) { result in
                                 switch result {
                                 case .success(let url):
                                     print("Uploaded avatar to URL: \(url)")
-                                    loadUserAvatar() // ✅ 上传成功后自动刷新
+                                    loadUserAvatar()
                                 case .failure(let error):
                                     print("Failed to upload avatar: \(error)")
                                 }
@@ -306,4 +241,3 @@ struct ProfileView: View {
 #Preview {
     ProfileView()
 }
-
