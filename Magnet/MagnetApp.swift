@@ -10,6 +10,7 @@ import FirebaseCore
 import SwiftData
 import Firebase
 import FirebaseAppCheck
+import FirebaseStorage
 
 import Firebase
 import FirebaseAppCheck
