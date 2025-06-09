@@ -2,33 +2,25 @@ import SwiftUI
 
 struct StickyCanvasView: View {
     @ObservedObject var stickyManager: StickyDisplayManager
-    
+
     @Binding var canvasOffset: CGSize
     @Binding var zoomScale: CGFloat
-    @GestureState private var dragOffset: CGSize = .zero
-    
+    @GestureState private var dragDelta: CGSize = .zero
+
     var body: some View {
         ZStack {
-            ForEach(stickyManager.displayedNotes) { positioned in
-                StickyNoteView(note: positioned.note, reactions: positioned.reactions)
-                    .rotationEffect(positioned.rotationAngle)
-                    .position(positioned.position)
-                    .transition(.opacity)
+            ForEach(stickyManager.viewportNotes) { note in
+                StickyNoteView(note: note.note, reactions: note.reactions)
+                    .rotationEffect(note.rotationAngle)
+                    .position(note.position)
             }
         }
-        .offset(x: canvasOffset.width + dragOffset.width,
-                y: canvasOffset.height + dragOffset.height)
+        .offset(x: canvasOffset.width + dragDelta.width,
+                y: canvasOffset.height + dragDelta.height)
         .scaleEffect(zoomScale)
-        .drawingGroup()
-        .gesture(
-            MagnificationGesture()
-                .onChanged { value in
-                    zoomScale = min(max(value, 0.8), 2.5)
-                }
-        )
         .gesture(
             DragGesture()
-                .updating($dragOffset) { value, state, _ in
+                .updating($dragDelta) { value, state, _ in
                     state = value.translation
                 }
                 .onEnded { value in
@@ -36,5 +28,12 @@ struct StickyCanvasView: View {
                     canvasOffset.height += value.translation.height
                 }
         )
+        .gesture(
+            MagnificationGesture()
+                .onChanged { value in
+                    zoomScale = min(max(value, 0.8), 2.5)
+                }
+        )
     }
 }
+

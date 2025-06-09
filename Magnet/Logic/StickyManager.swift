@@ -1,16 +1,7 @@
-//
-//  StickyManager.swift
-//  Magnet
-//
-//  Created by Lora on 2025/6/9.
-//
-//StickyNote display logic for main view, notes detail view, and archive view(?)
-
 import Foundation
 import Firebase
 import FirebaseFirestore
 import SwiftUI
-
 
 struct PositionedStickyNote: Identifiable {
     let note: StickyNote
@@ -23,32 +14,36 @@ struct PositionedStickyNote: Identifiable {
 class StickyDisplayManager: ObservableObject {
     @Published var displayedNotes: [PositionedStickyNote] = []
 
+    var viewportNotes: [PositionedStickyNote] {
+        displayedNotes
+    }
+
     func loadStickyNotes(for familyID: String, memberIDs: [String], canvasSize: CGSize) {
         let db = Firestore.firestore()
         let oneWeekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
-        
+
         db.collection("StickyNotes")
             .whereField("familyID", isEqualTo: familyID)
             .whereField("timeStamp", isGreaterThan: oneWeekAgo)
             .addSnapshotListener { snapshot, error in
                 guard let docs = snapshot?.documents, error == nil else { return }
-                
+
                 do {
                     let rawNotes = try docs.compactMap {
                         try $0.data(as: StickyNote.self)
                     }.filter { note in
                         memberIDs.contains(note.senderID)
                     }.sorted { $0.timeStamp > $1.timeStamp }
+
                     print("📦 Querying StickyNotes for familyID=\(familyID), last 7 days, memberIDs=", memberIDs)
+
                     DispatchQueue.main.async {
-                        // Only update layout if count or content changed
                         let currentIDs = Set(self.displayedNotes.map { $0.note.id })
                         let newIDs = Set(rawNotes.map { $0.id })
-                        
+
                         if currentIDs != newIDs {
                             self.displayedNotes = self.generateNonOverlappingLayout(for: rawNotes, canvasSize: canvasSize)
                         } else {
-                            // Only update reactions, not layout
                             self.displayedNotes = self.displayedNotes.map { existing in
                                 if let updated = rawNotes.first(where: { $0.id == existing.note.id }) {
                                     return PositionedStickyNote(
@@ -91,7 +86,7 @@ class StickyDisplayManager: ObservableObject {
 
             placedFrames.append(frame)
 
-            let reactions = Array(Set(note.seen.values.compactMap { $0 })) // Unique reaction types
+            let reactions = Array(Set(note.seen.values.compactMap { $0 }))
 
             result.append(PositionedStickyNote(
                 note: note,
@@ -104,3 +99,4 @@ class StickyDisplayManager: ObservableObject {
         return result
     }
 }
+
