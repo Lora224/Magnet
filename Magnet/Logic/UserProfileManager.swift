@@ -70,10 +70,11 @@ class UserProfileManager {
                let avatarURLString = data["ProfilePictureURL"] as? String {
                 completion(.success(avatarURLString))
             } else {
-                completion(.success(nil)) 
+                completion(.success(nil))
             }
         }
     }
+
 
 }
 
