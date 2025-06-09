@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseFirestore
 
 struct NotesDetailView: View {
     let note: StickyNote
@@ -74,14 +75,10 @@ struct NotesDetailView: View {
                                         .clipped()
                                         .shadow(color: Color.black.opacity(0.10), radius: 15, x: 10, y: 10)
                                     
-                                    Image(profilePic[index])
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 120, height: 120)
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                                        .shadow(radius: 6)
-                                        .offset(y: 40)
+                                    SenderProfileView(userID: note.senderID)
+                                      .frame(width: 120, height: 120)
+                                      .offset(y: 40)
+
                                 }
                             }
                         }
