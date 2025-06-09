@@ -13,12 +13,14 @@ struct StickyCanvasView: View {
                 StickyNoteView(note: note.note, reactions: note.reactions)
                     .rotationEffect(note.rotationAngle)
                     .position(note.position)
+                    .zIndex(1)
             }
         }
         .offset(x: canvasOffset.width + dragDelta.width,
                 y: canvasOffset.height + dragDelta.height)
         .scaleEffect(zoomScale)
-        .gesture(
+        .drawingGroup()
+        .simultaneousGesture(
             DragGesture()
                 .updating($dragDelta) { value, state, _ in
                     state = value.translation
@@ -28,7 +30,7 @@ struct StickyCanvasView: View {
                     canvasOffset.height += value.translation.height
                 }
         )
-        .gesture(
+        .simultaneousGesture(
             MagnificationGesture()
                 .onChanged { value in
                     zoomScale = min(max(value, 0.8), 2.5)
