@@ -171,6 +171,7 @@ struct CalendarView: View {
         case .image: return Color.magnetYellow.opacity(0.3)
         case .video: return Color.magnetBlue.opacity(0.3)
         case .audio: return Color.magnetBrown.opacity(0.2)
+        case .drawing: return Color.magnetBrown.opacity(0.3)
         }
     }
 

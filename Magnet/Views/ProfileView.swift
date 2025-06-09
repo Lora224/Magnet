@@ -5,62 +5,16 @@ import FirebaseFirestore
 import PhotosUI
 import SDWebImageSwiftUI
 
-
 struct ProfileView: View {
     @State private var isSidebarVisible: Bool = false
     @State private var userName: String = ""
     @FocusState private var nameFieldIsFocused: Bool
 
-    @State private var avatarURL: URL? = nil // use avatarURL
+    @State private var avatarURL: URL? = nil
     @State private var selectedImageItem: PhotosPickerItem? = nil
     @State private var isShowingImagePicker = false
 
-    private func loadUserAvatar() {
-        UserProfileManager.shared.fetchUserProfilePictureURL { result in
-            switch result {
-            case .success(let urlString):
-                if let urlString = urlString, let url = URL(string: urlString) {
-                    DispatchQueue.main.async {
-                        self.avatarURL = url
-                    }
-                } else {
-                    print("No profile picture URL found.")
-                    DispatchQueue.main.async {
-                        self.avatarURL = nil
-                    }
-                }
-            case .failure(let error):
-                print("Failed to fetch avatar URL: \(error)")
-            }
-        }
-    }
-
-    private let families: [Family] = [
-        Family(
-            inviteURL: "https://magnet.app/invite/family1",
-            memberIDs: ["user1", "user2"],
-            red: 1.0,
-            green: 0.961,
-            blue: 0.855,
-            profilePic: UIImage(named: "laughMagnet")?.pngData()
-        ),
-        Family(
-            inviteURL: "https://magnet.app/invite/family2",
-            memberIDs: ["user3", "user4"],
-            red: 0.945,
-            green: 0.827,
-            blue: 0.808,
-            profilePic: UIImage(named: "laughMagnet")?.pngData()
-        ),
-        Family(
-            inviteURL: "https://magnet.app/invite/family3",
-            memberIDs: ["user5"],
-            red: 0.820,
-            green: 0.914,
-            blue: 0.965,
-            profilePic: UIImage(named: "laughMagnet")?.pngData()
-        )
-    ]
+    @State private var families: [Family] = [] 
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -98,7 +52,7 @@ struct ProfileView: View {
                     }
                     .padding(.top, 20)
 
-                    //  avatarURL
+                    // Avatar + pencil overlay
                     ProfileAvatarView(
                         avatarURL: avatarURL
                     ) {
@@ -134,13 +88,13 @@ struct ProfileView: View {
                     .focused($nameFieldIsFocused)
                     .padding(.top, 24)
 
-                    // Family grid
+                    // Family grid 🚀
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 32) {
-                            ForEach(families, id: \.id) { fam in
+                            ForEach(families) { fam in
                                 NavigationLink(
                                     destination: FamilyGroupView(
-                                        familyName: fam.inviteURL,
+                                        familyName: fam.name,
                                         familyEmoji: "👨‍👩‍👧‍👦",
                                         backgroundColor: Color(red: fam.red, green: fam.green, blue: fam.blue)
                                     )
@@ -177,9 +131,9 @@ struct ProfileView: View {
                 .onAppear {
                     loadUserName()
                     loadUserAvatar()
+                    loadFamilies() // 🚀 families
                 }
-                
-                // photosPicker
+
                 .photosPicker(isPresented: $isShowingImagePicker, selection: $selectedImageItem, matching: .images)
                 .onChange(of: selectedImageItem) {
                     Task {
@@ -190,7 +144,7 @@ struct ProfileView: View {
                                 switch result {
                                 case .success(let url):
                                     print("Uploaded avatar to URL: \(url)")
-                                    loadUserAvatar()
+                                    loadUserAvatar() // refresh avatar
                                 case .failure(let error):
                                     print("Failed to upload avatar: \(error)")
                                 }
@@ -235,9 +189,40 @@ struct ProfileView: View {
             }
         }
     }
+
+    private func loadUserAvatar() {
+        UserProfileManager.shared.fetchUserProfilePictureURL { result in
+            switch result {
+            case .success(let urlString):
+                if let urlString = urlString, let url = URL(string: urlString) {
+                    DispatchQueue.main.async {
+                        self.avatarURL = url
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.avatarURL = nil
+                    }
+                }
+            case .failure(let error):
+                print("Failed to fetch avatar URL: \(error)")
+                DispatchQueue.main.async {
+                    self.avatarURL = nil
+                }
+            }
+        }
+    }
+
+    private func loadFamilies() {
+        UserProfileManager.shared.fetchUserFamilies { result in
+            switch result {
+            case .success(let families):
+                DispatchQueue.main.async {
+                    self.families = families
+                }
+            case .failure(let error):
+                print("Failed to fetch families: \(error)")
+            }
+        }
+    }
 }
 
-
-#Preview {
-    ProfileView()
-}

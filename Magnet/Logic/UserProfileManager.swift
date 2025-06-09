@@ -74,7 +74,59 @@ class UserProfileManager {
             }
         }
     }
+    func fetchUserFamilies(completion: @escaping (Result<[Family], Error>) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            completion(.failure(NSError(domain: "NoUser", code: 401, userInfo: [NSLocalizedDescriptionKey: "No user is logged in."])))
+            return
+        }
 
+        db.collection("users").document(uid).getDocument { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = snapshot?.data(),
+                  let familyIDs = data["families"] as? [String] else {
+                completion(.success([])) 
+                return
+            }
+
+            var fetchedFamilies: [Family] = []
+            let dispatchGroup = DispatchGroup()
+
+            for familyID in familyIDs {
+                dispatchGroup.enter()
+
+                self.db.collection("families").document(familyID).getDocument { familySnapshot, familyError in
+                    defer { dispatchGroup.leave() }
+
+                    if let familyError = familyError {
+                        print("Failed to fetch family \(familyID): \(familyError)")
+                        return
+                    }
+
+                    if let familyData = familySnapshot?.data() {
+                        let family = Family(
+                            id: familySnapshot!.documentID,
+                            name: familyData["name"] as? String ?? "Unnamed",
+                            inviteURL: familyData["inviteURL"] as? String ?? "",
+                            memberIDs: familyData["memberIDs"] as? [String] ?? [],
+                            red: familyData["red"] as? Double ?? 1.0,
+                            green: familyData["green"] as? Double ?? 1.0,
+                            blue: familyData["blue"] as? Double ?? 1.0,
+                            profilePic: nil
+                        )
+                        fetchedFamilies.append(family)
+                    }
+                }
+            }
+
+            dispatchGroup.notify(queue: .main) {
+                completion(.success(fetchedFamilies))
+            }
+        }
+    }
 
 }
 

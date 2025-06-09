@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct NotesDetailView: View {
-    
+    let note: StickyNote
     private let lightGray = Color(red: 0.98, green: 0.98, blue: 0.98)
     private let profilePic = ["profile1", "profile2", "profile3"]
     
@@ -162,5 +162,14 @@ struct NotesDetailView: View {
 }
 
 #Preview {
-    NotesDetailView()
+    NotesDetailView(note: StickyNote(
+        id: UUID(),
+        senderID: "user1",
+        familyID: "fam",
+        type: .text,
+        timeStamp: Date(),
+        seen: ["user1": .clap, "user2": .liked],
+        text: "Grandma’s apple pie was amazing!",
+        payloadURL: nil
+    ))
 }

@@ -1,190 +1,174 @@
-//
-//  StickyNoteView.swift
-//  Magnet
-//
-//  Created by Muze Lyu on 30/5/2025.
-//
-
-//could be divded further
 import SwiftUI
+import AVFoundation
+import UIKit
 
-/// A reusable “sticky note” component that draws a sticky‐paper background (with a little “tape” at the top)
-/// and overlays any content (text, image, icon, etc.) inside.
-///
-/// Usage examples:
-/// ```swift
-/// // 1) A simple text note:
-/// StickyNoteView(backgroundColor: Color(red: 209/255, green: 233/255, blue: 246/255)) {
-///     Text("We went out for lunch today.\nWe really wished you were here as well.")
-///         .font(.body)
-///         .foregroundColor(.black)
-///         .multilineTextAlignment(.leading)
-/// }
-///
-/// // 2) A photo note:
-/// StickyNoteView(backgroundColor: Color(red: 241/255, green: 211/255, blue: 206/255)) {
-///     Image("familySnapshot")
-///         .resizable()
-///         .scaledToFill()
-///         .clipped()
-/// }
-///
-/// // 3) A handwritten‐style message with a play icon:
-/// StickyNoteView(backgroundColor: Color(red: 255/255, green: 245/255, blue: 218/255)) {
-///     VStack(spacing: 8) {
-///         HStack {
-///             Image(systemName: "play.circle.fill")
-///                 .resizable()
-///                 .frame(width: 28, height: 28)
-///                 .foregroundColor(Color(red: 75/255, green: 54/255, blue: 33/255))
-///             Text("Hey Ma! I just finished my class.\nReally miss you. I love you!")
-///                 .font(.body)
-///                 .foregroundColor(.black)
-///         }
-///     }
-/// }
-/// ```
-struct StickyNoteView<Content: View>: View {
-    /// The color of the sticky paper itself (e.g. pastel pink, yellow, blue).
-    let backgroundColor: Color
-    
-    /// The actual content to show inside the sticky note. Could be text, an image, an icon, etc.
-    let content: () -> Content
-    
-    /// Optional width/height of the paper. If nil, a default square of 120×120 is used.
-    var size: CGSize = CGSize(width: 120, height: 120)
-    
-    /// Height of the “tape” strip at the top:
-    private let tapeHeight: CGFloat = 16
-    
-    var body: some View {
-        ZStack(alignment: .top) {
-            // 1) The sticky‐paper rectangle
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(backgroundColor)
-                .frame(width: size.width, height: size.height)
-                .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 4)
-            
-            // 2) The “tape” at the top center
-            Rectangle()
-                .fill(Color.white.opacity(0.8))
-                .frame(width: size.width * 0.5, height: tapeHeight)
-                .cornerRadius(4)
-                .rotationEffect(.degrees(-5))
-                .offset(y: -tapeHeight/2)
-            
-            // 3) The user‐provided content, inset from each edge
-            content()
-                .padding(8)
-                .frame(width: size.width, height: size.height)
+struct StickyNoteView: View {
+    let note: StickyNote
+    let reactions: [ReactionType]
+
+    @State private var isPresentingDetail = false
+    @State private var caption: String = ""
+    @State private var thumbnail: UIImage? = nil
+    @State private var showVideoPreview = false
+    @State private var isAudioPlaying = false
+    @State private var audioPlayer: AVPlayer?
+
+    private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
+    func shorten(_ text: String) -> String {
+        if text.count <= 60 {
+            return text
+        } else {
+            return String(text.prefix(57)) + "..."
         }
-        // Extend the full height to accommodate the taped area if needed
-        .frame(width: size.width, height: size.height + tapeHeight/2)
     }
-}
-
-
-struct VoiceNoteSticky: View {
-    // MARK: – Colors (adjust to taste)
-    private let magnetBlue = Color(red: 209.0/255.0, green: 233.0/255.0, blue: 246.0/255.0) // #D1E9F6
-    private let magnetBrown = Color(red: 75.0/255.0,  green: 54.0/255.0,  blue: 33.0/255.0)  // #4B3621
-    
-    // Simulated playback progress (0…1)
-    @State private var playbackProgress: Double = 0.0
-    // Whether the audio is “playing”
-    @State private var isPlaying = false
-    
     var body: some View {
-        StickyNoteView(backgroundColor: magnetBlue, content:  {
-            VStack(alignment: .leading, spacing: 8) {
-                // 1) Transcribed text at the top
-                Text("Hey Ma! I just\nfinished my class.\nReally miss you. I\nlove you!")
-                    .font(.system(size: 12, weight: .regular, design: .default))
-                    .foregroundColor(.black)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                Spacer()
-                
-                // 2) Play button + progress bar at the bottom
-                HStack(spacing: 8) {
-                    // Play / Pause button
-                    Button(action: {
-                        isPlaying.toggle()
-                        // In a real app, you’d start/stop audio playback here.
-                        // For the demo, we’ll just animate the progress bar:
-                        if isPlaying {
-                            withAnimation(.linear(duration: 5.0)) {
-                                playbackProgress = 1.0
-                            }
-                        } else {
-                            withAnimation {
-                                playbackProgress = 0.0
-                            }
-                        }
-                    }) {
-                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .foregroundColor(magnetBrown)
-                    }
-                    
-                    // Progress bar (custom styled)
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            // 1) Track
-                            Capsule()
-                                .fill(Color.white.opacity(0.6))
-                                .frame(height: 4)
-                            
-                            // 2) Filled portion (brown)
-                            Capsule()
-                                .fill(magnetBrown)
-                                .frame(width: geo.size.width * CGFloat(playbackProgress), height: 4)
-                        }
-                    }
-                    .frame(height: 20) // only the progress bar’s height matters here
+        ZStack {
+            noteContentView()
+                .frame(width: 170, height: 170)
+                .background(
+                    backgroundForNote()
+                        .frame(width: 170, height: 170)
+                )
+
+
+                .cornerRadius(16)
+                .shadow(radius: 6)
+                .scaleEffect(showVideoPreview ? 1.3 : 1.0)
+                .onTapGesture {
+                    isPresentingDetail = true
                 }
-                .padding(.bottom, 8)
-            }
-            .padding(8)
-        }, size: CGSize(width: 140, height: 140))
-    }
-}
+                .onLongPressGesture {
+                    if note.type == .video {
+                        showVideoPreview.toggle()
+                        if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
+                            audioPlayer = AVPlayer(url: url)
+                            audioPlayer?.play()
+                        }
+                    }
+                }
 
-
-
-
-// MARK: – Example Preview
-struct StickyNoteView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 24) {
-            // Example 1: Plain text on a pastel‐blue sticky
-            VoiceNoteSticky()
-                .padding()
-                .previewLayout(.sizeThatFits)
-            
-            // Example 2: Photo inside a pastel‐pink sticky
-            StickyNoteView(backgroundColor: Color(red: 241/255, green: 211/255, blue: 206/255)) {
-                Image("avatarPlaceholder")
+            ForEach(Array(reactions.enumerated()), id: \.offset) { index, reaction in
+                reactionIcon(for: reaction)
                     .resizable()
-                    .scaledToFill()
-                    .clipped()
+                    .frame(width: 40, height: 40) // larger
+                    .offset(offset(for: index, total: reactions.count)) // still surrounds the note
             }
-            
-            // Example 3: A mini music message on a pastel‐yellow sticky
-            StickyNoteView(backgroundColor: Color(red: 255/255, green: 245/255, blue: 218/255)) {
-                VStack(spacing: 8) {
-                    HStack(spacing: 6) {
-                        Text("Hey Ma! I just finished my class.\nReally miss you. I love you!")
-                            .font(.body)
+
+
+            NavigationLink("", destination: NotesDetailView(note: note), isActive: $isPresentingDetail)
+                .opacity(0)
+        }
+    }
+
+    @ViewBuilder
+    func noteContentView() -> some View {
+        switch note.type {
+        case .text:
+            Text(note.text ?? "")
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+                .padding()
+        case .drawing:
+            if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
+                VStack(spacing: 4) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fit)
+                                .frame(width: 120, height: 120)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                        case .failure(_):
+                            Image(systemName: "exclamationmark.triangle")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(.red)
+
+                        default:
+                            ProgressView()
+                        }
+                    }
+
+                    if let text = note.text, !text.isEmpty {
+                        Text(shorten(text))
+                            .font(.footnote)
                             .foregroundColor(.black)
-                            .multilineTextAlignment(.leading)
+                            .lineLimit(1)
                     }
                 }
             }
+
+        case .image, .video:
+            if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let img):
+                        PolaroidPhotoView(image: UIImage.image, caption: $caption, maxWidth: 150, maxHeight: 150)
+                    default:
+                        ProgressView()
+                    }
+                }
+            }
+   
+        case .audio:
+            VStack {
+                Text(note.text ?? "[Voice Preview]")
+                    .font(.body)
+                    .foregroundColor(.black)
+                    .padding(4)
+                Button {
+                    if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
+                        audioPlayer = AVPlayer(url: url)
+                        audioPlayer?.play()
+                        isAudioPlaying = true
+                    }
+                } label: {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 36))
+                        .foregroundColor(.black)
+                }
+            }
         }
-        .padding()
-        .previewLayout(.sizeThatFits)
+    }
+
+    func backgroundForNote() -> some View {
+        let backgrounds = ["pinkNote", "whiteNote1", "whiteNote2", "yellowNote", "blueNoteLines", "blueNotePlain"]
+        let index = abs(note.id.hashValue) % backgrounds.count
+
+        switch note.type {
+        case .text, .audio, .drawing:
+            return AnyView(
+                Image(backgrounds[index])
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            )
+
+        case .image, .video:
+            return AnyView(Color.clear)
+        }
+    }
+
+
+
+    func reactionIcon(for type: ReactionType) -> Image {
+        switch type {
+        case .smile: return Image("laughMagnet")
+        case .liked: return Image("heartMagnet")
+        case .clap: return Image("clapMagnet")
+        }
+    }
+
+
+    func offset(for index: Int, total: Int) -> CGSize {
+        let angle = Double(index) / Double(total) * 2 * .pi
+        let radius: CGFloat = 80
+        return CGSize(
+            width: CGFloat(cos(angle)) * radius,
+            height: CGFloat(sin(angle)) * radius
+        )
     }
 }
+

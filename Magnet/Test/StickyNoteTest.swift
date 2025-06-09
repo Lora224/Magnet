@@ -44,10 +44,10 @@ struct StickyNoteTestView: View {
         let note = StickyNote(
             id: UUID(),
             senderID: currentUserID,
-            familyID: "test_family_001",
+            familyID: "gmfQH98GinBcb26abjnY",
             type: .text,
             timeStamp: Date(),
-            seen: [currentUserID: .liked],
+            seen: [currentUserID: .clap],
             text: "Hello Firestore with reaction!",
             payloadURL: nil
         )

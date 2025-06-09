@@ -7,6 +7,7 @@ enum MediaType: String, Codable {
     case video
     case text
     case audio
+    case drawing
 }
 
 enum ReactionType: String, Codable {

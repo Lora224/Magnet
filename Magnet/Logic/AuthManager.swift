@@ -1,21 +1,20 @@
-
-//  AuthManager.swift
-//  Magnet
-//
-//  Created by Emily Zhang on 6/6/2025.
-//
-
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
+import Firebase
 
 class AuthManager: ObservableObject {
     @Published var alertMessage = ""
     @Published var showingAlert = false
 
-    private let db = Firestore.firestore()
-
+    // MARK: - Register
     func register(email: String, password: String) {
+        guard FirebaseApp.app() != nil else {
+            alertMessage = "Firebase not configured."
+            showingAlert = true
+            return
+        }
+
         guard !email.isEmpty, !password.isEmpty else {
             alertMessage = "Email and password must not be empty."
             showingAlert = true
@@ -30,7 +29,7 @@ class AuthManager: ObservableObject {
             }
 
             guard let uid = result?.user.uid else {
-                self.alertMessage = "Couldn’t read user UID."
+                self.alertMessage = "Couldn't read user UID."
                 self.showingAlert = true
                 return
             }
@@ -41,20 +40,27 @@ class AuthManager: ObservableObject {
                 "createdAt": Timestamp(date: Date())
             ]
 
-            self.db.collection("users")
-                .document(uid)
-                .setData(userData) { firestoreError in
-                    if let firestoreError = firestoreError {
-                        self.alertMessage = "Firestore write failed: \(firestoreError.localizedDescription)"
-                    } else {
-                        self.alertMessage = "Registration succeeded and UID saved."
-                    }
-                    self.showingAlert = true
+            let db = Firestore.firestore()
+            db.collection("users").document(uid).setData(userData) { err in
+                if let err = err {
+                    self.alertMessage = "Firestore error: \(err.localizedDescription)"
+                } else {
+                    self.alertMessage = "Registration succeeded and user saved."
                 }
+                self.showingAlert = true
+            }
         }
     }
 
+    // MARK: - Login
     func login(email: String, password: String, completion: @escaping (Bool) -> Void) {
+        guard FirebaseApp.app() != nil else {
+            alertMessage = "Firebase not configured."
+            showingAlert = true
+            completion(false)
+            return
+        }
+
         guard !email.isEmpty, !password.isEmpty else {
             alertMessage = "Email and password must not be empty."
             showingAlert = true
@@ -71,27 +77,24 @@ class AuthManager: ObservableObject {
             }
 
             guard let uid = Auth.auth().currentUser?.uid else {
-                self.alertMessage = "Couldn’t read user UID after login."
+                self.alertMessage = "Couldn't read user UID after login."
                 self.showingAlert = true
                 completion(false)
                 return
             }
 
-            let updateData: [String: Any] = [
-                "lastLogin": Timestamp(date: Date())
-            ]
+            let db = Firestore.firestore()
+            let updateData = ["lastLogin": Timestamp(date: Date())]
 
-            self.db.collection("users")
-                .document(uid)
-                .updateData(updateData) { firestoreError in
-                    if let firestoreError = firestoreError {
-                        self.alertMessage = "Firestore update failed: \(firestoreError.localizedDescription)"
-                        self.showingAlert = true
-                        completion(false)
-                    } else {
-                        completion(true)
-                    }
+            db.collection("users").document(uid).updateData(updateData) { err in
+                if let err = err {
+                    self.alertMessage = "Firestore update failed: \(err.localizedDescription)"
+                    self.showingAlert = true
+                    completion(false)
+                } else {
+                    completion(true)
                 }
+            }
         }
     }
 }
