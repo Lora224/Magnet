@@ -19,8 +19,8 @@ enum ReactionType: String, Codable {
 /*for voice type, text is the voice to text content*/
 /*for text type, text is the content*/
 
-@Model
-final class StickyNote: Identifiable {
+
+struct StickyNote: Identifiable, Codable {
     var id: UUID
     var senderID: String
     var familyID: String
@@ -51,12 +51,5 @@ final class StickyNote: Identifiable {
 
     }
 }
-
-0E9CCB7B-0522-4E44-84D4-E4DB70273E0D"
-(string)
-S6KEzK9eSHaSQACvUH9nm83MbGi1"
-(string)
-
-
 
 

@@ -162,7 +162,7 @@ struct CalendarView: View {
     }
 
     func previewText(for note: StickyNote) -> String {
-        note.payloads.first?.text ?? "Media note"
+        note.text ?? "Media note"
     }
 
     func backgroundColor(for note: StickyNote) -> Color {
@@ -187,7 +187,9 @@ struct CalendarView: View {
                 type: .text,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 1))!,
                 seen: ["user002": .smile, "user003": nil],
-                payloads: [sampleTextPayload]
+                text:"My first note",
+                payloadURL:sampleTextPayload.url
+
             ),
             StickyNote(
                 senderID: "user002",
@@ -195,7 +197,8 @@ struct CalendarView: View {
                 type: .image,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 2))!,
                 seen: ["user001": .clap],
-                payloads: [sampleImagePayload]
+                text:"My first image note",
+                payloadURL:sampleImagePayload.url
             ),
             StickyNote(
                 senderID: "user003",
@@ -203,7 +206,8 @@ struct CalendarView: View {
                 type: .video,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 3))!,
                 seen: ["user001": nil, "user002": .liked],
-                payloads: [sampleVideoPayload]
+                text:"My first video note",
+                payloadURL:sampleVideoPayload.url
             ),
             StickyNote(
                 senderID: "user004",
@@ -211,7 +215,8 @@ struct CalendarView: View {
                 type: .audio,
                 timeStamp: Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 4))!,
                 seen: [:],
-                payloads: [sampleAudioPayload]
+                text:"My first audio note",
+                payloadURL:sampleAudioPayload.url
             )
         ]
     }
