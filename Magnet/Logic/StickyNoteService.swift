@@ -29,7 +29,7 @@ struct StickyNoteService {
             "seen": [:]
         ]
         
-        db.collection("StickyNote").addDocument(data: noteData) { error in
+        db.collection("StickyNotes").addDocument(data: noteData) { error in
             completion(error)
         }
     }

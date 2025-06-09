@@ -4,6 +4,7 @@ import FirebaseAuth
 
 struct TextInputView: View {
     var familyID: String
+    var userID: String
 
     @State private var canvasView = PKCanvasView()
     @State private var isDrawing = false
@@ -184,10 +185,7 @@ struct TextInputView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    guard let senderID = Auth.auth().currentUser?.uid else {
-                        print("❌ No authenticated user.")
-                        return
-                    }
+                    let senderID = userID
 
                     StickyNoteService.saveTextNote(
                         text: typedNote,
@@ -260,7 +258,7 @@ struct DrawingCanvasView: UIViewRepresentable {
 
 
 #Preview {
-    TextInputView(familyID: "gmfQH98GinBcb26abjnY")
+    TextInputView(familyID: "gmfQH98GinBcb26abjnY", userID: "sampleUserID")
 }
 
 

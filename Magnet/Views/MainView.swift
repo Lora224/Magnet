@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct MainView: View {
     @State private var isMenuOpen = false
@@ -188,7 +189,12 @@ struct MainView: View {
 
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {
-                case "text": TextInputView(familyID: "gmfQH98GinBcb26abjnY")
+                case "text":
+                    if let userID = Auth.auth().currentUser?.uid {
+                        TextInputView(familyID: "gmfQH98GinBcb26abjnY", userID: userID)
+                    } else {
+                        Text("⚠️ Please log in first.")
+                    }
                 case "camera": CameraView()
                 case "mic": VoiceInputView()
                 default: EmptyView()
