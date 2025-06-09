@@ -1,6 +1,8 @@
 import SwiftData
 import Foundation
-
+/*for image/video type, text is the caption*/
+/*for voice type, text is the voice to text content*/
+/*for text type, text is the content*/
 @Model
 final class Payload: Identifiable {
     var id: UUID

@@ -9,4 +9,6 @@ import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 
-class StickyManager
+class StickyManager: ObservableObject{
+    
+}
