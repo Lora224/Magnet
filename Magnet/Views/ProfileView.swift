@@ -2,32 +2,7 @@ import SwiftUI
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
-
-
-struct FamilyCard: View {
-    let family: Family
-    let textColor: Color
-
-    var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 0, style: .continuous)
-                .fill(Color(
-                    red: family.red,
-                    green: family.green,
-                    blue: family.blue))
-                .aspectRatio(1, contentMode: .fit)
-                .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 4)
-
-            Text("icon + \(family.name)")
-                .font(.headline)
-                .foregroundColor(textColor)
-                .padding(8)
-        }
-    }
-}
-
-private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129) // #4B3621
-
+import PhotosUI
 
 struct ProfileAvatarView: View {
     let avatarImage: Image
@@ -64,12 +39,61 @@ struct ProfileAvatarView: View {
     }
 }
 
+struct FamilyCard: View {
+    let family: Family
+    let textColor: Color
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            RoundedRectangle(cornerRadius: 0, style: .continuous)
+                .fill(Color(
+                    red: family.red,
+                    green: family.green,
+                    blue: family.blue))
+                .aspectRatio(1, contentMode: .fit)
+                .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 4)
+
+            Text("icon + \(family.name)")
+                .font(.headline)
+                .foregroundColor(textColor)
+                .padding(8)
+        }
+    }
+}
+
+
 struct ProfileView: View {
     @State private var isSidebarVisible: Bool = false
     @State private var userName: String = ""
     @FocusState private var nameFieldIsFocused: Bool
 
-    private let avatarImage = Image("avatarPlaceholder") // Replace with Avatar pic
+    @State private var selectedImageData: Data? = nil
+    @State private var selectedImageItem: PhotosPickerItem? = nil
+    @State private var isShowingImagePicker = false
+    
+    private func loadUserAvatar() {
+        UserProfileManager.shared.fetchUserProfilePictureURL { result in
+            switch result {
+            case .success(let urlString):
+                if let urlString = urlString, let url = URL(string: urlString) {
+                    URLSession.shared.dataTask(with: url) { data, response, error in
+                        if let data = data {
+                            DispatchQueue.main.async {
+                                self.selectedImageData = data
+                            }
+                        } else {
+                            print("Failed to download avatar image: \(error?.localizedDescription ?? "Unknown error")")
+                        }
+                    }.resume()
+                } else {
+                    print("No profile picture URL found.")
+                }
+            case .failure(let error):
+                print("Failed to fetch avatar URL: \(error)")
+            }
+        }
+    }
+
 
     private let families: [Family] = [
         Family(
@@ -135,9 +159,12 @@ struct ProfileView: View {
                     .padding(.top, 20)
 
                     // Avatar + pencil overlay
-                    ProfileAvatarView(avatarImage: avatarImage) {
-                        // edit avatar button action
-                        print("Edit avatar tapped")
+                    ProfileAvatarView(
+                        avatarImage: selectedImageData != nil
+                            ? Image(uiImage: UIImage(data: selectedImageData!)!)
+                            : Image("avatarPlaceholder")
+                    ) {
+                        isShowingImagePicker = true
                     }
                     .padding(.top, 8)
 
@@ -168,7 +195,6 @@ struct ProfileView: View {
                     .frame(width: 240)
                     .focused($nameFieldIsFocused)
                     .padding(.top, 24)
-
 
                     // Family grid
                     ScrollView {
@@ -212,7 +238,29 @@ struct ProfileView: View {
                 .blur(radius: isSidebarVisible ? 2 : 0)
                 .onAppear {
                     loadUserName()
+                    loadUserAvatar()
                 }
+                // photosPicker
+                .photosPicker(isPresented: $isShowingImagePicker, selection: $selectedImageItem, matching: .images)
+                .onChange(of: selectedImageItem) { _, newItem in
+                    Task {
+                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                            selectedImageData = data
+
+                            if let uiImage = UIImage(data: data) {
+                                UserProfileManager.shared.uploadUserProfilePicture(image: uiImage) { result in
+                                    switch result {
+                                    case .success(let url):
+                                        print("Uploaded avatar to URL: \(url)")
+                                    case .failure(let error):
+                                        print("Failed to upload avatar: \(error)")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
 
                 if isSidebarVisible {
                     Color.black.opacity(0.4)
@@ -249,7 +297,6 @@ struct ProfileView: View {
             }
         }
     }
-
 }
 
 #Preview {

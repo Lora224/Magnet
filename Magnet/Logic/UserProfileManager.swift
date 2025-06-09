@@ -53,4 +53,27 @@ class UserProfileManager {
             }
         }
     }
+    
+    func fetchUserProfilePictureURL(completion: @escaping (Result<String?, Error>) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            completion(.failure(NSError(domain: "NoUser", code: 401, userInfo: [NSLocalizedDescriptionKey: "No user is logged in."])))
+            return
+        }
+
+        db.collection("users").document(uid).getDocument { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            if let data = snapshot?.data(),
+               let avatarURLString = data["ProfilePictureURL"] as? String {
+                completion(.success(avatarURLString))
+            } else {
+                completion(.success(nil)) 
+            }
+        }
+    }
+
 }
+
