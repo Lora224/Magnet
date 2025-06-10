@@ -8,6 +8,8 @@ struct MainView: View {
     @StateObject private var stickyManager = StickyDisplayManager()
     @State private var canvasOffset = CGSize.zero
     @State private var zoomScale: CGFloat = 1.0
+    @State private var families: [Family] = []
+    @State private var selectedFamilyIndex = 0
 
     var body: some View {
         NavigationStack {
@@ -28,7 +30,10 @@ struct MainView: View {
 
                 // Top Bar + Debug button
                 VStack(spacing: 0) {
-                    TopFamilyBar()
+                    TopFamilyBar(
+                        families: $families,
+                        selectedIndex: $selectedFamilyIndex
+                    )
 
                     HStack(spacing: 12) {
                         Spacer()
@@ -145,13 +150,15 @@ struct MainView: View {
                 switch target {
                 case "text":
                     if let userID = Auth.auth().currentUser?.uid {
-                        TextInputView(familyID: "544CF263-E10E-4884-9E60-DFE60B295FDB", userID: userID)
+                        let familyIdString:String = families[selectedFamilyIndex].id
+                        TextInputView(familyID: familyIdString, userID: userID)
                     } else {
                         Text("⚠️ Please log in first.")
                     }
                 case "camera":
                     if let userID = Auth.auth().currentUser?.uid {
-                        CameraView(userID: userID, familyID: "544CF263-E10E-4884-9E60-DFE60B295FDB")
+                        let familyIdString:String = families[selectedFamilyIndex].id
+                        CameraView(userID: userID, familyID: familyIdString)
                     } else {
                         Text("⚠️ Please log in first.")
                     }
@@ -160,83 +167,50 @@ struct MainView: View {
                 }
             }
         }
-        // MainView.swift  — add inside body
-        .onAppear {
-            // MARK: - Life-cycle entry
-            debugPrint("💡 MainView.onAppear @", Date())
-
-            // 1️⃣  Current user
-            guard let user = Auth.auth().currentUser else {
-                debugPrint("❌ No authenticated user — UI will stay empty")
-                return
-            }
-            let userID = user.uid
-            debugPrint("👤 Auth user UID:", userID)
-
-            // 2️⃣  User document
-            let usersRef = Firestore.firestore()
-                .collection("users")
-                .document(userID)
-            debugPrint("🔎 Fetching user document:", usersRef.path)
-
-            usersRef.getDocument { [weak stickyManager] userSnap, userErr in
-                if let userErr = userErr {
-                    debugPrint("🔥 User doc fetch failed:", userErr.localizedDescription)
-                    return
-                }
-                guard let userData = userSnap?.data() else {
-                    debugPrint("⚠️ User snapshot is nil / empty")
-                    return
-                }
-                debugPrint("✅ User data:", userData)
-
-                guard let families = userData["families"] as? [String],
-                      !families.isEmpty else {
-                    debugPrint("🚫 Key 'families' missing or empty in user doc")
-                    return
-                }
-                let familyID = families.first!
-                debugPrint("🏠 Primary familyID resolved:", familyID)
-
-                // 3️⃣  Family document
-                let familyRef = Firestore.firestore()
-                    .collection("families")
-                    .document(familyID)
-                debugPrint("🔎 Fetching family document:", familyRef.path)
-
-                familyRef.getDocument { famSnap, famErr in
-                    if let famErr = famErr {
-                        debugPrint("🔥 Family doc fetch failed:", famErr.localizedDescription)
-                        return
-                    }
-                    guard let famData = famSnap?.data() else {
-                        debugPrint("⚠️ Family snapshot nil / empty for", familyID)
-                        return
-                    }
-                    debugPrint("✅ Family data:", famData)
-
-                    guard let memberIDs = famData["memberIDs"] as? [String],
-                          !memberIDs.isEmpty else {
-                        debugPrint("🚫 'memberIDs' missing / empty – keys present:", famData.keys)
-                        return
-                    }
-                    debugPrint("👨‍👩‍👧‍👦 MemberIDs:", memberIDs)
-
-                    // 4️⃣  Load sticky notes (MAIN thread!)
-                    DispatchQueue.main.async {
-                        debugPrint("📥 Calling loadStickyNotes for", familyID)
-                        stickyManager?.loadStickyNotes(
-                            for: familyID,
-                            memberIDs: memberIDs,
-                            canvasSize: UIScreen.main.bounds.size
-                        )
-                    }
-                }
-            }
+        .onAppear(perform: loadUserFamilies)
+        .onChange(of: selectedFamilyIndex) { _ in
+            loadNotesForCurrentFamily()
         }
 
 
     }
+    private func loadUserFamilies() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        db.collection("families")
+          .whereField("memberIDs", arrayContains: uid)
+          .getDocuments { snapshot, error in
+            guard let docs = snapshot?.documents else { return }
+            self.families = docs.compactMap { doc in
+                let data = doc.data()
+                return Family(
+                    id:          doc.documentID,
+                    name:        data["name"]       as? String  ?? "<No Name>",
+                    inviteURL:   data["inviteURL"]  as? String  ?? "",
+                    memberIDs:   data["memberIDs"]  as? [String] ?? [],
+                    red:         data["red"]        as? Double  ?? 1.0,
+                    green:       data["green"]      as? Double  ?? 1.0,
+                    blue:        data["blue"]       as? Double  ?? 1.0,
+                    profilePic:  data["profilePic"] as? Data
+                )
+            }
+            // start at the first family
+            self.selectedFamilyIndex = 0
+            loadNotesForCurrentFamily()
+        }
+    }
+
+    private func loadNotesForCurrentFamily() {
+        guard families.indices.contains(selectedFamilyIndex) else { return }
+        let family = families[selectedFamilyIndex]
+        stickyManager.loadStickyNotes(
+            for: family.id,
+            memberIDs: family.memberIDs,
+            canvasSize: UIScreen.main.bounds.size
+        )
+    }
+
+    
 }
 
 #Preview {

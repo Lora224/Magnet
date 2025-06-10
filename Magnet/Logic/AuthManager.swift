@@ -54,11 +54,11 @@ class AuthManager: ObservableObject {
                     self.showingAlert = true
                     completion(false)
                 } else {
-                    self.alertMessage = "Registration succeeded and user saved."
-                    self.showingAlert = true
+                    // SUCCESS → Do NOT show alert, just complete
                     completion(true)
                 }
             }
+
         }
     }
     

@@ -176,7 +176,7 @@ struct StickyNoteView: View {
                     radius: 4, x: 0, y: 2)
             .rotationEffect(.degrees(Double.random(in: -5...5)))
             .padding(4)                        // space between note and magnet
-            .frame(width: 244) 
+            .frame(width: 400, height: 300)
 
         case .audio:
             VStack {

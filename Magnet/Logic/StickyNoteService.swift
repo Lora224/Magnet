@@ -20,7 +20,7 @@ struct StickyNoteService {
             "familyID": familyID,
             "timeStamp": Timestamp(date: Date()),
             "payloadURL": "",
-            "seen": [:]
+            "seen": [senderID:nil]
         ]
         db.collection("StickyNotes").addDocument(data: noteData) { error in
             completion(error)
@@ -74,7 +74,7 @@ struct StickyNoteService {
                     "familyID": familyID,
                     "timeStamp": Timestamp(date: Date()),
                     "payloadURL": url.absoluteString,
-                    "seen": [:]
+                    "seen": [senderID:nil]
                 ]
                 
                 db.collection("StickyNotes").addDocument(data: noteData) { error in
@@ -125,7 +125,7 @@ struct StickyNoteService {
                     "familyID":    familyID,
                     "timeStamp":   Timestamp(date: Date()),
                     "payloadURL":  url.absoluteString,
-                    "seen":        [:]
+                    "seen":        [senderID:nil]
                 ]
                 db.collection("StickyNotes").addDocument(data: noteData, completion: completion)
             }
