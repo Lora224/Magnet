@@ -2,16 +2,13 @@ import SwiftUI
 
 struct JoinCreate: View {
     @State private var familyName = ""
-    @State private var familyEmoji = ""
     @State private var backgroundColor = Color(red: 0.82, green: 0.914, blue: 0.965)
+    @State private var showLinkField = false
+    @State private var linkURL = ""
 
     @StateObject private var famManager = Sid()
 
     private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129)
-    private let magnetBlue  = Color(red: 0.820, green: 0.914, blue: 0.965)
-
-    @State private var showLinkField = false
-    @State private var linkURL = ""
 
     var body: some View {
         NavigationStack {
@@ -91,23 +88,21 @@ struct JoinCreate: View {
 
                                         // Create button → trigger famManager.regoFam
                                         Button(action: {
-                                            famManager.regoFam(
+                                                    famManager.regoFam(
                                                 familyName: "Family 1",
-                                                familyEmoji: "💀",
-                                                backgroundColor: backgroundColor
-                                            )
-                                        }) {
-                                            Text("Create")
-                                                .font(.system(size: 30, weight: .bold))
+                                                backgroundColor: Color.magnetYellow,
+                                                                                    )
+                                                                                })  {
+                                            Text("Create Family")
+                                                .font(.title3)
+                                                .bold()
                                                 .foregroundColor(.white)
-                                                .kerning(2)
-                                                .frame(
-                                                    width: geo.size.width * 0.4,
-                                                    height: 80
-                                                )
-                                                .background(magnetBrown)
-                                                .cornerRadius(16)
+                                                .padding()
+                                                .background(Color.blue)
+                                                .cornerRadius(10)
                                         }
+
+
 
                                     }
                                     .padding(.bottom, 70)
@@ -123,11 +118,18 @@ struct JoinCreate: View {
             }
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $famManager.navigateToHome) {
-                FamilyGroupView(
-                    familyName: famManager.familyName,
-                    familyEmoji: famManager.familyEmoji,
-                    backgroundColor: famManager.backgroundColor
-                )
+                if let family = famManager.family {
+                                    FamilyGroupView(
+                                        familyName: family.name, familyEmoji: "",
+                                        backgroundColor: Color(
+                                            red: family.red,
+                                            green: family.green,
+                                            blue: family.blue
+                                        )
+                                    )
+                                } else {
+                                    Text("Family not found.")
+                                }
             }
         }
     }
