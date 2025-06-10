@@ -6,6 +6,7 @@ import FirebaseAuth
 /// Displays a captured photo with options to retake or confirm (save).
 /// Adapts UI layout for portrait and landscape.
 struct CaptureConfirmationView: View {
+    @Environment(\.dismiss) var dismiss
 
     let image: UIImage
     let onRetake: () -> Void
@@ -145,18 +146,7 @@ struct CaptureConfirmationView: View {
                                         print("❌ Failed to save photo note: \(error.localizedDescription)")
                                     } else {
                                         print("✅ Photo note saved successfully.")
-                                    }
-                                }
-
-                                StickyNoteService.saveCameraPhotoNote(
-                                    image: image,
-                                    senderID: userID,
-                                    familyID: "yourFamilyIDHere"  // ← Replace this dynamically if possible
-                                ) { error in
-                                    if let error = error {
-                                        print("❌ Failed to save photo note: \(error.localizedDescription)")
-                                    } else {
-                                        print("✅ Photo note saved successfully.")
+                                        dismiss() // Navigate back to MainView
                                     }
                                 }
                             }) {
