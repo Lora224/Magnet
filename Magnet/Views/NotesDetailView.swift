@@ -86,18 +86,6 @@ struct NotesDetailView: View {
                 }
                 .padding(.top, 120)
             }
-            
-            // Back Arrow
-            VStack {
-                HStack {
-                    Image(systemName: "arrowshape.backward.fill")
-                        .font(.system(size: 50))
-                        .padding(.leading, 30)
-                        .padding(.top, 100)
-                    Spacer()
-                }
-                Spacer()
-            }
 
             // Seen-by Slide-up Panel
             if isSeenPanelOpen {
