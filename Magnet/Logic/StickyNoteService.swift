@@ -135,5 +135,47 @@ struct StickyNoteService {
         }
     }
     
+    
+    static func saveVoiceNote(audioURL: URL, senderID: String, familyID: String, completion: @escaping (Error?) -> Void) {
+            let noteID = UUID().uuidString
+            let storagePath = "sticky_voice/\(noteID).m4a"
+            let storageRef = Storage.storage().reference().child(storagePath)
+
+            storageRef.putFile(from: audioURL, metadata: nil) { metadata, error in
+                if let error = error {
+                    completion(error)
+                    return
+                }
+
+                storageRef.downloadURL { url, error in
+                    if let error = error {
+                        completion(error)
+                        return
+                    }
+
+                    guard let downloadURL = url else {
+                        completion(NSError(domain: "URLMissing", code: -1))
+                        return
+                    }
+
+                    let noteData: [String: Any] = [
+                        "senderID": senderID,
+                        "familyID": familyID,
+                        "type": "voice",
+                        "payloadURL": downloadURL.absoluteString,
+                        "timeStamp": Timestamp(date: Date()),
+                        "seen": [:]
+                    ]
+
+                    Firestore.firestore()
+                        .collection("StickyNotes")
+                        .document(noteID)
+                        .setData(noteData) { error in
+                            completion(error)
+                        }
+                }
+            }
+        }
+
 
 }
