@@ -8,6 +8,7 @@ struct Login: View {
     @StateObject private var authManager = AuthManager()
 
     @State private var fullScreenView: FullScreenPage? = nil
+    @State private var isSignUpFlow = false
 
     var body: some View {
         ZStack {
@@ -17,6 +18,7 @@ struct Login: View {
                 onSignUp: {
                     authManager.register(email: email, password: password) { success in
                         if success {
+                            isSignUpFlow = true
                             fullScreenView = .usernameSetup
                         }
                     }
@@ -24,6 +26,7 @@ struct Login: View {
                 onLogIn: {
                     authManager.login(email: email, password: password) { success in
                         if success {
+                            isSignUpFlow = false
                             checkUserProfile()
                         }
                     }
@@ -32,7 +35,11 @@ struct Login: View {
         }
         .fullScreenCover(item: $fullScreenView, onDismiss: {
             if fullScreenView == .usernameSetup {
-                checkFamilies()
+                if isSignUpFlow {
+                    fullScreenView = .joinCreate
+                } else {
+                    checkFamilies()
+                }
             }
         }) { page in
             switch page {
@@ -70,12 +77,12 @@ struct Login: View {
             }
 
             if let name = data["name"] as? String, !name.isEmpty {
-                print("✅ User has name: \(name), proceed to check families")
+                print("✅ User has name: \(name), proceeding to check families")
                 DispatchQueue.main.async {
                     checkFamilies()
                 }
             } else {
-                print("❌ User has no name → go to UsernameSetupView")
+                print("❌ User has no name → navigating to UsernameSetupView")
                 DispatchQueue.main.async {
                     fullScreenView = .usernameSetup
                 }
@@ -97,7 +104,7 @@ struct Login: View {
 
             guard let data = snapshot?.data(),
                   let families = data["families"] as? [String] else {
-                print("❌ No families field → go to JoinCreate")
+                print("❌ No families field → navigating to JoinCreate")
                 DispatchQueue.main.async {
                     fullScreenView = .joinCreate
                 }
@@ -105,12 +112,12 @@ struct Login: View {
             }
 
             if families.isEmpty {
-                print("❌ families empty → go to JoinCreate")
+                print("❌ Families empty → navigating to JoinCreate")
                 DispatchQueue.main.async {
                     fullScreenView = .joinCreate
                 }
             } else {
-                print("✅ families exists → go to MainView")
+                print("✅ Families exist → navigating to MainView")
                 DispatchQueue.main.async {
                     fullScreenView = .mainView
                 }

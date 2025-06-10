@@ -23,7 +23,7 @@ struct UsernameSetupView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                Text("Input your username")
+                Text("Please enter your username. Don't worry, you can change it later.")
                     .font(.system(size: 25, weight: .bold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(magnetBrown)
@@ -43,7 +43,7 @@ struct UsernameSetupView: View {
                             ProgressView()
                                 .frame(width: 24, height: 24)
                         } else {
-                            Text("Go!")
+                            Text("Confirm")
                                 .font(.system(size: 18, weight: .bold))
                         }
                     }
@@ -61,7 +61,7 @@ struct UsernameSetupView: View {
             .cornerRadius(20)
             .shadow(radius: 10)
         }
-        .alert("wrong", isPresented: $showErrorAlert) {
+        .alert("Error", isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) { }
         } message: {
             Text(errorMessage)
@@ -70,7 +70,7 @@ struct UsernameSetupView: View {
 
     private func saveUsername() {
         guard let userID = Auth.auth().currentUser?.uid else {
-            showError(message: "can't get the user ID。")
+            showError(message: "Unable to get current user ID.")
             return
         }
 
@@ -82,7 +82,7 @@ struct UsernameSetupView: View {
             isLoading = false
 
             if let error = error {
-                showError(message: "save username failed: \(error.localizedDescription)")
+                showError(message: "Failed to save username: \(error.localizedDescription)")
             } else {
                 print("✅ Username saved successfully.")
                 dismiss()
@@ -95,4 +95,3 @@ struct UsernameSetupView: View {
         showErrorAlert = true
     }
 }
-
