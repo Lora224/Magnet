@@ -100,9 +100,10 @@ class Sid: ObservableObject {
                 )
                 DispatchQueue.main.async {
                     self.family = family
+                    completion()
                 }
             }
-            completion()
+            
         }
     }
 

@@ -88,22 +88,19 @@ struct JoinCreate: View {
 
                                         // Create button → trigger famManager.regoFam
                                         Button(action: {
-                                                    famManager.regoFam(
+                                            famManager.regoFam(
                                                 familyName: "Family 1",
                                                 backgroundColor: Color.magnetYellow,
                                                                                     )
                                                                                 })  {
                                             Text("Create Family")
-                                                .font(.title3)
-                                                .bold()
+                                                .font(.system(size: 30, weight: .bold))
                                                 .foregroundColor(.white)
-                                                .padding()
-                                                .background(Color.blue)
-                                                .cornerRadius(10)
-                                        }
-
-
-
+                                                .kerning(2)
+                                                .frame(width: geo.size.width * 0.4, height: 80)
+                                                .background(magnetBrown)
+                                                .cornerRadius(16)
+            }
                                     }
                                     .padding(.bottom, 70)
 

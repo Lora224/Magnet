@@ -48,7 +48,7 @@ struct Login: View {
             case .mainView:
                 MainView()
             case .usernameSetup:
-                UsernameSetupView()
+                UsernameSetupView(fullScreenView: $fullScreenView, isSignUpFlow: isSignUpFlow)
             }
         }
         .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
