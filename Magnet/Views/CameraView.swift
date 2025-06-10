@@ -10,6 +10,8 @@ import CoreMedia
 /// On capture, it navigates to a confirmation screen (`CaptureConfirmationView`)
 /// where the user can retake or confirm saving the photo.
 struct CameraView: View {
+    @Environment(\.dismiss) private var dismiss
+
     let userID: String
     let familyID: String
 
@@ -31,7 +33,17 @@ struct CameraView: View {
     @State private var showConfirmation = false
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading)  {
+            Button(action: {
+                dismiss()
+            }) {
+                Image(systemName: "arrowshape.backward.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 50, height: 30)
+                    .foregroundColor(Color(red: 0.294, green: 0.212, blue: 0.129)) // your magnetBrown
+                    .padding()
+            }
             // 1) Show live camera preview when there's no pending image
                         if pendingImage == nil {
                             // ┌──── Live preview + controls ─────────────────────────────┐
