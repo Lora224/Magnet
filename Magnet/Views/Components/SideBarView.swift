@@ -106,8 +106,7 @@ struct SideBarView: View {
                 Button(action: {
                     do {
                         try Auth.auth().signOut()
-                        // Dismiss to login (if using fullScreenCover)
-                        UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
+                        NotificationCenter.default.post(name: Notification.Name("UserDidLogout"), object: nil)
                     } catch {
                         print("❌ Failed to logout: \(error.localizedDescription)")
                     }

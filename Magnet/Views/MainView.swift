@@ -3,6 +3,7 @@ import FirebaseFirestore
 import FirebaseAuth
 
 struct MainView: View {
+    @Environment(\.dismiss) var dismiss
     @State private var isMenuOpen = false
     @State private var navigationTarget: String?
     @StateObject private var stickyManager = StickyDisplayManager()
@@ -171,6 +172,11 @@ struct MainView: View {
         .onChange(of: selectedFamilyIndex) { _ in
             loadNotesForCurrentFamily()
         }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("UserDidLogout"))) { _ in
+            print("🛎️ Received UserDidLogout → dismiss MainView")
+            dismiss()
+        }
+
 
 
     }
