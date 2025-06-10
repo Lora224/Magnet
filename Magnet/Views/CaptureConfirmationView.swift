@@ -4,7 +4,7 @@ import FirebaseAuth
 // MARK: – CaptureConfirmationView
 
 /// Displays a captured photo with options to retake or confirm (save).
-/// Adapts UI layout for portrait and landscape, as in the provided design.
+/// Adapts UI layout for portrait and landscape.
 struct CaptureConfirmationView: View {
 
     let image: UIImage
@@ -151,7 +151,7 @@ struct CaptureConfirmationView: View {
                                 StickyNoteService.saveCameraPhotoNote(
                                     image: image,
                                     senderID: userID,
-                                    familyID: "yourFamilyIDHere" 
+                                    familyID: "yourFamilyIDHere"  // ← Replace this dynamically if possible
                                 ) { error in
                                     if let error = error {
                                         print("❌ Failed to save photo note: \(error.localizedDescription)")
@@ -159,8 +159,6 @@ struct CaptureConfirmationView: View {
                                         print("✅ Photo note saved successfully.")
                                     }
                                 }
-
-                                onConfirm(image)
                             }) {
                                 RoundedRectangle(cornerRadius: 15)
                                     .fill(Color(red: 0.80, green: 1, blue: 0.85))
@@ -228,11 +226,12 @@ struct CameraRectangleButton: View {
 
 struct CaptureConfirmationView_Previews: PreviewProvider {
     static var previews: some View {
-        // Supply a dummy UIImage (replace “example” with a valid asset name)
         CaptureConfirmationView(
             image: UIImage(named: "example") ?? UIImage(),
             onRetake: { },
-            onConfirm: { _ in }
+            onConfirm: { _ in },
+            userID: "sampleUserID",        // <- Added
+            familyID: "sampleFamilyID"     // <- Added
         )
     }
 }
