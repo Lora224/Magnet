@@ -10,6 +10,9 @@ import CoreMedia
 /// On capture, it navigates to a confirmation screen (`CaptureConfirmationView`)
 /// where the user can retake or confirm saving the photo.
 struct CameraView: View {
+    let userID: String
+    let familyID: String
+
     // MARK: – State Properties
 
     /// Triggers a photo capture when set to true.
@@ -127,12 +130,15 @@ struct CameraView: View {
                                         UIImageWriteToSavedPhotosAlbum(confirmedImage, nil, nil, nil)
                                         pendingImage = nil
                                         showConfirmation = false
-                                    }
+                                    },
+                                    userID: userID,
+                                    familyID: familyID
                                 )
                                 .edgesIgnoringSafeArea(.all)
                             } else {
                                 EmptyView()
                             }
+
                         }
                     }
                 }

@@ -86,4 +86,57 @@ struct StickyNoteService {
             }
         }
     }
+    
+    // Save photo-based sticky note (from camera)
+    static func saveCameraPhotoNote(
+        image: UIImage,
+        senderID: String,
+        familyID: String,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let storage = Storage.storage()
+        let db = Firestore.firestore()
+
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            completion(NSError(domain: "ImageConversion", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not convert image to data"]))
+            return
+        }
+
+        let imageID = UUID().uuidString
+        let imageRef = storage.reference().child("camera_photos/\(imageID).jpg")
+
+        imageRef.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                completion(error)
+                return
+            }
+
+            imageRef.downloadURL { url, error in
+                if let error = error {
+                    completion(error)
+                    return
+                }
+
+                guard let url = url else {
+                    completion(NSError(domain: "StorageDownload", code: 2, userInfo: [NSLocalizedDescriptionKey: "Download URL not found"]))
+                    return
+                }
+
+                let noteData: [String: Any] = [
+                    "id": imageID,
+                    "text": "",
+                    "type": "photo",
+                    "senderID": senderID,
+                    "familyID": familyID,
+                    "timeStamp": Timestamp(date: Date()),
+                    "payloadURL": url.absoluteString,
+                    "seen": [:]
+                ]
+
+                db.collection("StickyNotes").addDocument(data: noteData) { error in
+                    completion(error)
+                }
+            }
+        }
+    }
 }

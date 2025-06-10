@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 // MARK: – CaptureConfirmationView
 
@@ -9,6 +10,9 @@ struct CaptureConfirmationView: View {
     let image: UIImage
     let onRetake: () -> Void
     let onConfirm: (UIImage) -> Void
+    
+    let userID: String
+    let familyID: String
     
 
     // ‣ A local caption field (if you want to let user type a caption)
@@ -131,7 +135,33 @@ struct CaptureConfirmationView: View {
                             }
 
                             // Confirm
-                            Button(action: { onConfirm(image) }) {
+                            Button(action: {
+                                StickyNoteService.saveCameraPhotoNote(
+                                    image: image,
+                                    senderID: userID,
+                                    familyID: familyID
+                                ) { error in
+                                    if let error = error {
+                                        print("❌ Failed to save photo note: \(error.localizedDescription)")
+                                    } else {
+                                        print("✅ Photo note saved successfully.")
+                                    }
+                                }
+
+                                StickyNoteService.saveCameraPhotoNote(
+                                    image: image,
+                                    senderID: userID,
+                                    familyID: "yourFamilyIDHere" 
+                                ) { error in
+                                    if let error = error {
+                                        print("❌ Failed to save photo note: \(error.localizedDescription)")
+                                    } else {
+                                        print("✅ Photo note saved successfully.")
+                                    }
+                                }
+
+                                onConfirm(image)
+                            }) {
                                 RoundedRectangle(cornerRadius: 15)
                                     .fill(Color(red: 0.80, green: 1, blue: 0.85))
                                     .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
