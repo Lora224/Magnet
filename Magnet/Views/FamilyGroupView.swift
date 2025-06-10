@@ -128,17 +128,24 @@ struct FamilyGroupView: View {
                 // MARK: – Members list (two columns)
                 ScrollView {
                     VStack(spacing: 12) {
-                        ForEach(famManager.userNames, id: \.self) { name in
-                            HStack {
-                                Image(systemName: "person.fill")
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                                Text(name)
-                                    .font(.headline)
-                                Spacer()
+                        if famManager.userNames.isEmpty {
+                            Text("No members found.")
+                                .foregroundColor(.gray)
+                                .padding()
+                        } else {
+                            ForEach(famManager.userNames, id: \.self) { name in
+                                HStack {
+                                    Image(systemName: "person.fill")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                    Text(name)
+                                        .font(.headline)
+                                    Spacer()
+                                }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
+
                     }
                 }
 

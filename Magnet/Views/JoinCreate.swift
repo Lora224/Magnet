@@ -94,7 +94,10 @@ struct JoinCreate: View {
                                             famManager.regoFam(
                                                 familyName: "Family 1",
                                                 familyEmoji: "💀",
-                                                backgroundColor: backgroundColor
+
+
+                                                backgroundColor: Color.red// or use a picker to choose
+
                                             )
                                         }) {
                                             Text("Create")

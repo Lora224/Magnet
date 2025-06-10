@@ -107,8 +107,9 @@ class Sid: ObservableObject {
             if let data = snapshot?.data(),
                let familyID = data["currentFamilyID"] as? String {
                 self.currentFamilyID = familyID
-                self.fetchFamilyDetails(familyID: familyID)
-                self.fetchFamilyMembers()
+                self.fetchFamilyDetails(familyID: familyID) {
+                    self.fetchFamilyMembers()
+                }
             } else {
                 self.alertMessage = "No family found for this user."
                 self.showingAlert = true
@@ -116,8 +117,9 @@ class Sid: ObservableObject {
         }
     }
 
+
     /// Load family meta details (name, emoji, color) given a family ID
-    private func fetchFamilyDetails(familyID: String) {
+    private func fetchFamilyDetails(familyID: String, completion: @escaping () -> Void = {}) {
         db.collection("families").document(familyID).getDocument { snapshot, error in
             if let data = snapshot?.data() {
                 self.familyName = data["name"] as? String ?? ""
@@ -127,6 +129,8 @@ class Sid: ObservableObject {
                 self.blue = data["blue"] as? Double ?? 0.85
                 self.backgroundColor = Color(red: self.red, green: self.green, blue: self.blue)
             }
+            completion()
         }
     }
+
 }
