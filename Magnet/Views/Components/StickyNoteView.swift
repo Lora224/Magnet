@@ -54,10 +54,10 @@ struct StickyNoteView: View {
                     .frame(width: 40, height: 40)
                     .offset(offset(for: index, total: reactions.count))
             }
-
-            .navigationDestination(isPresented: $isPresentingDetail) {
-                NotesDetailView(note: note)
-            }
+        }
+        
+        .navigationDestination(isPresented: $isPresentingDetail) {
+            NotesDetailView(note: note)
         }
     }
 
