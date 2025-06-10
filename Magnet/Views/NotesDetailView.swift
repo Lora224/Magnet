@@ -5,7 +5,8 @@ struct NotesDetailView: View {
     let note: StickyNote
     private let lightGray = Color(red: 0.98, green: 0.98, blue: 0.98)
     private let profilePic = ["profile1", "profile2", "profile3"]
-    
+    @State private var families: [Family] = []
+    @State private var selectedFamilyIndex = 0
     @State private var isSeenPanelOpen = false
     
     var body: some View {
@@ -55,7 +56,10 @@ struct NotesDetailView: View {
                                 }
                         )
                 }
-                TopFamilyBar()
+                TopFamilyBar(
+                    families: $families,
+                    selectedIndex: $selectedFamilyIndex
+                )
                 Spacer()
                 
                 // Magnet Reactions Bar
