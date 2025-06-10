@@ -36,11 +36,12 @@ struct StickyNoteView: View {
 
     var body: some View {
         ZStack {
+            
             noteContentView()
-                .frame(width: 170, height: 170)
+                .frame(width: 220, height: 220)
                 .background(
                     backgroundForNote()
-                        .frame(width: 170, height: 170)
+                        .frame(width: 220, height: 220)
                 )
                 .cornerRadius(16)
                 .shadow(radius: 6)
@@ -172,7 +173,7 @@ struct StickyNoteView: View {
                                         .scaledToFit()
                                         .frame(width: 24, height: 24)
                                         .foregroundColor(.red)
-                                        .frame(height: 120)
+                                        .frame(height: 170)
                                 default:
                                     ProgressView()
                                         .frame(height: 120)
@@ -197,7 +198,7 @@ struct StickyNoteView: View {
                     }
                 }
                 .aspectRatio(4/3, contentMode: .fit)
-                .frame(width: 400)
+               .frame(maxWidth: 200)   // <-- fit the 4:3 Polaroid inside your 170px tile
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .rotationEffect(.degrees(rotationAngle))
             }
