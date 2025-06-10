@@ -62,6 +62,7 @@ class StickyDisplayManager: ObservableObject {
                     print("Failed to parse sticky notes: \(error)")
                 }
             }
+        
     }
 
     private func generateNonOverlappingLayout(for notes: [StickyNote], canvasSize: CGSize) -> [PositionedStickyNote] {

@@ -17,4 +17,15 @@ extension UIImage {
             orientation: .up
         )
     }
+    func resized(maxSide: CGFloat = 1024) -> UIImage {
+      let scaleRatio = min(1, maxSide / max(size.width, size.height))
+      guard scaleRatio < 1 else { return self }
+      let newSize = CGSize(width: size.width * scaleRatio,
+                           height: size.height * scaleRatio)
+      UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
+      draw(in: CGRect(origin: .zero, size: newSize))
+      let result = UIGraphicsGetImageFromCurrentImageContext()
+      UIGraphicsEndImageContext()
+      return result ?? self
+    }
 }

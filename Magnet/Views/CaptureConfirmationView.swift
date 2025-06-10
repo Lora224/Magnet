@@ -141,7 +141,8 @@ struct CaptureConfirmationView: View {
                                 StickyNoteService.saveCameraPhotoNote(
                                     image: image,
                                     senderID: userID,
-                                    familyID: familyID
+                                    familyID: familyID,
+                                    text: caption
                                 ) { error in
                                     if let error = error {
                                         print("❌ Failed to save photo note: \(error.localizedDescription)")

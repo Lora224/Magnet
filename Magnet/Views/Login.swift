@@ -85,7 +85,7 @@ struct Login: View {
 
             // Full screen present JoinCreate
             .fullScreenCover(isPresented: $navigateToJoinCreate) {
-                MainView()
+                JoinCreate()
             }
 
             // Full screen present MainView

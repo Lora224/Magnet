@@ -138,7 +138,7 @@ struct MainView: View {
                 // Navigation trigger
                 NavigationLink(value: navigationTarget, label: { EmptyView() })
             }
-            // 👇 Add here ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+         
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -164,7 +164,7 @@ struct MainView: View {
                     }
                 case "camera":
                     if let userID = Auth.auth().currentUser?.uid {
-                        CameraView(userID: userID, familyID: "gmfQH98GinBcb26abjnY")
+                        CameraView(userID: userID, familyID: "544CF263-E10E-4884-9E60-DFE60B295FDB")
                     } else {
                         Text("⚠️ Please log in first.")
                     }
@@ -173,46 +173,82 @@ struct MainView: View {
                 }
             }
         }
+        // MainView.swift  — add inside body
         .onAppear {
-            if let user = Auth.auth().currentUser {
-                let userID = user.uid
-                print("👤 Current user: \(userID)")
+            // MARK: - Life-cycle entry
+            debugPrint("💡 MainView.onAppear @", Date())
 
-                Firestore.firestore().collection("users").document(userID).getDocument { snapshot, error in
-                    if let error = error {
-                        print("❌ Failed to fetch user document:", error)
+            // 1️⃣  Current user
+            guard let user = Auth.auth().currentUser else {
+                debugPrint("❌ No authenticated user — UI will stay empty")
+                return
+            }
+            let userID = user.uid
+            debugPrint("👤 Auth user UID:", userID)
+
+            // 2️⃣  User document
+            let usersRef = Firestore.firestore()
+                .collection("users")
+                .document(userID)
+            debugPrint("🔎 Fetching user document:", usersRef.path)
+
+            usersRef.getDocument { [weak stickyManager] userSnap, userErr in
+                if let userErr = userErr {
+                    debugPrint("🔥 User doc fetch failed:", userErr.localizedDescription)
+                    return
+                }
+                guard let userData = userSnap?.data() else {
+                    debugPrint("⚠️ User snapshot is nil / empty")
+                    return
+                }
+                debugPrint("✅ User data:", userData)
+
+                guard let families = userData["families"] as? [String],
+                      !families.isEmpty else {
+                    debugPrint("🚫 Key 'families' missing or empty in user doc")
+                    return
+                }
+                let familyID = families.first!
+                debugPrint("🏠 Primary familyID resolved:", familyID)
+
+                // 3️⃣  Family document
+                let familyRef = Firestore.firestore()
+                    .collection("families")
+                    .document(familyID)
+                debugPrint("🔎 Fetching family document:", familyRef.path)
+
+                familyRef.getDocument { famSnap, famErr in
+                    if let famErr = famErr {
+                        debugPrint("🔥 Family doc fetch failed:", famErr.localizedDescription)
                         return
                     }
-
-                    guard let data = snapshot?.data(),
-                          let families = data["families"] as? [String],
-                          let familyID = families.first else {
-                        print("❌ No families found for user")
+                    guard let famData = famSnap?.data() else {
+                        debugPrint("⚠️ Family snapshot nil / empty for", familyID)
                         return
                     }
+                    debugPrint("✅ Family data:", famData)
 
-                    print("🏠 Using family ID:", familyID)
+                    guard let memberIDs = famData["memberIDs"] as? [String],
+                          !memberIDs.isEmpty else {
+                        debugPrint("🚫 'memberIDs' missing / empty – keys present:", famData.keys)
+                        return
+                    }
+                    debugPrint("👨‍👩‍👧‍👦 MemberIDs:", memberIDs)
 
-                    Firestore.firestore().collection("families").document(familyID).getDocument { famSnap, _ in
-                        guard let memberIDs = famSnap?.data()?["memberIDs"] as? [String] else {
-                            print("❌ No memberIDs in family document")
-                            return
-                        }
-                        print("📂 Raw family data:", famSnap?.data() ?? "nil")
-                        print("👨‍👩‍👧‍👦 Family members:", memberIDs)
-
-                        let screenSize = UIScreen.main.bounds.size
-                        stickyManager.loadStickyNotes(
+                    // 4️⃣  Load sticky notes (MAIN thread!)
+                    DispatchQueue.main.async {
+                        debugPrint("📥 Calling loadStickyNotes for", familyID)
+                        stickyManager?.loadStickyNotes(
                             for: familyID,
                             memberIDs: memberIDs,
-                            canvasSize: screenSize
+                            canvasSize: UIScreen.main.bounds.size
                         )
                     }
                 }
-            } else {
-                print("❌ No user is logged in")
             }
         }
+
+
     }
 }
 
