@@ -78,7 +78,7 @@ class StickyDisplayManager: ObservableObject {
             repeat {
                 let x = CGFloat.random(in: 0...(canvasSize.width - noteSize.width))
                 let y = CGFloat.random(in: 0...(canvasSize.height - noteSize.height))
-                angle = Angle(degrees: Double.random(in: -45...45))
+                angle = Angle(degrees: Double.random(in: -30...30))
                 center = CGPoint(x: x, y: y)
                 frame = CGRect(origin: center, size: noteSize)
                 attempts += 1

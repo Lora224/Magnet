@@ -1,6 +1,8 @@
 import SwiftUI
 import AVFoundation
 import UIKit
+import FirebaseAuth
+import Firebase
 
 struct StickyNoteView: View {
     let note: StickyNote
@@ -12,7 +14,13 @@ struct StickyNoteView: View {
     @State private var showVideoPreview = false
     @State private var isAudioPlaying = false
     @State private var audioPlayer: AVPlayer?
-
+    private var isUnseenByMe: Bool {
+        guard
+            let me = Auth.auth().currentUser?.uid,
+            let seenDict = note.seen as? [String: Bool]
+        else { return true }          // treat as unseen if anything’s missing
+        return !(seenDict[me] ?? false)
+    }
     private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
 
     func shorten(_ text: String) -> String {
@@ -54,11 +62,38 @@ struct StickyNoteView: View {
                     .frame(width: 40, height: 40)
                     .offset(offset(for: index, total: reactions.count))
             }
+            if isUnseenByMe {
+                Image("exclamation")                 // name in Assets
+                    .resizable()
+                    .frame(width: 40, height: 40)
+                    // place it right after the last reaction, same circular layout
+                    .offset(offset(for: reactions.count,
+                                   total: reactions.count + 1))
+            }
+            
+
         }
-        
+        .onTapGesture {
+            isPresentingDetail = true
+            markSeen()
+        }
+       // ⬇️  Put the destination on the SAME view that flips the Boolean
         .navigationDestination(isPresented: $isPresentingDetail) {
-            NotesDetailView(note: note)
-        }
+           NotesDetailView(note: note)
+       }
+    
+
+}
+    private func markSeen() {
+        guard
+            let me = Auth.auth().currentUser?.uid
+        else { return }
+
+        Firestore.firestore()
+            .collection("StickyNotes")
+            .document(note.id.uuidString)       // ← convert UUID → String
+            .setData(["seen.\(me)" : true],     // nested field “seen.<uid>” = true
+                     merge: true)
     }
 
     @ViewBuilder
