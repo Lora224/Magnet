@@ -15,11 +15,14 @@ struct StickyNoteView: View {
     @State private var isAudioPlaying = false
     @State private var audioPlayer: AVPlayer?
     private var isUnseenByMe: Bool {
-        guard
-            let me = Auth.auth().currentUser?.uid,
-            let seenDict = note.seen as? [String: Bool]
-        else { return true }          // treat as unseen if anything’s missing
-        return !(seenDict[me] ?? false)
+        guard let me = Auth.auth().currentUser?.uid else { return false }
+       // 1️⃣ if *I* sent it, never show “!”
+       if note.senderID == me { return false }
+
+       // 2️⃣ pull the ReactionType? map (empty if missing)
+       let seenDict = note.seen as? [String:ReactionType?] ?? [:]
+       // 3️⃣ if my UID is a key, it’s seen
+       return !seenDict.keys.contains(me)
     }
     private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
 
@@ -43,9 +46,11 @@ struct StickyNoteView: View {
                 .shadow(radius: 6)
                 .scaleEffect(showVideoPreview ? 1.3 : 1.0)
                 .animation(nil, value: showVideoPreview)
+                 .contentShape(Rectangle())
                 .onTapGesture {
-                    isPresentingDetail = true
-                }
+                        markSeen()
+                        isPresentingDetail = true
+                    }
                 .onLongPressGesture {
                     if note.type == .video {
                         showVideoPreview.toggle()
@@ -73,10 +78,7 @@ struct StickyNoteView: View {
             
 
         }
-        .onTapGesture {
-            isPresentingDetail = true
-            markSeen()
-        }
+
        // ⬇️  Put the destination on the SAME view that flips the Boolean
         .navigationDestination(isPresented: $isPresentingDetail) {
            NotesDetailView(note: note)
@@ -92,8 +94,7 @@ struct StickyNoteView: View {
         Firestore.firestore()
             .collection("StickyNotes")
             .document(note.id.uuidString)       // ← convert UUID → String
-            .setData(["seen.\(me)" : true],     // nested field “seen.<uid>” = true
-                     merge: true)
+            .updateData(["seen.\(me)": nil])
     }
 
     @ViewBuilder
