@@ -105,13 +105,12 @@ struct CameraView: View {
                     }
                     // ────────────────────────────────────────────────────────────────
                     // These modifiers are now applied *outside* the `if/else`:
-                    .onChange(of: pendingImage) { newImage in
-                        // This will run whenever pendingImage changes—whether nil→non-nil or non-nil→nil
-                        if newImage != nil {
-                            showConfirmation = true
-                        }
-                        print("🔄 CameraView.onChange: pendingImage is now \(String(describing: newImage))")
-                    }
+        .onChange(of: pendingImage) { oldValue, newValue in
+            if newValue != nil {
+                showConfirmation = true
+            }
+            print("🔄 CameraView.onChange: pendingImage changed from \(String(describing: oldValue)) to \(String(describing: newValue))")
+        }
                     .sheet(isPresented: $showPhotoLibrary) {
                         PhotoLibraryPicker(selectedImage: $pendingImage)
                             .edgesIgnoringSafeArea(.all)
@@ -130,6 +129,10 @@ struct CameraView: View {
                                         UIImageWriteToSavedPhotosAlbum(confirmedImage, nil, nil, nil)
                                         pendingImage = nil
                                         showConfirmation = false
+                                    },
+                                    onDone: {
+                                        pendingImage = nil
+                                        showConfirmation = false // ✅ Navigates back to MainView
                                     },
                                     userID: userID,
                                     familyID: familyID

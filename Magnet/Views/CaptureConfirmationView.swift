@@ -11,6 +11,7 @@ struct CaptureConfirmationView: View {
     let image: UIImage
     let onRetake: () -> Void
     let onConfirm: (UIImage) -> Void
+    let onDone: () -> Void
     
     let userID: String
     let familyID: String
@@ -146,7 +147,7 @@ struct CaptureConfirmationView: View {
                                         print("❌ Failed to save photo note: \(error.localizedDescription)")
                                     } else {
                                         print("✅ Photo note saved successfully.")
-                                        dismiss() // Navigate back to MainView
+                                        onDone()
                                     }
                                 }
                             }) {
