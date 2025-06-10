@@ -149,8 +149,8 @@ struct StickyNoteService {
     
     
     static func saveVoiceNote(audioURL: URL, senderID: String, familyID: String, completion: @escaping (Error?) -> Void) {
-            let noteID = UUID().uuidString
-            let storagePath = "sticky_voice/\(noteID).m4a"
+        let id = UUID().uuidString
+            let storagePath = "sticky_voice/\(id).m4a"
             let storageRef = Storage.storage().reference().child(storagePath)
 
             storageRef.putFile(from: audioURL, metadata: nil) { metadata, error in
@@ -171,17 +171,19 @@ struct StickyNoteService {
                     }
 
                     let noteData: [String: Any] = [
+                        "id":          id,
                         "senderID": senderID,
                         "familyID": familyID,
-                        "type": "voice",
+                        "type": "audio",
+                        "text": "",
                         "payloadURL": downloadURL.absoluteString,
                         "timeStamp": Timestamp(date: Date()),
-                        "seen": [:]
+                        "seen": [senderID:nil]
                     ]
 
                     Firestore.firestore()
                         .collection("StickyNotes")
-                        .document(noteID)
+                        .document(id)
                         .setData(noteData) { error in
                             completion(error)
                         }
