@@ -153,7 +153,14 @@ struct MainView: View {
                     } else {
                         Text("⚠️ Please log in first.")
                     }
-                case "mic": VoiceInputView()
+                case "mic":
+                    if let userID = Auth.auth().currentUser?.uid {
+                        let familyIdString:String = families[selectedFamilyIndex].id
+                        VoiceInputView(familyID: familyIdString, userID: userID)
+                    } else {
+                        Text("⚠️ Please log in first.")
+                    }
+
                 default: EmptyView()
                 }
             }
