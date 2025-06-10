@@ -13,10 +13,10 @@
 		6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19652DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19672DEE7E420040569F /* FirebaseAppCheck */; };
 		6E7E19F02DF280290040569F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6E7E19EF2DF280290040569F /* FirebaseAuth */; };
+		8E3EC8D92DF691E30020FFA4 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 8E3EC8D82DF691E30020FFA4 /* FirebaseFirestoreCombine-Community */; };
+		8F51AFBB2DF6BCB700267BD3 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8F51AFBA2DF6BCB700267BD3 /* SDWebImageSwiftUI */; };
+		8FDA11A12DF33BB900591829 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8FDA11A02DF33BB900591829 /* FirebaseStorage */; };
 		9F410DEB2DF2A007001B316F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9F410DEA2DF2A007001B316F /* FirebaseFirestore */; };
-		F1A8E2A92DF74E8500D93FFA /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F1A8E2A82DF74E8500D93FFA /* SDWebImageSwiftUI */; };
-		F1A8E2AB2DF74F0B00D93FFA /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = F1A8E2AA2DF74F0B00D93FFA /* FirebaseDatabase */; };
-		F1A8E2AD2DF7505E00D93FFA /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F1A8E2AC2DF7505E00D93FFA /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,7 +24,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F1A8E2A62DF74D2C00D93FFA /* Exceptions for "Magnet" folder in "Magnet" target */ = {
+		0BA910CE2DF2D0C6004699B0 /* Exceptions for "Magnet" folder in "Magnet" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -37,7 +37,7 @@
 		0B89ABBD2DE93EFC0024EFB4 /* Magnet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				F1A8E2A62DF74D2C00D93FFA /* Exceptions for "Magnet" folder in "Magnet" target */,
+				0BA910CE2DF2D0C6004699B0 /* Exceptions for "Magnet" folder in "Magnet" target */,
 			);
 			path = Magnet;
 			sourceTree = "<group>";
@@ -49,14 +49,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F51AFBB2DF6BCB700267BD3 /* SDWebImageSwiftUI in Frameworks */,
 				6E7E19622DEE7E420040569F /* FirebaseAnalytics in Frameworks */,
 				6E7E19F02DF280290040569F /* FirebaseAuth in Frameworks */,
 				6E7E19642DEE7E420040569F /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
-				F1A8E2AD2DF7505E00D93FFA /* FirebaseStorage in Frameworks */,
+				8E3EC8D92DF691E30020FFA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				6E7E19602DEE7E420040569F /* FirebaseAI in Frameworks */,
-				F1A8E2A92DF74E8500D93FFA /* SDWebImageSwiftUI in Frameworks */,
 				6E7E19682DEE7E420040569F /* FirebaseAppCheck in Frameworks */,
-				F1A8E2AB2DF74F0B00D93FFA /* FirebaseDatabase in Frameworks */,
+				8FDA11A12DF33BB900591829 /* FirebaseStorage in Frameworks */,
 				6E7E19662DEE7E420040569F /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				9F410DEB2DF2A007001B316F /* FirebaseFirestore in Frameworks */,
 			);
@@ -116,9 +116,9 @@
 				6E7E19672DEE7E420040569F /* FirebaseAppCheck */,
 				6E7E19EF2DF280290040569F /* FirebaseAuth */,
 				9F410DEA2DF2A007001B316F /* FirebaseFirestore */,
-				F1A8E2A82DF74E8500D93FFA /* SDWebImageSwiftUI */,
-				F1A8E2AA2DF74F0B00D93FFA /* FirebaseDatabase */,
-				F1A8E2AC2DF7505E00D93FFA /* FirebaseStorage */,
+				8FDA11A02DF33BB900591829 /* FirebaseStorage */,
+				8E3EC8D82DF691E30020FFA4 /* FirebaseFirestoreCombine-Community */,
+				8F51AFBA2DF6BCB700267BD3 /* SDWebImageSwiftUI */,
 			);
 			productName = Magnet;
 			productReference = 0B89ABBB2DE93EFC0024EFB4 /* Magnet.app */;
@@ -150,7 +150,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				F1A8E2A72DF74E8500D93FFA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				8F51AFB92DF6BCB700267BD3 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0B89ABBC2DE93EFC0024EFB4 /* Products */;
@@ -309,6 +309,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Magnet/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to show a live preview and take photos.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need photo library access to save your captured images";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to choose an existing photo.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -348,6 +351,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Magnet/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to show a live preview and take photos.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need photo library access to save your captured images";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to choose an existing photo.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -407,7 +413,7 @@
 				minimumVersion = 11.13.0;
 			};
 		};
-		F1A8E2A72DF74E8500D93FFA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+		8F51AFB92DF6BCB700267BD3 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI";
 			requirement = {
@@ -448,25 +454,25 @@
 			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
+		8E3EC8D82DF691E30020FFA4 /* FirebaseFirestoreCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseFirestoreCombine-Community";
+		};
+		8F51AFBA2DF6BCB700267BD3 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8F51AFB92DF6BCB700267BD3 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
+		8FDA11A02DF33BB900591829 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		9F410DEA2DF2A007001B316F /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
-		};
-		F1A8E2A82DF74E8500D93FFA /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F1A8E2A72DF74E8500D93FFA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
-		};
-		F1A8E2AA2DF74F0B00D93FFA /* FirebaseDatabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseDatabase;
-		};
-		F1A8E2AC2DF7505E00D93FFA /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6E7E195E2DEE7E420040569F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

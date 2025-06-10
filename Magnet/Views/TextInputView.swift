@@ -3,8 +3,11 @@ import PencilKit
 import FirebaseAuth
 
 struct TextInputView: View {
+    
     var familyID: String
     var userID: String
+    
+    @Environment(\.dismiss) private var dismiss
 
     @State private var canvasView = PKCanvasView()
     @State private var isDrawing = false
@@ -59,17 +62,23 @@ struct TextInputView: View {
     func headerBar() -> some View {
         HStack {
             VStack {
-                CircleExitButton(
-                    systemImage: "xmark",
-                    backgroundColor: Color.red
-                )
+                Button(action: {
+                    dismiss()
+                }) {
+                    CircleExitButton(
+                        systemImage: "xmark",
+                        backgroundColor: .red
+                    )
+                }
                 .padding(.top, 20)
                 .padding(.leading, 16)
+
                 Spacer()
             }
             Spacer()
         }
     }
+
 
     func noteContent() -> some View {
         VStack(spacing: 24) {

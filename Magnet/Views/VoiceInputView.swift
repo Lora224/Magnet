@@ -2,10 +2,14 @@ import SwiftUI
 import Combine
 
 struct VoiceInputView: View {
+    
+    @Environment(\.dismiss) private var dismiss   
+
     @State private var secondsElapsed: Int = 0
     @State private var isRecording: Bool = false
     @State private var isPulsing: Bool = false
     @State private var hasRecording: Bool = false
+    
 
     // Playback state
     @State private var recordingDuration: Int = 0
@@ -20,10 +24,14 @@ struct VoiceInputView: View {
                 GridPatternBackground()
                     .ignoresSafeArea()
 
-                CircleExitButton(
-                    systemImage: "xmark",
-                    backgroundColor: .red
-                )
+                Button(action: {
+                    dismiss()
+                }) {
+                    CircleExitButton(
+                        systemImage: "xmark",
+                        backgroundColor: .red
+                    )
+                }
                 .padding(.leading, 20)
                 .padding(.top, 20)
 
