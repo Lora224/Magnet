@@ -7,52 +7,73 @@ struct Login: View {
     @State private var password = ""
     @StateObject private var authManager = AuthManager()
 
-    @State private var fullScreenView: FullScreenPage? = nil
+    @State private var showUsernameDialog = false
+    @State private var showJoinCreate = false
+    @State private var showMainView = false
+
     @State private var isSignUpFlow = false
 
     var body: some View {
-        ZStack {
-            LoginContentView(
-                email: $email,
-                password: $password,
-                onSignUp: {
-                    authManager.register(email: email, password: password) { success in
-                        if success {
-                            isSignUpFlow = true
-                            fullScreenView = .usernameSetup
+        NavigationStack {
+            ZStack {
+                // Background LoginContentView
+                LoginContentView(
+                    email: $email,
+                    password: $password,
+                    onSignUp: {
+                        authManager.register(email: email, password: password) { success in
+                            if success {
+                                isSignUpFlow = true
+                                withAnimation(.spring()) {
+                                    showUsernameDialog = true
+                                }
+                            }
+                        }
+                    },
+                    onLogIn: {
+                        authManager.login(email: email, password: password) { success in
+                            if success {
+                                isSignUpFlow = false
+                                checkUserProfile()
+                            }
                         }
                     }
-                },
-                onLogIn: {
-                    authManager.login(email: email, password: password) { success in
-                        if success {
-                            isSignUpFlow = false
-                            checkUserProfile()
+                )
+                .blur(radius: showUsernameDialog ? 3 : 0)
+                .disabled(showUsernameDialog)
+
+                // UsernameSetupView overlay
+                if showUsernameDialog {
+                    UsernameSetupView {
+                        withAnimation(.spring()) {
+                            showUsernameDialog = false
+                        }
+
+                        if isSignUpFlow {
+                            showJoinCreate = true
+                        } else {
+                            checkFamilies()
                         }
                     }
+                    .transition(.move(edge: .bottom)) // 👈 Slide from bottom
+                    .zIndex(10)
                 }
-            )
-        }
-        .fullScreenCover(item: $fullScreenView, onDismiss: {
-            if fullScreenView == .usernameSetup {
-                if isSignUpFlow {
-                    fullScreenView = .joinCreate
-                } else {
-                    checkFamilies()
+
+                // Navigation to JoinCreate
+                NavigationLink("", isActive: $showJoinCreate) {
+                    JoinCreate()
+                        .navigationBarBackButtonHidden(true)
+                }
+
+                // Navigation to MainView
+                NavigationLink("", isActive: $showMainView) {
+                    MainView()
+                        .navigationBarBackButtonHidden(true)
                 }
             }
-        }) { page in
-            switch page {
-            case .joinCreate:
-                JoinCreate()
-            case .mainView:
-                MainView()
-            case .usernameSetup:
-                UsernameSetupView(fullScreenView: $fullScreenView, isSignUpFlow: isSignUpFlow)
+            .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
+                Button("OK", role: .cancel) { }
             }
-        }
-        .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
-            Button("OK", role: .cancel) { }
         }
     }
 
@@ -71,7 +92,9 @@ struct Login: View {
             guard let data = snapshot?.data() else {
                 print("❌ No user document found")
                 DispatchQueue.main.async {
-                    fullScreenView = .usernameSetup
+                    withAnimation(.spring()) {
+                        showUsernameDialog = true
+                    }
                 }
                 return
             }
@@ -82,9 +105,11 @@ struct Login: View {
                     checkFamilies()
                 }
             } else {
-                print("❌ User has no name → navigating to UsernameSetupView")
+                print("❌ User has no name → show username dialog")
                 DispatchQueue.main.async {
-                    fullScreenView = .usernameSetup
+                    withAnimation(.spring()) {
+                        showUsernameDialog = true
+                    }
                 }
             }
         }
@@ -104,38 +129,24 @@ struct Login: View {
 
             guard let data = snapshot?.data(),
                   let families = data["families"] as? [String] else {
-                print("❌ No families field → navigating to JoinCreate")
+                print("❌ No families field → go to JoinCreate")
                 DispatchQueue.main.async {
-                    fullScreenView = .joinCreate
+                    showJoinCreate = true
                 }
                 return
             }
 
             if families.isEmpty {
-                print("❌ Families empty → navigating to JoinCreate")
+                print("❌ Families empty → go to JoinCreate")
                 DispatchQueue.main.async {
-                    fullScreenView = .joinCreate
+                    showJoinCreate = true
                 }
             } else {
-                print("✅ Families exist → navigating to MainView")
+                print("✅ Families exist → go to MainView")
                 DispatchQueue.main.async {
-                    fullScreenView = .mainView
+                    showMainView = true
                 }
             }
-        }
-    }
-}
-
-enum FullScreenPage: Identifiable {
-    case joinCreate
-    case mainView
-    case usernameSetup
-
-    var id: String {
-        switch self {
-        case .joinCreate: return "joinCreate"
-        case .mainView: return "mainView"
-        case .usernameSetup: return "usernameSetup"
         }
     }
 }

@@ -3,40 +3,34 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct UsernameSetupView: View {
-    @Binding var fullScreenView: FullScreenPage? // ⭐️ Add this line
-    let isSignUpFlow: Bool // ⭐️ Add this line
-    
     @State private var username = ""
     @State private var isLoading = false
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-    
+
+    let onComplete: () -> Void
+
     private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129)
-    
+
     var body: some View {
         ZStack {
-            Image("loginBackground")
-                .resizable()
-                .scaledToFill()
+            Color.black.opacity(0)
                 .ignoresSafeArea()
-            
-            Color.white.opacity(0.4)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                Text("Please enter your username. Don't worry, you can change it later.")
+
+            VStack(spacing: 25) {
+                Text("Please enter your username.\nYou can change it later.")
                     .font(.system(size: 25, weight: .bold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(magnetBrown)
                     .padding()
-                
+
                 HStack {
                     TextField("Username", text: $username)
                         .padding(12)
                         .background(Color.white.opacity(0.9))
                         .cornerRadius(8)
-                        .frame(maxWidth: 300)
-                    
+                        .frame(maxWidth: .infinity)
+
                     Button(action: {
                         saveUsername()
                     }) {
@@ -57,10 +51,18 @@ struct UsernameSetupView: View {
                 }
                 .frame(maxWidth: 400)
             }
-            .padding()
-            .background(Color.white.opacity(0.85))
+            .padding(60)
+            .background(
+                VisualEffectView(effect: UIBlurEffect(style: .systemMaterial))
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
             .cornerRadius(20)
             .shadow(radius: 10)
+            .frame(maxWidth: 500)
         }
         .alert("Error", isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) { }
@@ -68,34 +70,29 @@ struct UsernameSetupView: View {
             Text(errorMessage)
         }
     }
-    
+
     private func saveUsername() {
         guard let userID = Auth.auth().currentUser?.uid else {
             showError(message: "Unable to get current user ID.")
             return
         }
-        
+
         isLoading = true
-        
+
         Firestore.firestore().collection("users").document(userID).setData([
             "name": username
         ], merge: true) { error in
             isLoading = false
-            
+
             if let error = error {
                 showError(message: "Failed to save username: \(error.localizedDescription)")
             } else {
                 print("✅ Username saved successfully.")
-                // ⭐️ Correct way: change fullScreenView (do not use dismiss!)
-                if isSignUpFlow {
-                    fullScreenView = .joinCreate
-                } else {
-                    fullScreenView = .mainView
-                }
+                onComplete() // 👈 Call completion closure
             }
         }
     }
-    
+
     private func showError(message: String) {
         errorMessage = message
         showErrorAlert = true
