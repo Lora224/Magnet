@@ -2,17 +2,9 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
 
-enum NavigationTarget: Hashable, Identifiable {
-    case text
-    case camera
-    case mic
-
-    var id: Self { self }
-}
-
 struct MainView: View {
     @State private var isMenuOpen = false
-    @State private var navigationTarget: NavigationTarget?
+    @State private var navigationTarget: String?
     @StateObject private var stickyManager = StickyDisplayManager()
     @State private var canvasOffset = CGSize.zero
     @State private var zoomScale: CGFloat = 1.0
@@ -66,7 +58,7 @@ struct MainView: View {
                         Group {
                             // Text Input
                             Button {
-                                navigationTarget = .text
+                                navigationTarget = "text"
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                     isMenuOpen = false
                                 }
@@ -86,7 +78,7 @@ struct MainView: View {
 
                             // Camera Input
                             Button {
-                                navigationTarget = .camera
+                                navigationTarget = "camera"
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                     isMenuOpen = false
                                 }
@@ -105,7 +97,7 @@ struct MainView: View {
 
                             // Voice Input
                             Button {
-                                navigationTarget = .mic
+                                navigationTarget = "mic"
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                     isMenuOpen = false
                                 }
@@ -149,54 +141,31 @@ struct MainView: View {
                 .ignoresSafeArea(edges: .bottom)
 
                 // Navigation trigger
-                .navigationDestination(item: $navigationTarget) { target in
-                    switch target {
-                    case .text:
-                        if let userID = Auth.auth().currentUser?.uid {
-                            let familyIdString = families[selectedFamilyIndex].id
-                            TextInputView(familyID: familyIdString, userID: userID)
-                        } else {
-                            Text("⚠️ Please log in first.")
-                        }
-
-                    case .camera:
-                        if let userID = Auth.auth().currentUser?.uid {
-                            let familyIdString = families[selectedFamilyIndex].id
-                            CameraView(userID: userID, familyID: familyIdString)
-                        } else {
-                            Text("⚠️ Please log in first.")
-                        }
-
-                    case .mic:
-                        VoiceInputView(navigationTarget: $navigationTarget)
-                    }
-                }
+                NavigationLink(value: navigationTarget, label: { EmptyView() })
             }
          
             .navigationBarBackButtonHidden(true)
             // 👆 Add end ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {
-                case .text:
+                case "text":
                     if let userID = Auth.auth().currentUser?.uid {
-                        let familyIdString = families[selectedFamilyIndex].id
+                        let familyIdString:String = families[selectedFamilyIndex].id
                         TextInputView(familyID: familyIdString, userID: userID)
                     } else {
                         Text("⚠️ Please log in first.")
                     }
-
-                case .camera:
+                case "camera":
                     if let userID = Auth.auth().currentUser?.uid {
-                        let familyIdString = families[selectedFamilyIndex].id
+                        let familyIdString:String = families[selectedFamilyIndex].id
                         CameraView(userID: userID, familyID: familyIdString)
                     } else {
                         Text("⚠️ Please log in first.")
                     }
-
-                case .mic:
-                    VoiceInputView(navigationTarget: $navigationTarget)                }
+                case "mic": VoiceInputView()
+                default: EmptyView()
+                }
             }
-
         }
         .onAppear(perform: loadUserFamilies)
         .onChange(of: selectedFamilyIndex) { _ in

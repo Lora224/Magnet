@@ -3,9 +3,8 @@ import Combine
 
 struct VoiceInputView: View {
     
-    @Environment(\.dismiss) private var dismiss
-    
-    @Binding var navigationTarget: NavigationTarget?
+    @Environment(\.dismiss) private var dismiss   
+
     @State private var secondsElapsed: Int = 0
     @State private var isRecording: Bool = false
     @State private var isPulsing: Bool = false
@@ -25,10 +24,14 @@ struct VoiceInputView: View {
                 GridPatternBackground()
                     .ignoresSafeArea()
 
-                CircleExitButton {
-                    navigationTarget = nil
+                Button(action: {
+                    dismiss()
+                }) {
+                    CircleExitButton(
+                        systemImage: "xmark",
+                        backgroundColor: .red
+                    )
                 }
-
                 .padding(.leading, 20)
                 .padding(.top, 20)
 
@@ -193,6 +196,5 @@ struct VoiceInputView: View {
 }
 
 #Preview {
-    VoiceInputView(navigationTarget: .constant(.mic))
+    VoiceInputView()
 }
-
