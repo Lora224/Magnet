@@ -6,7 +6,8 @@ struct StickyCanvasView: View {
     @Binding var canvasOffset: CGSize
     @Binding var zoomScale: CGFloat
     @GestureState private var dragDelta: CGSize = .zero
-
+    @Binding var families: [Family]
+    @Binding var selectedFamilyIndex: Int
     var body: some View {
         ZStack {
             Color.clear
@@ -30,7 +31,7 @@ struct StickyCanvasView: View {
 
             ZStack {
                 ForEach(stickyManager.viewportNotes) { note in
-                    StickyNoteView(note: note.note, reactions: note.reactions)
+                    StickyNoteView(note: note.note, reactions: note.reactions,  families: $families,  selectedFamilyIndex: $selectedFamilyIndex)
                         .rotationEffect(note.rotationAngle)
                         .position(note.position)
                         .id(note.id)

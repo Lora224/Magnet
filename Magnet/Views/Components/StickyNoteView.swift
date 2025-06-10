@@ -7,7 +7,8 @@ import Firebase
 struct StickyNoteView: View {
     let note: StickyNote
     let reactions: [ReactionType]
-
+    @Binding var families: [Family]
+    @Binding var selectedFamilyIndex: Int
     @State private var isPresentingDetail = false
     @State private var caption: String = ""
     @State private var thumbnail: UIImage? = nil
@@ -82,7 +83,9 @@ struct StickyNoteView: View {
 
        // ⬇️  Put the destination on the SAME view that flips the Boolean
         .navigationDestination(isPresented: $isPresentingDetail) {
-           NotesDetailView(note: note)
+           NotesDetailView(note: note,
+                           families: $families,
+                           selectedFamilyIndex: $selectedFamilyIndex)
        }
     
 

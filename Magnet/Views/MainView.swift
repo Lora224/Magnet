@@ -26,7 +26,9 @@ struct MainView: View {
                 StickyCanvasView(
                     stickyManager: stickyManager,
                     canvasOffset: $canvasOffset,
-                    zoomScale: $zoomScale
+                    zoomScale: $zoomScale,
+                    families: $families,
+                    selectedFamilyIndex: $selectedFamilyIndex
                 )
 
                 // Top Bar + Debug button
@@ -36,18 +38,6 @@ struct MainView: View {
                         selectedIndex: $selectedFamilyIndex
                     )
 
-                    HStack(spacing: 12) {
-                        Spacer()
-                        NavigationLink(destination: StickyNoteTestView()) {
-                            Text("StickyNote")
-                                .font(.caption)
-                                .padding(8)
-                                .background(Color.gray.opacity(0.2))
-                                .foregroundColor(.blue)
-                                .cornerRadius(8)
-                        }
-                        .padding(.trailing, 12)
-                    }
                     .padding(.top, 6)
                     Spacer()
                 }

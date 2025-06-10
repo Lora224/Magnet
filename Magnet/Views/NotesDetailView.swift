@@ -5,10 +5,9 @@ struct NotesDetailView: View {
     let note: StickyNote
     private let lightGray = Color(red: 0.98, green: 0.98, blue: 0.98)
     private let profilePic = ["profile1", "profile2", "profile3"]
-    @State private var families: [Family] = []
-    @State private var selectedFamilyIndex = 0
     @State private var isSeenPanelOpen = false
-    
+    @Binding var families: [Family]
+    @Binding var selectedFamilyIndex: Int
     var body: some View {
         ZStack {
             // Background content
@@ -56,11 +55,15 @@ struct NotesDetailView: View {
                                 }
                         )
                 }
-                
-                TopFamilyBar(
-                    families: $families,
-                    selectedIndex: $selectedFamilyIndex
-                )
+                VStack(spacing: 0) {
+                    TopFamilyBar(
+                        families: $families,
+                        selectedIndex: $selectedFamilyIndex
+                    )
+
+                    .padding(.top, 6)
+                    Spacer()
+                }
                 Spacer()
                 
                 // Magnet Reactions Bar
@@ -150,16 +153,31 @@ struct NotesDetailView: View {
         }
     }
 }
-
 #Preview {
-    NotesDetailView(note: StickyNote(
-        id: UUID(),
-        senderID: "user1",
-        familyID: "fam",
-        type: .text,
-        timeStamp: Date(),
-        seen: ["user1": .clap, "user2": .liked],
-        text: "Grandma’s apple pie was amazing!",
-        payloadURL: nil
-    ))
+  NotesDetailView(
+    note: StickyNote(
+      id: UUID(),
+      senderID: "user1",
+      familyID: "fam",
+      type: .text,
+      timeStamp: Date(),
+      seen: ["user1": .clap, "user2": .liked],
+      text: "Grandma’s apple pie was amazing!",
+      payloadURL: nil
+    ),
+    families: .constant([
+      Family(
+        id: "fam",
+        name: "The Smiths 😊",
+        inviteURL: "",
+        memberIDs: [],
+        red: 0.9,
+        green: 0.7,
+        blue: 0.2,
+        profilePic: nil
+      )
+    ]),
+    selectedFamilyIndex: .constant(0)
+  )
 }
+
