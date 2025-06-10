@@ -12,8 +12,9 @@ struct StickyNoteService {
            completion: @escaping (Error?) -> Void
     ) {
         let db = Firestore.firestore()
+        let id = UUID().uuidString
         let noteData: [String: Any] = [
-            "id": UUID().uuidString,
+            "id": id,
             "text": text,
             "type": "text",
             "senderID": senderID,
@@ -23,13 +24,16 @@ struct StickyNoteService {
             "seen": [senderID:nil]
 
         ]
-        db.collection("StickyNotes").addDocument(data: noteData) { error in
-            completion(error)
-        }
+        db.collection("StickyNotes")
+          .document(id)
+          .setData(noteData) { error in
+              completion(error)
+          }
     }
     
     // Save drawing-based sticky note
     static func saveDrawingNote(
+        text: String,
         image: UIImage,
         senderID: String,
         familyID: String,
@@ -66,10 +70,12 @@ struct StickyNoteService {
                     completion(NSError(domain: "StorageDownload", code: 2, userInfo: [NSLocalizedDescriptionKey: "Download URL not found"]))
                     return
                 }
+                let id = UUID().uuidString
+
                 
                 let noteData: [String: Any] = [
-                    "id": imageID,
-                    "text": "",
+                    "id": id,
+                    "text": text,
                     "type": "drawing",
                     "senderID": senderID,
                     "familyID": familyID,
@@ -79,9 +85,11 @@ struct StickyNoteService {
 
                 ]
                 
-                db.collection("StickyNotes").addDocument(data: noteData) { error in
-                    completion(error)
-                }
+                db.collection("StickyNotes")
+                  .document(id)
+                  .setData(noteData) { error in
+                      completion(error)
+                  }
             }
         }
     }
@@ -130,7 +138,11 @@ struct StickyNoteService {
                     "seen": [senderID:nil]
 
                 ]
-                db.collection("StickyNotes").addDocument(data: noteData, completion: completion)
+                db.collection("StickyNotes")
+                  .document(id)
+                  .setData(noteData) { error in
+                      completion(error)
+                  }
             }
         }
     }

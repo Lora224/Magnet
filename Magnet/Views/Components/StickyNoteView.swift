@@ -36,11 +36,12 @@ struct StickyNoteView: View {
 
     var body: some View {
         ZStack {
+            
             noteContentView()
-                .frame(width: 170, height: 170)
+                .frame(width: 220, height: 220)
                 .background(
                     backgroundForNote()
-                        .frame(width: 170, height: 170)
+                        .frame(width: 220, height: 220)
                 )
                 .cornerRadius(16)
                 .shadow(radius: 6)
@@ -87,14 +88,22 @@ struct StickyNoteView: View {
 
 }
     private func markSeen() {
-        guard
-            let me = Auth.auth().currentUser?.uid
-        else { return }
+        guard let me = Auth.auth().currentUser?.uid else { return }
+        let seenKey = "seen.\(me)"
 
         Firestore.firestore()
-            .collection("StickyNotes")
-            .document(note.id.uuidString)       // ← convert UUID → String
-            .updateData(["seen.\(me)": nil])
+          .collection("StickyNotes")
+          .document(note.id.uuidString)
+          .updateData([
+            // NSNull() tells Firestore “this map key’s value is null”
+            seenKey: NSNull()
+          ]) { error in
+            if let error = error {
+              print("❌ markSeen failed:", error)
+            } else {
+              print("✅ marked \(me) in seen map")
+            }
+          }
     }
 
     @ViewBuilder
@@ -138,46 +147,63 @@ struct StickyNoteView: View {
             }
 
         case .image, .video:
-            VStack(spacing: 8) {
-                if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 220, height: 220)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                        case .failure(_):
-                            Image(systemName: "exclamationmark.triangle")
-                                .resizable()
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(.red)
-                        default:
-                            ProgressView()
+            let rotationAngle = Double.random(in: -5...5)
+            
+            VStack(spacing: 0) {
+                ZStack {
+                    // Background: whole Polaroid
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
+
+                    VStack(spacing: 0) {
+                        // Image with top & side margins
+                        if let url = URL(string: note.payloadURL ?? "") {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let img):
+                                    img
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 120)
+                                        .clipped()
+                                case .failure:
+                                    Image(systemName: "exclamationmark.triangle")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 24, height: 24)
+                                        .foregroundColor(.red)
+                                        .frame(height: 170)
+                                default:
+                                    ProgressView()
+                                        .frame(height: 120)
+                                }
+                            }
+                            .padding(.top, 6)
+                            .padding(.horizontal, 6)
                         }
-                        
+
+                        // Caption space — thick bottom border
+                        Rectangle()
+                            .fill(Color.white)
+                            .frame(height: 30)
+                            .overlay(
+                                Text(note.text?.isEmpty == false ? shorten(note.text!) : "")
+                                    .font(.caption2)
+                                    .foregroundColor(.black)
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 4),
+                                alignment: .top
+                            )
                     }
-                    if let text = note.text, !text.isEmpty {
-                        Text(shorten(text))
-                            .font(.caption)
-                            .foregroundColor(.black)
-                            .lineLimit(1)
-                            .frame(maxWidth: .infinity)
-                    }
-                    
-                    
                 }
+                .aspectRatio(4/3, contentMode: .fit)
+               .frame(maxWidth: 200)   // <-- fit the 4:3 Polaroid inside your 170px tile
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .rotationEffect(.degrees(rotationAngle))
             }
-            .padding(12)                       // inner padding
-            .padding(.bottom, 20)              // extra bottom for caption area
-            .background(Color.white)           // white polaroid
-            .cornerRadius(8)
-            .shadow(color: Color.black.opacity(0.2),
-                    radius: 4, x: 0, y: 2)
-            .rotationEffect(.degrees(Double.random(in: -5...5)))
-            .padding(4)                        // space between note and magnet
-            .frame(width: 400, height: 300)
+            .padding(2)
+
 
         case .audio:
             VStack {

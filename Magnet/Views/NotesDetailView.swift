@@ -56,6 +56,7 @@ struct NotesDetailView: View {
                                 }
                         )
                 }
+                
                 TopFamilyBar(
                     families: $families,
                     selectedIndex: $selectedFamilyIndex
