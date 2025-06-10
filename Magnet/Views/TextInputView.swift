@@ -62,13 +62,8 @@ struct TextInputView: View {
     func headerBar() -> some View {
         HStack {
             VStack {
-                Button(action: {
+                CircleExitButton {
                     dismiss()
-                }) {
-                    CircleExitButton(
-                        systemImage: "xmark",
-                        backgroundColor: .red
-                    )
                 }
                 .padding(.top, 20)
                 .padding(.leading, 16)
