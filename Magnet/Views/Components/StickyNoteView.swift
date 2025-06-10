@@ -137,25 +137,46 @@ struct StickyNoteView: View {
             }
 
         case .image, .video:
-            if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 150, height: 150)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    case .failure(_):
-                        Image(systemName: "exclamationmark.triangle")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(.red)
-                    default:
-                        ProgressView()
+            VStack(spacing: 8) {
+                if let urlStr = note.payloadURL, let url = URL(string: urlStr) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 220, height: 220)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        case .failure(_):
+                            Image(systemName: "exclamationmark.triangle")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(.red)
+                        default:
+                            ProgressView()
+                        }
+                        
                     }
+                    if let text = note.text, !text.isEmpty {
+                        Text(shorten(text))
+                            .font(.caption)
+                            .foregroundColor(.black)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity)
+                    }
+                    
+                    
                 }
             }
+            .padding(12)                       // inner padding
+            .padding(.bottom, 20)              // extra bottom for caption area
+            .background(Color.white)           // white polaroid
+            .cornerRadius(8)
+            .shadow(color: Color.black.opacity(0.2),
+                    radius: 4, x: 0, y: 2)
+            .rotationEffect(.degrees(Double.random(in: -5...5)))
+            .padding(4)                        // space between note and magnet
+            .frame(width: 244) 
 
         case .audio:
             VStack {
