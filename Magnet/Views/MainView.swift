@@ -158,7 +158,7 @@ struct MainView: View {
                 switch target {
                 case "text":
                     if let userID = Auth.auth().currentUser?.uid {
-                        TextInputView(familyID: "gmfQH98GinBcb26abjnY", userID: userID)
+                        TextInputView(familyID: "544CF263-E10E-4884-9E60-DFE60B295FDB", userID: userID)
                     } else {
                         Text("⚠️ Please log in first.")
                     }
