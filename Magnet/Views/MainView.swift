@@ -12,18 +12,21 @@ struct MainView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                // Background
                 Image("MainBack")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
                     .opacity(0.2)
 
+                // Sticky Notes Canvas
                 StickyCanvasView(
                     stickyManager: stickyManager,
                     canvasOffset: $canvasOffset,
                     zoomScale: $zoomScale
                 )
 
+                // Top Bar + Debug button
                 VStack(spacing: 0) {
                     TopFamilyBar()
 
@@ -43,7 +46,7 @@ struct MainView: View {
                     Spacer()
                 }
 
-                // Floating Action Button and Radial Menu
+                // Floating Action Button + Radial Menu
                 VStack {
                     Spacer()
                     ZStack {
@@ -132,9 +135,25 @@ struct MainView: View {
                 .frame(maxWidth: .infinity)
                 .ignoresSafeArea(edges: .bottom)
 
-                // Navigation trigger (always present)
+                // Navigation trigger
                 NavigationLink(value: navigationTarget, label: { EmptyView() })
             }
+            // 👇 Add here ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Logout") {
+                        do {
+                            try Auth.auth().signOut()
+                            // Dismiss back to Login → because we use fullScreenCover
+                            UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
+                        } catch {
+                            print("Failed to logout: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            }
+            // 👆 Add end ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {
                 case "text":

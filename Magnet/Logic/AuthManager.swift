@@ -6,6 +6,8 @@ import Firebase
 class AuthManager: ObservableObject {
     @Published var alertMessage = ""
     @Published var showingAlert = false
+    @Published var currentUserID: String? = nil
+
 
     // MARK: - Register
     func register(email: String, password: String) {
@@ -83,6 +85,8 @@ class AuthManager: ObservableObject {
                 return
             }
 
+            self.currentUserID = uid
+
             let db = Firestore.firestore()
             let updateData = ["lastLogin": Timestamp(date: Date())]
 
@@ -97,4 +101,5 @@ class AuthManager: ObservableObject {
             }
         }
     }
+
 }
