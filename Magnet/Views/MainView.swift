@@ -162,7 +162,12 @@ struct MainView: View {
                     } else {
                         Text("⚠️ Please log in first.")
                     }
-                case "camera": CameraView()
+                case "camera":
+                    if let userID = Auth.auth().currentUser?.uid {
+                        CameraView(userID: userID, familyID: "gmfQH98GinBcb26abjnY")
+                    } else {
+                        Text("⚠️ Please log in first.")
+                    }
                 case "mic": VoiceInputView()
                 default: EmptyView()
                 }
