@@ -161,13 +161,13 @@ struct TextInputView: View {
                             .foregroundColor(.gray)
                             .padding(.horizontal, 32)
                             .onChange(of: typedNote) { _, newValue in
-                                if newValue.count > 20 {
-                                    typedNote = String(newValue.prefix(20))
+                                if newValue.count > 60 {
+                                    typedNote = String(newValue.prefix(60))
                                 }
                             }
                         HStack {
                             Spacer()
-                            Text("\(typedNote.count)/20")
+                            Text("\(typedNote.count)/60")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .padding(.trailing, 8)
