@@ -221,8 +221,10 @@ struct CaptureConfirmationView_Previews: PreviewProvider {
             image: UIImage(named: "example") ?? UIImage(),
             onRetake: { },
             onConfirm: { _ in },
-            userID: "sampleUserID",        // <- Added
-            familyID: "sampleFamilyID"     // <- Added
+            onDone: { }, 
+            userID: "sampleUserID",
+            familyID: "sampleFamilyID"
         )
     }
 }
+
