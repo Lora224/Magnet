@@ -213,6 +213,7 @@ struct TextInputView: View {
                     if isDrawing && !canvasView.drawing.bounds.isEmpty {
                         if let drawingImage = exportDrawingAsImage() {
                             StickyNoteService.saveDrawingNote(
+                                text: typedNote,
                                 image: drawingImage,
                                 senderID: senderID,
                                 familyID: familyID
