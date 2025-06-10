@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct SideBarView: View {
     // MARK: – Colors
@@ -32,8 +33,13 @@ struct SideBarView: View {
                         Text("Home")
                             .font(.title3)
                             .foregroundColor(.black)
-
+                        
                         Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.gray)
+
                     }
                 }
 
@@ -64,8 +70,12 @@ struct SideBarView: View {
                         Text("Archive")
                             .font(.title3)
                             .foregroundColor(.black)
-
+                        
                         Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.gray)
                     }
                 }
 
@@ -92,31 +102,34 @@ struct SideBarView: View {
                     }
                 }
 
-                // SETTINGS ROW
+                // LOGOUT ROW
                 Button(action: {
-                    // Navigate to Settings
+                    do {
+                        try Auth.auth().signOut()
+                        // Dismiss to login (if using fullScreenCover)
+                        UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
+                    } catch {
+                        print("❌ Failed to logout: \(error.localizedDescription)")
+                    }
                 }) {
                     HStack(spacing: 16) {
                         ZStack {
                             Circle()
                                 .fill(circleBG)
                                 .frame(width: 60, height: 60)
-                            Image(systemName: "gearshape.fill")
+                            Image(systemName: "iphone.and.arrow.right.outward")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 28, height: 28)
                                 .foregroundColor(magnetBrown)
+                                .fontWeight(.bold)
                         }
 
-                        Text("Settings")
+                        Text("Logout")
                             .font(.title3)
                             .foregroundColor(.black)
 
                         Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.gray)
                     }
                 }
 

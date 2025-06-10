@@ -140,19 +140,6 @@ struct MainView: View {
             }
          
             .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Logout") {
-                        do {
-                            try Auth.auth().signOut()
-                            // Dismiss back to Login → because we use fullScreenCover
-                            UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true)
-                        } catch {
-                            print("Failed to logout: \(error.localizedDescription)")
-                        }
-                    }
-                }
-            }
             // 👆 Add end ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {

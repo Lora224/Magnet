@@ -128,17 +128,24 @@ struct FamilyGroupView: View {
                 // MARK: – Members list (two columns)
                 ScrollView {
                     VStack(spacing: 12) {
-                        ForEach(famManager.userNames, id: \.self) { name in
-                            HStack {
-                                Image(systemName: "person.fill")
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                                Text(name)
-                                    .font(.headline)
-                                Spacer()
+                        if famManager.userNames.isEmpty {
+                            Text("No members found.")
+                                .foregroundColor(.gray)
+                                .padding()
+                        } else {
+                            ForEach(famManager.userNames, id: \.self) { name in
+                                HStack {
+                                    Image(systemName: "person.fill")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                    Text(name)
+                                        .font(.headline)
+                                    Spacer()
+                                }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
+
                     }
                 }
 
@@ -148,23 +155,45 @@ struct FamilyGroupView: View {
                 Spacer()
                 
                 // MARK: – Invite button
-                Button(action: { /* no action, layout only */ }) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "link")
-                            .font(.system(size: 30, weight: .regular))
-                            .frame(width: 50, height: 35)
-                        Text("Invite")
-                            .font(.title3).bold()
+                HStack(spacing: 20) {
+                    Button(action: {
+                        // Update Firebase with the new name
+                        famManager.updateFamilyName(newName: familyName)
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "arrow.up.circle")
+                                .font(.system(size: 30, weight: .regular))
+                                .frame(width: 50, height: 35)
+                            Text("Update")
+                                .font(.title3).bold()
+                        }
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 32)
+                        .background(magnetBrown)
+                        .cornerRadius(8)
+                        .shadow(radius: 2)
                     }
-                    .foregroundColor(.white)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 32)
-                    .background(magnetBrown)
-                    .cornerRadius(8)
-                    .shadow(radius: 2)
+
+                    Button(action: { /* Invite link logic goes here */ }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "link")
+                                .font(.system(size: 30, weight: .regular))
+                                .frame(width: 50, height: 35)
+                            Text("Invite")
+                                .font(.title3).bold()
+                        }
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 32)
+                        .background(magnetBrown)
+                        .cornerRadius(8)
+                        .shadow(radius: 2)
+                    }
                 }
                 .padding(.bottom, 32)
                 .padding(.top, 24)
+                
             }
             .onAppear {
                 famManager.loadCurrentUserFamily()

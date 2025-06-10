@@ -7,94 +7,86 @@ struct Login: View {
     @State private var password = ""
     @StateObject private var authManager = AuthManager()
 
-    @State private var navigateToJoinCreate = false
-    @State private var navigateToMainView = false
-
-    private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129)
+    @State private var fullScreenView: FullScreenPage? = nil
+    @State private var isSignUpFlow = false
 
     var body: some View {
         ZStack {
-            Image("loginBackground")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-
-            Color.white.opacity(0.4)
-                .ignoresSafeArea()
-
-            VStack(spacing: 25) {
-                VStack(spacing: 8) {
-                    Text("Welcome to Magnet!")
-                        .font(.system(size: 60, weight: .bold))
-                        .foregroundColor(magnetBrown)
-                        .multilineTextAlignment(.center)
-
-                    Text("A shared fridge to show your loved ones you care.")
-                        .font(.system(size: 25))
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(Color(red: 110/255, green: 110/255, blue: 110/255))
-                }
-
-                Group {
-                    TextField("Email", text: $email)
-                        .keyboardType(.emailAddress)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .submitLabel(.next)
-                        .font(.system(size: 25, weight: .bold))
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 30)
-                        .background(Color.white.opacity(0.9))
-                        .cornerRadius(8)
-
-                    SecureField("Password", text: $password)
-                        .submitLabel(.done)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 30)
-                        .font(.system(size: 25, weight: .bold))
-                        .background(Color.white.opacity(0.9))
-                        .cornerRadius(8)
-                }
-                .frame(maxWidth: 500)
-
-                HStack {
-                    Button("Sign Up") {
-                        authManager.register(email: email, password: password)
+            LoginContentView(
+                email: $email,
+                password: $password,
+                onSignUp: {
+                    authManager.register(email: email, password: password) { success in
+                        if success {
+                            isSignUpFlow = true
+                            fullScreenView = .usernameSetup
+                        }
                     }
-
-                    Spacer()
-
-                    Button("Log In") {
-                        authManager.login(email: email, password: password) { success in
-                            if success {
-                                // 👇 After login, check families:
-                                checkFamilies()
-                            }
+                },
+                onLogIn: {
+                    authManager.login(email: email, password: password) { success in
+                        if success {
+                            isSignUpFlow = false
+                            checkUserProfile()
                         }
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .frame(maxWidth: 400)
+            )
+        }
+        .fullScreenCover(item: $fullScreenView, onDismiss: {
+            if fullScreenView == .usernameSetup {
+                if isSignUpFlow {
+                    fullScreenView = .joinCreate
+                } else {
+                    checkFamilies()
+                }
             }
-            .tint(magnetBrown)
-            .font(.system(size: 30, weight: .bold))
-            .padding(60)
-            .background(Color.white.opacity(0.85))
-            .cornerRadius(20)
-            .shadow(radius: 10)
-
-            // Full screen present JoinCreate
-            .fullScreenCover(isPresented: $navigateToJoinCreate) {
+        }) { page in
+            switch page {
+            case .joinCreate:
                 JoinCreate()
-            }
-
-            // Full screen present MainView
-            .fullScreenCover(isPresented: $navigateToMainView) {
+            case .mainView:
                 MainView()
+            case .usernameSetup:
+                UsernameSetupView()
             }
         }
         .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
             Button("OK", role: .cancel) { }
+        }
+    }
+
+    private func checkUserProfile() {
+        guard let userID = authManager.currentUserID else {
+            print("❌ No user ID after login")
+            return
+        }
+
+        Firestore.firestore().collection("users").document(userID).getDocument { snapshot, error in
+            if let error = error {
+                print("❌ Failed to fetch user document:", error)
+                return
+            }
+
+            guard let data = snapshot?.data() else {
+                print("❌ No user document found")
+                DispatchQueue.main.async {
+                    fullScreenView = .usernameSetup
+                }
+                return
+            }
+
+            if let name = data["name"] as? String, !name.isEmpty {
+                print("✅ User has name: \(name), proceeding to check families")
+                DispatchQueue.main.async {
+                    checkFamilies()
+                }
+            } else {
+                print("❌ User has no name → navigating to UsernameSetupView")
+                DispatchQueue.main.async {
+                    fullScreenView = .usernameSetup
+                }
+            }
         }
     }
 
@@ -112,29 +104,39 @@ struct Login: View {
 
             guard let data = snapshot?.data(),
                   let families = data["families"] as? [String] else {
-                print("❌ No families field → go to JoinCreate")
+                print("❌ No families field → navigating to JoinCreate")
                 DispatchQueue.main.async {
-                    navigateToJoinCreate = true
+                    fullScreenView = .joinCreate
                 }
                 return
             }
 
             if families.isEmpty {
-                print("❌ families empty → go to JoinCreate")
+                print("❌ Families empty → navigating to JoinCreate")
                 DispatchQueue.main.async {
-                    navigateToJoinCreate = true
+                    fullScreenView = .joinCreate
                 }
             } else {
-                print("✅ families exists → go to MainView")
+                print("✅ Families exist → navigating to MainView")
                 DispatchQueue.main.async {
-                    navigateToMainView = true
+                    fullScreenView = .mainView
                 }
             }
         }
     }
 }
 
-#Preview {
-    Login()
+enum FullScreenPage: Identifiable {
+    case joinCreate
+    case mainView
+    case usernameSetup
+
+    var id: String {
+        switch self {
+        case .joinCreate: return "joinCreate"
+        case .mainView: return "mainView"
+        case .usernameSetup: return "usernameSetup"
+        }
+    }
 }
 
