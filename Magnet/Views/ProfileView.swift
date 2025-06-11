@@ -38,11 +38,21 @@ struct ProfileView: View {
                     }
 
                     if isSidebarVisible {
-                        sidebar
+                        // Overlay that captures taps outside the sidebar
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation { isSidebarVisible = false }
+                            }
+                            .zIndex(1) // Ensure it’s above content but below sidebar
+
+                        // The sidebar itself
+                        SideBarView()
+                            .frame(width: 280)
+                            .transition(.move(edge: .leading))
+                            .zIndex(2) // Topmost so it receives touches
                     }
                 }
-                .disabled(isSidebarVisible)
-                .blur(radius: isSidebarVisible ? 2 : 0)
                 .onAppear {
                     loadUserName()
                     loadUserAvatar()
