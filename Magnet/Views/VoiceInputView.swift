@@ -57,6 +57,8 @@ struct VoiceInputView: View {
                             .cornerRadius(8)
                             .padding()
                     }
+                    .frame(maxHeight: 150)
+                    .animation(.easeInOut, value: transcriptText)
 
                     Text(isRecording ? "Recording…" : (hasRecording ? "Recorded" : "Paused"))
                         .font(.title2)
@@ -212,7 +214,12 @@ struct VoiceInputView: View {
 
     private func confirmRecording() {
         guard let audioURL = audioURL else { return }
-        StickyNoteService.saveVoiceNote(audioURL: audioURL, senderID: userID, familyID: familyID) { error in
+        StickyNoteService.saveVoiceNote(
+            audioURL: audioURL,
+            senderID: userID,
+            familyID: familyID,
+            transcription: transcriptText
+        ) { error in
             if let error = error {
                 print("❌ Failed to upload voice note: \(error.localizedDescription)")
             } else {
