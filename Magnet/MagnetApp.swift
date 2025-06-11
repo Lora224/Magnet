@@ -1,10 +1,3 @@
-//
-//  MagnetApp.swift
-//  Magnet
-//
-//  Created by Muze Lyu on 30/5/2025.
-//
-
 import SwiftUI
 import FirebaseCore
 import SwiftData
@@ -33,16 +26,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 class AppState: ObservableObject {
-    @Published var isLoggedIn = false
+    // @Published var isLoggedIn = false
 }
 
 
 @main
 struct MagnetApp: App {
-    @StateObject var appState: AppState
     @StateObject var authManager = AuthManager()
 
-    // register app delegate
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     init() {
@@ -50,34 +41,17 @@ struct MagnetApp: App {
             FirebaseApp.configure()
             print("✅ FirebaseApp configured in MagnetApp.init()")
         }
-
-        let initialAppState = AppState()
-
-        if Auth.auth().currentUser != nil {
-            initialAppState.isLoggedIn = true
-            print("✅ User is already logged in → show MainView")
-        } else {
-            initialAppState.isLoggedIn = false
-            print("✅ No user → show Login")
-        }
-
-        _appState = StateObject(wrappedValue: initialAppState)
     }
 
     var body: some Scene {
         WindowGroup {
-            if appState.isLoggedIn {
+            if authManager.isUserLoggedIn {
                 MainView()
-                    .environmentObject(appState)
                     .environmentObject(authManager)
             } else {
                 Login()
-                    .environmentObject(appState)
                     .environmentObject(authManager)
             }
         }
-        .modelContainer(for: [
-            User.self
-        ])
     }
 }

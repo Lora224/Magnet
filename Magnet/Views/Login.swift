@@ -5,12 +5,10 @@ import FirebaseFirestore
 struct Login: View {
     @State private var email = ""
     @State private var password = ""
-    @EnvironmentObject var appState: AppState
     @EnvironmentObject var authManager: AuthManager
 
     @State private var showUsernameDialog = false
     @State private var showJoinCreate = false
-
     @State private var isSignUpFlow = false
 
     var body: some View {
@@ -135,10 +133,10 @@ struct Login: View {
             } else {
                 print("✅ Families exist → go to MainView")
                 DispatchQueue.main.async {
-                    // ⭐️ 关键改这里 → 不用 showMainView，直接改 AppState
-                    appState.isLoggedIn = true
+                    authManager.isUserLoggedIn = true
                 }
             }
         }
     }
 }
+

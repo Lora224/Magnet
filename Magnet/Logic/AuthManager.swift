@@ -7,26 +7,30 @@ class AuthManager: ObservableObject {
     @Published var alertMessage = ""
     @Published var showingAlert = false
     @Published var currentUserID: String? = nil
+    @Published var isUserLoggedIn: Bool = false
     
-    // ⭐️ 引入 AppState
-    var appState: AppState?
+    @Published var shouldForceLoginAfterFlow: Bool = false
     
+    private var authStateListenerHandle: AuthStateDidChangeListenerHandle?
+
+    init() {
+        authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
+            DispatchQueue.main.async {
+                self?.isUserLoggedIn = (user != nil && (self?.shouldForceLoginAfterFlow ?? false))
+                self?.currentUserID = user?.uid
+                print("🔥 Auth state changed → isUserLoggedIn = \(self?.isUserLoggedIn ?? false), shouldForceLoginAfterFlow = \(self?.shouldForceLoginAfterFlow ?? false)")
+            }
+        }
+    }
+    
+    deinit {
+        if let handle = authStateListenerHandle {
+            Auth.auth().removeStateDidChangeListener(handle)
+        }
+    }
+
     // MARK: - Register
     func register(email: String, password: String, completion: @escaping (Bool) -> Void) {
-        guard FirebaseApp.app() != nil else {
-            alertMessage = "Firebase is not configured."
-            showingAlert = true
-            completion(false)
-            return
-        }
-        
-        guard !email.isEmpty, !password.isEmpty else {
-            alertMessage = "Email and password must not be empty."
-            showingAlert = true
-            completion(false)
-            return
-        }
-        
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             if let error = error {
                 self.alertMessage = "Registration error: \(error.localizedDescription)"
@@ -42,7 +46,7 @@ class AuthManager: ObservableObject {
                 return
             }
             
-            self.currentUserID = uid // ⭐️ VERY IMPORTANT
+            self.currentUserID = uid
             
             let userData: [String: Any] = [
                 "uid": uid,
@@ -50,37 +54,20 @@ class AuthManager: ObservableObject {
                 "createdAt": Timestamp(date: Date())
             ]
             
-            let db = Firestore.firestore()
-            db.collection("users").document(uid).setData(userData) { err in
+            Firestore.firestore().collection("users").document(uid).setData(userData) { err in
                 if let err = err {
                     self.alertMessage = "Firestore error: \(err.localizedDescription)"
                     self.showingAlert = true
                     completion(false)
                 } else {
-                    // SUCCESS → Set appState
-                    self.appState?.isLoggedIn = true
                     completion(true)
                 }
             }
         }
     }
-    
+
     // MARK: - Login
     func login(email: String, password: String, completion: @escaping (Bool) -> Void) {
-        guard FirebaseApp.app() != nil else {
-            alertMessage = "Firebase is not configured."
-            showingAlert = true
-            completion(false)
-            return
-        }
-        
-        guard !email.isEmpty, !password.isEmpty else {
-            alertMessage = "Email and password must not be empty."
-            showingAlert = true
-            completion(false)
-            return
-        }
-        
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error = error {
                 self.alertMessage = "Login error: \(error.localizedDescription)"
@@ -96,37 +83,32 @@ class AuthManager: ObservableObject {
                 return
             }
             
-            self.currentUserID = uid // ⭐️ VERY IMPORTANT
+            self.currentUserID = uid
             
-            let db = Firestore.firestore()
             let updateData = ["lastLogin": Timestamp(date: Date())]
             
-            db.collection("users").document(uid).updateData(updateData) { err in
+            Firestore.firestore().collection("users").document(uid).updateData(updateData) { err in
                 if let err = err {
                     self.alertMessage = "Firestore update failed: \(err.localizedDescription)"
                     self.showingAlert = true
                     completion(false)
                 } else {
-                    // SUCCESS → Set appState
-                    self.appState?.isLoggedIn = true
+                    self.shouldForceLoginAfterFlow = true
                     completion(true)
                 }
             }
         }
     }
-    
+
     // MARK: - Logout
     func logout() {
         do {
             try Auth.auth().signOut()
             print("✅ User signed out.")
-            DispatchQueue.main.async {
-                self.appState?.isLoggedIn = false
-            }
+            self.shouldForceLoginAfterFlow = false
         } catch {
             print("❌ Failed to logout: \(error.localizedDescription)")
         }
     }
-
 }
 

@@ -1,22 +1,25 @@
 import SwiftUI
 import FirebaseAuth
-
 struct SideBarView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authManager: AuthManager
     
+    @Environment(\.dismiss) private var dismiss
+    
     // MARK: – Colors
-    private let magnetBrown  = Color(red: 75.0/255.0,  green: 54.0/255.0,  blue: 33.0/255.0) // #4B3621
-    private let circleBG     = Color(red: 226.0/255.0, green: 220.0/255.0, blue: 211.0/255.0) // light beige
+    private let magnetBrown  = Color(red: 75.0/255.0,  green: 54.0/255.0,  blue: 33.0/255.0)
+    private let circleBG     = Color(red: 226.0/255.0, green: 220.0/255.0, blue: 211.0/255.0)
 
-    // MARK: – Sample avatar for “Profile” row
-    private let avatarImage = Image("avatarPlaceholder") // replace with your asset name
+    private let avatarImage = Image("avatarPlaceholder")
 
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 32) {
+                
                 // HOME ROW
-                NavigationLink(destination: MainView()) {
+                Button(action: {
+                    dismiss()
+                }) {
                     HStack(spacing: 16) {
                         ZStack {
                             Circle()
@@ -50,7 +53,7 @@ struct SideBarView: View {
                         timeStamp: Date(),
                         seen: [:],
                         text: "Sample Note",
-                        payloadURL:nil
+                        payloadURL: nil
                     )
                 ]))  {
                     HStack(spacing: 16) {
@@ -100,28 +103,34 @@ struct SideBarView: View {
                 }
 
                 // LOGOUT ROW
-                Button(action: {
-                    authManager.logout()
-                }) {
-                    HStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .fill(circleBG)
-                                .frame(width: 60, height: 60)
-                            Image(systemName: "iphone.and.arrow.right.outward")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 28, height: 28)
-                                .foregroundColor(magnetBrown)
-                                .fontWeight(.bold)
+                if authManager.isUserLoggedIn {
+                    Button(action: {
+                        authManager.logout()
+                    }) {
+                        HStack(spacing: 16) {
+                            ZStack {
+                                Circle()
+                                    .fill(circleBG)
+                                    .frame(width: 60, height: 60)
+                                Image(systemName: "iphone.and.arrow.right.outward")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 28, height: 28)
+                                    .foregroundColor(magnetBrown)
+                                    .fontWeight(.bold)
+                            }
+
+                            Text("Logout")
+                                .font(.title3)
+                                .foregroundColor(.black)
+
+                            Spacer()
                         }
-
-                        Text("Logout")
-                            .font(.title3)
-                            .foregroundColor(.black)
-
-                        Spacer()
                     }
+                } else {
+                    Text("Logged out")
+                        .foregroundColor(.gray)
+                        .padding(.leading, 16)
                 }
 
                 Spacer()
@@ -137,14 +146,3 @@ struct SideBarView: View {
         .edgesIgnoringSafeArea(.all)
     }
 }
-
-// MARK: – Preview
-struct SideBarView_Previews: PreviewProvider {
-    static var previews: some View {
-        SideBarView()
-            .environmentObject(AppState())
-            .environmentObject(AuthManager())
-            .previewLayout(.fixed(width: 768, height: 1024))
-    }
-}
-
