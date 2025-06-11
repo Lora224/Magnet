@@ -4,7 +4,7 @@ struct JoinCreate: View {
     @State private var familyName = ""
     @State private var backgroundColor = Color(red: 0.82, green: 0.914, blue: 0.965)
     @State private var showLinkField = false
-    @State private var linkURL = ""
+    @State private var linkURL :String = ""
 
     @StateObject private var famManager = Sid()
 
@@ -64,26 +64,43 @@ struct JoinCreate: View {
                                         }
 
                                         if showLinkField {
-                                            TextField("", text: $linkURL)
-                                                .font(.system(size: 20))
-                                                .padding(12)
-                                                .frame(width: geo.size.width * 0.4)
-                                                .background(magnetBrown.opacity(0.1))
-                                                .cornerRadius(10)
-                                                .autocapitalization(.none)
-                                                .disableAutocorrection(true)
-                                                .overlay(
-                                                    Group {
-                                                        if linkURL.isEmpty {
-                                                            Text("Enter link here")
-                                                                .font(.system(size: 20))
-                                                                .foregroundColor(magnetBrown)
-                                                                .padding(.leading, 16)
-                                                        }
-                                                    },
-                                                    alignment: .leading
-                                                )
-                                                .transition(.move(edge: .top).combined(with: .opacity))
+                                            VStack{
+                                                TextField("", text: $linkURL)
+                                                    .font(.system(size: 20))
+                                                    .padding(12)
+                                                    .frame(width: geo.size.width * 0.4)
+                                                    .background(magnetBrown.opacity(0.1))
+                                                    .cornerRadius(10)
+                                                    .autocapitalization(.none)
+                                                    .disableAutocorrection(true)
+                                                    .overlay(
+                                                        Group {
+                                                            if linkURL.isEmpty {
+                                                                Text("Enter link here")
+                                                                    .font(.system(size: 20))
+                                                                    .foregroundColor(magnetBrown)
+                                                                    .padding(.leading, 16)
+                                                            }
+                                                        },
+                                                        alignment: .leading
+                                                    )
+                                                    .transition(.move(edge: .top).combined(with: .opacity))
+                                                let code = famManager.extractInviteCode(from: linkURL)
+                                                
+                                                Button(action: {
+                                                    
+                                                    famManager.joinFamily(with: code)
+                                                }) {
+                                                    Text("Go")
+                                                        .font(.system(size: 30, weight: .bold))
+                                                        .foregroundColor(.white)
+                                                        .kerning(2)
+                                                        .frame(width: geo.size.width * 0.4, height: 80)
+                                                        .background(magnetBrown)
+                                                        .cornerRadius(16)
+                                                }
+                                            }
+                                            
                                         }
 
                                         // Create button → trigger famManager.regoFam

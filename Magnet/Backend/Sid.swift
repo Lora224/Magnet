@@ -27,39 +27,45 @@ class Sid: ObservableObject {
         }
         
         let familyID = UUID().uuidString
-        let familyData: [String: Any] = [
-            "id": familyID,
-            "name": familyName,
-            "inviteURL": "",  // Add actual URL generation logic if needed
-            "memberIDs": [currentUserID],
-            "red": Double(r),
-            "green": Double(g),
-            "blue": Double(b)
-        ]
         
-        self.db.collection("families").document(familyID).setData(familyData) { error in
-            if let error = error {
-                self.alertMessage = "Failed to create family: \(error.localizedDescription)"
+        // Generate unique invite code
+        generateUniqueInviteCode { inviteCode in
+            guard let inviteCode = inviteCode else {
+                self.alertMessage = "Failed to generate invite code."
                 self.showingAlert = true
-            } else {
-                self.currentFamilyID = familyID
-                
-                // Update user's family list
-                self.db.collection("users").document(currentUserID).setData([
-                    "currentFamilyID": familyID,
-                    "families": FieldValue.arrayUnion([familyID])
+                return
+            }
+            
+            let familyData: [String: Any] = [
+                "id": familyID,
+                "name": familyName,
+                "inviteURL": inviteCode,
+                "memberIDs": [currentUserID],
+                "red": Double(r),
+                "green": Double(g),
+                "blue": Double(b)
+            ]
+            
+            self.db.collection("families").document(familyID).setData(familyData) { error in
+                if let error = error {
+                    self.alertMessage = "Failed to create family: \(error.localizedDescription)"
+                    self.showingAlert = true
+                } else {
+                    self.currentFamilyID = familyID
                     
-                ], merge: true)
-                
-                // ✅ Fetch and assign the Family object before navigating
-                self.fetchFamilyDetails(familyID: familyID) {
-                    DispatchQueue.main.async {
-                        self.navigateToHome = true
+                    self.db.collection("users").document(currentUserID).setData([
+                        "currentFamilyID": familyID,
+                        "families": FieldValue.arrayUnion([familyID])
+                    ], merge: true)
+                    
+                    self.fetchFamilyDetails(familyID: familyID) {
+                        DispatchQueue.main.async {
+                            self.navigateToHome = true
+                        }
                     }
                 }
             }
         }
-        
     }
     
     // MARK: - Load current user's family
@@ -89,22 +95,21 @@ class Sid: ObservableObject {
         db.collection("families").document(familyID).getDocument { snapshot, error in
             if let data = snapshot?.data() {
                 let family = Family(
-                    id:             data["id"] as? String ?? familyID,
-                    name:           data["name"] as? String ?? "",
-                    inviteURL:      data["inviteURL"] as? String ?? "",
-                    memberIDs:      data["memberIDs"] as? [String] ?? [],
-                    red:            data["red"] as? Double ?? 1.0,
-                    green:          data["green"] as? Double ?? 0.96,
-                    blue:           data["blue"] as? Double ?? 0.85,
-                    profilePic:     nil,
-                    emoji:          data["emoji"]      as? String   ?? "👪"
+                    id: data["id"] as? String ?? familyID,
+                    name: data["name"] as? String ?? "",
+                    inviteURL: data["inviteURL"] as? String ?? "",
+                    memberIDs: data["memberIDs"] as? [String] ?? [],
+                    red: data["red"] as? Double ?? 1.0,
+                    green: data["green"] as? Double ?? 0.96,
+                    blue: data["blue"] as? Double ?? 0.85,
+                    profilePic: nil,
+                    emoji: data["emoji"] as? String ?? "👪"
                 )
                 DispatchQueue.main.async {
                     self.family = family
                     completion()
                 }
             }
-            
         }
     }
     
@@ -124,6 +129,7 @@ class Sid: ObservableObject {
             }
         }
     }
+    
     func updateFamilyName(newName: String) {
         guard let familyID = self.family?.id else {
             print("No family ID found.")
@@ -137,17 +143,89 @@ class Sid: ObservableObject {
                 print("Error updating family name: \(error)")
             } else {
                 print("Family name updated successfully.")
-                self.family?.name = newName // Keep local model in sync
+                self.family?.name = newName
             }
         }
     }
-}
-extension Sid {
-    /// Load the given family’s data and then fetch its members.
+    
+    // Generates a random alphanumeric string
+    func randomAlphaNumericString(length: Int) -> String {
+        let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return String((0..<length).compactMap { _ in characters.randomElement() })
+    }
+    
+    // Recursively checks Firestore for uniqueness
+    func generateUniqueInviteCode(completion: @escaping (String?) -> Void) {
+        let code = randomAlphaNumericString(length: 8)
+        db.collection("families")
+            .whereField("inviteURL", isEqualTo: code)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error checking code: \(error.localizedDescription)")
+                    completion(nil)
+                    return
+                }
+                
+                if let snapshot = snapshot, snapshot.documents.isEmpty {
+                    completion(code)
+                } else {
+                    self.generateUniqueInviteCode(completion: completion)
+                }
+            }
+    }
+    
+    func joinFamily(with code: String) {
+        guard let currentUserID = Auth.auth().currentUser?.uid else {
+            self.alertMessage = "User not authenticated."
+            self.showingAlert = true
+            return
+        }
+        
+        db.collection("families")
+            .whereField("inviteURL", isEqualTo: code)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    self.alertMessage = "Error finding family: \(error.localizedDescription)"
+                    self.showingAlert = true
+                    return
+                }
+                
+                guard let document = snapshot?.documents.first else {
+                    self.alertMessage = "Invalid invite code."
+                    self.showingAlert = true
+                    return
+                }
+                
+                let familyID = document.documentID
+                
+                self.db.collection("families").document(familyID).updateData([
+                    "memberIDs": FieldValue.arrayUnion([currentUserID])
+                ])
+                
+                self.db.collection("users").document(currentUserID).setData([
+                    "currentFamilyID": familyID,
+                    "families": FieldValue.arrayUnion([familyID])
+                ], merge: true)
+                
+                self.fetchFamilyDetails(familyID: familyID) {
+                    DispatchQueue.main.async {
+                        self.navigateToHome = true
+                    }
+                }
+            }
+    }
+    
+    func extractInviteCode(from input: String) -> String {
+        if let url = URL(string: input),
+           let lastComponent = url.pathComponents.last,
+           lastComponent.count == 8 {
+            return lastComponent
+        }
+        return input
+    }
+    
     func loadFamily(_ id: String) {
-        // 1️⃣ Pull down the Family document
         fetchFamilyDetails(familyID: id) {
-            // 2️⃣ As soon as you have its `memberIDs`, pull each member’s name
             self.fetchFamilyMembers()
         }
     }
