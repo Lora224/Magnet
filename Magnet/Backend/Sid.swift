@@ -174,7 +174,7 @@ class Sid: ObservableObject {
             }
     }
     
-    func joinFamily(with code: String) {
+    func joinFamily(with code: String, completion: @escaping () -> Void) {
         guard let currentUserID = Auth.auth().currentUser?.uid else {
             self.alertMessage = "User not authenticated."
             self.showingAlert = true
@@ -210,10 +210,13 @@ class Sid: ObservableObject {
                 self.fetchFamilyDetails(familyID: familyID) {
                     DispatchQueue.main.async {
                         self.navigateToHome = true
+                        completion()
                     }
                 }
             }
     }
+    
+    
     
     func extractInviteCode(from input: String) -> String {
         if let url = URL(string: input),
