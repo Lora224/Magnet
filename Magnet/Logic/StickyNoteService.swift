@@ -147,8 +147,15 @@ struct StickyNoteService {
         }
     }
     
-    
-    static func saveVoiceNote(audioURL: URL, senderID: String, familyID: String, completion: @escaping (Error?) -> Void) {
+    // Save audio-based sticky note (from microphone)
+
+    static func saveVoiceNote(
+        audioURL: URL,
+        senderID: String,
+        familyID: String,
+        transcription: String?,
+        completion: @escaping (Error?) -> Void
+    ) {
         let id = UUID().uuidString
             let storagePath = "sticky_voice/\(id).m4a"
             let storageRef = Storage.storage().reference().child(storagePath)
@@ -172,13 +179,13 @@ struct StickyNoteService {
 
                     let noteData: [String: Any] = [
                         "id":          id,
-                        "senderID": senderID,
-                        "familyID": familyID,
-                        "type": "audio",
-                        "text": "",
-                        "payloadURL": downloadURL.absoluteString,
-                        "timeStamp": Timestamp(date: Date()),
-                        "seen": [senderID:nil]
+                        "senderID":    senderID,
+                        "familyID":    familyID,
+                        "type":        "audio",
+                        "text":        transcription ?? "",
+                        "payloadURL":  downloadURL.absoluteString,
+                        "timeStamp":   Timestamp(date: Date()),
+                        "seen":        [senderID: nil]
                     ]
 
                     Firestore.firestore()
