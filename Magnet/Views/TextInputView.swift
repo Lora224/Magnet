@@ -24,6 +24,16 @@ struct TextInputView: View {
         "How did the weather affect your mood today?🌞",
         "What was the best part of your day?✨"
     ]
+    
+    private let systemColorOptions: [(Color, UIColor)] = [
+        (.black, UIColor.black),
+        (.red, UIColor.red),
+        (.blue, UIColor.blue),
+        (.green, UIColor.green),
+        (.orange, UIColor.orange),
+        (.purple, UIColor.purple),
+        (.gray, UIColor.gray)
+    ]
 
     var body: some View {
         GeometryReader { geometry in
@@ -78,7 +88,6 @@ struct TextInputView: View {
             Spacer()
         }
     }
-
 
     func noteContent() -> some View {
         VStack(spacing: 24) {
@@ -175,7 +184,6 @@ struct TextInputView: View {
                     }
                 )
 
-
             if isDrawing {
                 HStack(spacing: 20) {
                     Button(action: { setTool(.pen) }) {
@@ -184,14 +192,21 @@ struct TextInputView: View {
                     Button(action: { setTool(.eraser) }) {
                         Image(systemName: "eraser")
                     }
-                    ColorPicker("", selection: $selectedColor, supportsOpacity: false)
-                        .labelsHidden()
-                        .frame(width: 40, height: 40)
-                        .background(Circle().fill(selectedColor))
-                        .overlay(Circle().stroke(Color.gray, lineWidth: 1))
-                        .onChange(of: selectedColor) {
-                            setTool(.pen)
+                    HStack(spacing: 16) {
+                        ForEach(systemColorOptions, id: \.1) { (color, uiColor) in
+                            Button(action: {
+                                selectedColor = color
+                                setTool(.pen, uiColor: uiColor)
+                            }) {
+                                Circle()
+                                    .fill(color)
+                                    .frame(width: 30, height: 30)
+                                    .overlay(
+                                        Circle().stroke(Color.gray.opacity(selectedColor == color ? 1 : 0), lineWidth: 2)
+                                    )
+                            }
                         }
+                    }
                 }
                 .padding()
                 .background(Color.white.opacity(0.95))
@@ -244,8 +259,7 @@ struct TextInputView: View {
                     } else {
                         print("⚠️ Nothing to save (no drawing or text).")
                     }
-                })
-                {
+                }) {
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color(red: 0.80, green: 1, blue: 0.85))
                         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
@@ -265,20 +279,21 @@ struct TextInputView: View {
         }
     }
 
-    func setTool(_ type: ToolType) {
+    func setTool(_ type: ToolType, uiColor: UIColor? = nil) {
         switch type {
         case .pen:
-            canvasView.tool = PKInkingTool(.pen, color: UIColor(selectedColor), width: 5)
+            let colorToUse = uiColor ?? UIColor(selectedColor)
+            canvasView.tool = PKInkingTool(.pen, color: colorToUse, width: 5)
         case .eraser:
             canvasView.tool = PKEraserTool(.vector)
         }
     }
-    
+
     func resetNoteInputs() {
         typedNote = ""
         isDrawing = false
         showScribbleHint = true
-        canvasView.drawing = PKDrawing() // clear canvas
+        canvasView.drawing = PKDrawing()
     }
 
     enum ToolType {
@@ -291,6 +306,7 @@ struct TextInputView: View {
             promptText = prompts[promptIndex]
         }
     }
+
     func exportDrawingAsImage() -> UIImage? {
         let image = canvasView.drawing.image(from: canvasView.bounds, scale: 1.0)
         return image
@@ -301,18 +317,16 @@ struct DrawingCanvasView: UIViewRepresentable {
     @Binding var canvasView: PKCanvasView
 
     func makeUIView(context: Context) -> PKCanvasView {
-        let canvas = canvasView
-        canvas.drawingPolicy = .anyInput
-        canvas.backgroundColor = .clear
-        return canvas
+        canvasView.drawingPolicy = .anyInput
+        canvasView.backgroundColor = .clear
+        return canvasView
     }
 
-    func updateUIView(_ uiView: PKCanvasView, context: Context) {}
+    func updateUIView(_ uiView: PKCanvasView, context: Context) {
+        uiView.tool = canvasView.tool
+    }
 }
-
 
 #Preview {
     TextInputView(familyID: "gmfQH98GinBcb26abjnY", userID: "sampleUserID")
 }
-
-
