@@ -105,7 +105,6 @@ struct NotesDetailView: View {
         let me   = Auth.auth().currentUser!.uid
         let seenKey = "seen.\(me)"
 
-        // ✅ Only write if I’m not in the map yet
         if note.seen[me] == nil {
             Firestore.firestore()
                 .collection("StickyNotes")
@@ -119,16 +118,16 @@ struct NotesDetailView: View {
         } else {
             myReaction = nil
         }
-        // 6. Load seen-by list (excluding the sender)
-        let otherIDs = note.seen.keys.filter { $0 != note.senderID }
+        // 6. Load seen-by list (excluding me)
+        let otherIDs = note.seen.keys.filter { $0 != me }
         guard !otherIDs.isEmpty else {
             self.seenUsers = []
             return
         }
-
+        print("OtherIDs:\(otherIDs) ")
         Firestore
           .firestore()
-          .collection("Users")
+          .collection("users")
           .whereField(FieldPath.documentID(), in: otherIDs)
           .getDocuments { snapshot, error in
               guard let docs = snapshot?.documents, error == nil else {
@@ -137,17 +136,29 @@ struct NotesDetailView: View {
               }
 
               // Map into your lightweight view model
-              let publics = docs.compactMap { doc -> UserPublic? in
+              let publics: [UserPublic] = docs.map { doc in
                   let data = doc.data()
-                  guard
-                    let name   = data["name"] as? String,
-                    let urlStr = data["profilePictureURL"] as? String,
-                    let url    = URL(string: urlStr)
-                  else { return nil }
+
+                  // fall back to "Unknown" if they haven't set a name
+                  let name = (data["name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+                             .isEmpty == false
+                             ? data["name"] as! String
+                             : "Someone"
+
+                  // try to parse URL, else leave it nil (or use a bundled placeholder)
+                  let avatarURL: URL?
+                  if let urlStr = data["ProfilePictureURL"] as? String,
+                     let url = URL(string: urlStr) {
+                      avatarURL = url
+                  } else {
+                      avatarURL = nil
+                      //—or, if you have a placeholder asset:
+                      // avatarURL = Bundle.main.url(forResource: "avatar_placeholder", withExtension: "png")
+                  }
 
                   return UserPublic(id: doc.documentID,
                                     name: name,
-                                    avatarURL: url)
+                                    avatarURL: avatarURL)
               }
 
               // Update state on the main thread
@@ -155,6 +166,7 @@ struct NotesDetailView: View {
                   self.seenUsers = publics
               }
           }
+        print("SeenUsers:\(seenUsers) ")
     }
 
 
@@ -185,78 +197,78 @@ struct NotesDetailView: View {
 struct UserPublic: Identifiable {
     let id: String
     let name: String
-    let avatarURL: URL
+    let avatarURL: URL?
 }
-#if DEBUG
-import SwiftUI
-
-// MARK: - Local wrapper so we can hold @State / @StateObject
-private struct NotesDetailPreview: View {
-    @StateObject private var stickyManager = StickyDisplayManager()
-    @State private var families: [Family]
-    @State private var selectedFamilyIndex: Int
-    
-    init() {
-        // ───────────── sample data ─────────────
-        let demoFamily = Family(
-            id:        "fam-001",
-            name:      "Grandma’s Kitchen",
-            inviteURL: "",
-            memberIDs: ["u-00", "u-01"],
-            red: 0.95, green: 0.83, blue: 0.81,
-            profilePic: nil
-        )
-        
-        let demoNotes: [StickyNote] = [
-            StickyNote(
-                id: UUID(),
-                senderID: "u-00",
-                familyID: demoFamily.id,
-                
-                type: .text,
-                timeStamp: Date().addingTimeInterval(-3600 * 3),
-                seen: [:],
-                text: "First batch of cookies\nis in the oven 🍪",
-                payloadURL: nil,
-                
-           
-            ),
-            StickyNote(
-                id: UUID(),
-                senderID: "u-01",
-                familyID: demoFamily.id,
-              
-                type: .image,
-                timeStamp: Date().addingTimeInterval(-3600),
-                seen: [:],
-                text: "Look what I made!",
-                payloadURL: "https://picsum.photos/seed/123/600/450",
-              
-               
-            )
-        ]
-        // ───────────────────────────────────────
-        
-        _families             = State(initialValue: [demoFamily])
-        _selectedFamilyIndex  = State(initialValue: 0)
-        stickyManager.rawNotes = demoNotes
-    }
-    
-    var body: some View {
-        NavigationStack {
-            NotesDetailView(
-                notes: stickyManager.rawNotes, // same sample notes
-                currentIndex: 1,               // show newest first
-                families: $families,
-                selectedFamilyIndex: $selectedFamilyIndex
-            )
-            .environmentObject(stickyManager)
-        }
-    }
-}
-
-// MARK: - Xcode canvas / SwiftUI preview
-#Preview("Notes Detail") {
-    NotesDetailPreview()          // ← no explicit ‘return’
-}
-#endif
+//#if DEBUG
+//import SwiftUI
+//
+//// MARK: - Local wrapper so we can hold @State / @StateObject
+//private struct NotesDetailPreview: View {
+//    @StateObject private var stickyManager = StickyDisplayManager()
+//    @State private var families: [Family]
+//    @State private var selectedFamilyIndex: Int
+//    
+//    init() {
+//        // ───────────── sample data ─────────────
+//        let demoFamily = Family(
+//            id:        "fam-001",
+//            name:      "Grandma’s Kitchen",
+//            inviteURL: "",
+//            memberIDs: ["u-00", "u-01"],
+//            red: 0.95, green: 0.83, blue: 0.81,
+//            profilePic: nil
+//        )
+//        
+//        let demoNotes: [StickyNote] = [
+//            StickyNote(
+//                id: UUID(),
+//                senderID: "u-00",
+//                familyID: demoFamily.id,
+//                
+//                type: .text,
+//                timeStamp: Date().addingTimeInterval(-3600 * 3),
+//                seen: [:],
+//                text: "First batch of cookies\nis in the oven 🍪",
+//                payloadURL: nil,
+//                
+//           
+//            ),
+//            StickyNote(
+//                id: UUID(),
+//                senderID: "u-01",
+//                familyID: demoFamily.id,
+//              
+//                type: .image,
+//                timeStamp: Date().addingTimeInterval(-3600),
+//                seen: [:],
+//                text: "Look what I made!",
+//                payloadURL: "https://picsum.photos/seed/123/600/450",
+//              
+//               
+//            )
+//        ]
+//        // ───────────────────────────────────────
+//        
+//        _families             = State(initialValue: [demoFamily])
+//        _selectedFamilyIndex  = State(initialValue: 0)
+//        stickyManager.rawNotes = demoNotes
+//    }
+//    
+//    var body: some View {
+//        NavigationStack {
+//            NotesDetailView(
+//                notes: stickyManager.rawNotes, // same sample notes
+//                currentIndex: 1,               // show newest first
+//                families: $families,
+//                selectedFamilyIndex: $selectedFamilyIndex
+//            )
+//            .environmentObject(stickyManager)
+//        }
+//    }
+//}
+//
+//// MARK: - Xcode canvas / SwiftUI preview
+//#Preview("Notes Detail") {
+//    NotesDetailPreview()          // ← no explicit ‘return’
+//}
+//#endif
