@@ -28,11 +28,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Views/Components/NoteDetailPage.swift,
 				Views/Components/ReactionBarView.swift,
 				Views/Components/SeenUserPanel.swift,
 				Views/Components/StickyNoteContentView.swift,
-				Views/NoteDetailPageView.swift,
 				Views/ReactionStripView.swift,
 				Views/SeenUserPanel.swift,
 			);
