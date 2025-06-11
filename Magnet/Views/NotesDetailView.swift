@@ -175,6 +175,9 @@ struct NotesDetailView: View {
             print("⚠️ Tried to markSeenAndLoad at \(currentIndex), but notes.count = \(notes.count)")
             return
         }
+        guard myReaction != nil else{
+            return
+        }
         let note = notes[currentIndex]
         let me = Auth.auth().currentUser!.uid
 
@@ -182,7 +185,7 @@ struct NotesDetailView: View {
             .collection("StickyNotes")
             .document(note.id.uuidString)
             .updateData(["seen.\(me)": reaction.rawValue]) { _ in
-                myReaction = reaction
+                    myReaction = reaction
             }
     }
 }
