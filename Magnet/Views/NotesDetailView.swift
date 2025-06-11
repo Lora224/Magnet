@@ -1,183 +1,176 @@
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
 
 struct NotesDetailView: View {
-    let note: StickyNote
-    private let lightGray = Color(red: 0.98, green: 0.98, blue: 0.98)
-    private let profilePic = ["profile1", "profile2", "profile3"]
-    @State private var isSeenPanelOpen = false
+    @EnvironmentObject var stickyManager: StickyDisplayManager
     @Binding var families: [Family]
     @Binding var selectedFamilyIndex: Int
+
+    /// All notes from the last 7 days, sorted oldest→newest
+    let notes: [StickyNote]
+    /// Which note we’re showing right now
+    @State private var currentIndex: Int
+
+    /// For “seen by” sheet
+    @State private var isSeenPanelOpen = false
+    @State private var seenUsers: [UserPublic] = []
+    /// The reaction this user has selected (if any)
+    @State private var myReaction: ReactionType?
+
+    init(
+        notes: [StickyNote],
+        currentIndex: Int,
+        families: Binding<[Family]>,
+        selectedFamilyIndex: Binding<Int>
+    ) {
+        self.notes = notes
+        self._families = families
+        self._selectedFamilyIndex = selectedFamilyIndex
+        self._currentIndex = State(initialValue: currentIndex)
+    }
+
     var body: some View {
-        ZStack {
-            // Background content
-            ZStack(alignment: .bottom) {
-                VStack (spacing: 24) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 35)
-                            .fill(lightGray)
-                            .frame(width: 500, height: 80)
-                        
-                        HStack(spacing: 90) {
-                            Image("heartMagnet")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 80, height: 80)
-                            Image("clapMagnet")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 80, height: 80)
-                            Image("laughMagnet")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 80, height: 80)
-                        }
-                    }
-                 
-                    
-                    // Chevron to reveal panel
-                    Image(systemName: "chevron.compact.up")
-                        .font(.system(size: 60))
-                        .foregroundColor(Color.magnetBrown)
-                        .onTapGesture {
-                            withAnimation {
-                                isSeenPanelOpen = true
-                            }
-                        }
-                        .gesture(
-                            DragGesture(minimumDistance: 30)
-                                .onEnded { value in
-                                    if value.translation.height < -10 {
-                                        withAnimation {
-                                            isSeenPanelOpen = true
-                                        }
-                                    }
-                                }
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                // 1. Top family bar
+                TopFamilyBar(
+                    families: $families,
+                    selectedIndex: $selectedFamilyIndex
+                )
+                .padding(.top, 6)
+
+                // 2. Horizontal page‐style swipe
+                TabView(selection: $currentIndex) {
+                    ForEach(Array(notes.enumerated()), id: \.offset) { idx, note in
+                        NoteDetailPage(
+                            note: note,
+                            myReaction: $myReaction,
+                            onToggleSeenPanel: { isSeenPanelOpen = true }
                         )
-                }
-                VStack(spacing: 0) {
-                    TopFamilyBar(
-                        families: $families,
-                        selectedIndex: $selectedFamilyIndex
-                    )
-
-                    .padding(.top, 6)
-                    Spacer()
-                }
-                Spacer()
-                
-                // Magnet Reactions Bar
-                
-            }
-            .zIndex(3)
-            .background {
-                VStack {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 24) {
-                            ForEach(0..<3) { index in
-                                ZStack(alignment: .top) {
-                                    Image("blueNotePlain")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(height: 700)
-                                        .clipped()
-                                        .shadow(color: Color.black.opacity(0.10), radius: 15, x: 10, y: 10)
-                                    
-                                    SenderProfileView(userID: note.senderID)
-                                      .frame(width: 120, height: 120)
-                                      .offset(y: 40)
-
-                                }
-                            }
-                        }
+                        .tag(idx)
                     }
                 }
-                .padding(.top, 120)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .onChange(of: currentIndex) { newIndex in
+                    if notes.indices.contains(newIndex) {
+                        markSeenAndLoad()
+                    }
+                }
+                .onAppear {
+                    if notes.indices.contains(currentIndex) {
+                        print("📑 NotesDetailView appeared with notes.count =", notes.count, "currentIndex =", currentIndex)
+                          
+                        markSeenAndLoad()
+                    }
+                }
+
+                // 3. Reaction bar
+                ReactionBarView(
+                    selected: $myReaction,
+                    onReact: saveReaction
+                )
+                .padding(.vertical, 12)
             }
 
-            // Seen-by Slide-up Panel
+            // 6. Seen‐by overlay
             if isSeenPanelOpen {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            isSeenPanelOpen = false
-                        }
-                    }
-                    .zIndex(10)
+                    .onTapGesture { isSeenPanelOpen = false }
 
-                VStack(spacing: 20) {
-                    Capsule()
-                        .fill(Color.gray)
-                        .frame(width: 60, height: 6)
-                        .padding(.top, 10)
-
-                    VStack(spacing: 20) {
-                        seenRow(name: "Margaret", image: "profile1")
-                        Divider()
-                        seenRow(name: "John", image: "profile2")
-                    }
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(30)
-                    .frame(maxWidth: .infinity)
-                }
-                .frame(height: 300)
-                .background(Color.white)
-                .cornerRadius(30)
-                .padding(.horizontal, 30)
-                .padding(.bottom, 40)
+                SeenUsersPanel(
+                    users: seenUsers,
+                    isPresented: $isSeenPanelOpen
+                )
                 .transition(.move(edge: .bottom))
-                .zIndex(11)
-                .frame(maxHeight: .infinity, alignment: .bottom)
             }
         }
-        .ignoresSafeArea(.all, edges: .top)
+        .ignoresSafeArea(edges: .top)
     }
-    
-    @ViewBuilder
-    func seenRow(name: String, image: String) -> some View {
-        HStack(spacing: 16) {
-            ZStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.pink)
-                Image(image)
-                    .resizable()
-                    .clipShape(Circle())
-                    .frame(width: 40, height: 40)
-                    .offset(x: 10, y: 10)
-            }
-            Text(name)
-                .font(.title3.bold())
-            Spacer()
+
+    // MARK: – Helpers
+
+    private func markSeenAndLoad() {
+        guard notes.indices.contains(currentIndex) else {
+            print("⚠️ Tried to markSeenAndLoad at \(currentIndex), but notes.count = \(notes.count)")
+            return
         }
+        let note = notes[currentIndex]
+        let me   = Auth.auth().currentUser!.uid
+
+        // 7. Mark it seen
+        Firestore.firestore()
+          .collection("StickyNotes")
+          .document(note.id.uuidString)
+          .updateData(["seen.\(me)": true])
+
+        // 6. Load seen-by list (excluding the sender)
+        let otherIDs = note.seen.keys.filter { $0 != note.senderID }
+        guard !otherIDs.isEmpty else {
+            self.seenUsers = []
+            return
+        }
+
+        Firestore
+          .firestore()
+          .collection("Users")
+          .whereField(FieldPath.documentID(), in: otherIDs)
+          .getDocuments { snapshot, error in
+              guard let docs = snapshot?.documents, error == nil else {
+                  print("Failed to fetch seen-by users:", error ?? "")
+                  return
+              }
+
+              // Map into your lightweight view model
+              let publics = docs.compactMap { doc -> UserPublic? in
+                  let data = doc.data()
+                  guard
+                    let name   = data["name"] as? String,
+                    let urlStr = data["profilePictureURL"] as? String,
+                    let url    = URL(string: urlStr)
+                  else { return nil }
+
+                  return UserPublic(id: doc.documentID,
+                                    name: name,
+                                    avatarURL: url)
+              }
+
+              // Update state on the main thread
+              DispatchQueue.main.async {
+                  self.seenUsers = publics
+              }
+          }
+    }
+
+
+    private func saveReaction(_ reaction: ReactionType) {
+        guard notes.indices.contains(currentIndex) else {
+            print("⚠️ Tried to markSeenAndLoad at \(currentIndex), but notes.count = \(notes.count)")
+            return
+        }
+        let note = notes[currentIndex]
+        let me = Auth.auth().currentUser!.uid
+
+        Firestore.firestore()
+            .collection("StickyNotes")
+            .document(note.id.uuidString)
+            .updateData(["seen.\(me)": reaction.rawValue]) { _ in
+                myReaction = reaction
+            }
     }
 }
-#Preview {
-  NotesDetailView(
-    note: StickyNote(
-      id: UUID(),
-      senderID: "user1",
-      familyID: "fam",
-      type: .text,
-      timeStamp: Date(),
-      seen: ["user1": .clap, "user2": .liked],
-      text: "Grandma’s apple pie was amazing!",
-      payloadURL: nil
-    ),
-    families: .constant([
-      Family(
-        id: "fam",
-        name: "The Smiths 😊",
-        inviteURL: "",
-        memberIDs: [],
-        red: 0.9,
-        green: 0.7,
-        blue: 0.2,
-        profilePic: nil
-      )
-    ]),
-    selectedFamilyIndex: .constant(0)
-  )
+
+
+
+// You’ll also need to build these reusable pieces:
+//
+// • StickyNoteContentView(note:)        –– exactly your noteContentView()
+// • ReactionBarView(selected:onReact:)  –– three tappable magnets
+// • SeenUsersPanel(users:isPresented:)   –– slide-up list of avatars & names
+struct UserPublic: Identifiable {
+    let id: String
+    let name: String
+    let avatarURL: URL
 }
 

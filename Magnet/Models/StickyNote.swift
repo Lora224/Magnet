@@ -1,6 +1,7 @@
 import SwiftData
 import Foundation
-import Foundation
+import SwiftUI
+import UIKit
 /* will be stored as string in db */
 enum MediaType: String, Codable {
     case image
@@ -10,10 +11,20 @@ enum MediaType: String, Codable {
     case drawing
 }
 
-enum ReactionType: String, Codable {
+enum ReactionType: String, Codable,CaseIterable, Identifiable {
     case smile
     case liked
     case clap
+    var id: String { rawValue }
+
+    
+    var ImageName: String {
+        switch self {
+        case .liked:  return "heartMagnet"
+        case .smile:  return "laughMagnet"
+        case .clap:  return "clapMagnet"
+      }
+    }
 }
 
 /*for image/video type, text is the caption*/

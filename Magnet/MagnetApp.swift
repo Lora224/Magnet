@@ -37,14 +37,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct MagnetApp: App {
-    
+@StateObject private var stickyManager = StickyDisplayManager()
   // register app delegate for Firebase setup
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
   var body: some Scene {
-    WindowGroup {
+      WindowGroup {
+        NavigationStack {
           Login()
-    }
+        }
+        .environmentObject(stickyManager)
+      }
     .modelContainer(for: [
      // StickyNote.self,
     //  Payload.self,
@@ -53,4 +56,5 @@ struct MagnetApp: App {
     ])
   }
 }
+
 

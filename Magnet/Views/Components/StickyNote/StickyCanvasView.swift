@@ -30,11 +30,11 @@ struct StickyCanvasView: View {
                 )
 
             ZStack {
-                ForEach(stickyManager.viewportNotes) { note in
-                    StickyNoteView(note: note.note, reactions: note.reactions,  families: $families,  selectedFamilyIndex: $selectedFamilyIndex)
-                        .rotationEffect(note.rotationAngle)
-                        .position(note.position)
-                        .id(note.id)
+                ForEach(stickyManager.viewportNotes) { positioned in
+                    StickyNoteView(note: positioned.note, reactions: positioned.reactions,  families: $families,  selectedFamilyIndex: $selectedFamilyIndex)
+                        .rotationEffect(positioned.rotationAngle)
+                        .position(positioned.position)
+                        .id(positioned.id)
                         .zIndex(1)
                 }
             }

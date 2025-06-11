@@ -23,14 +23,11 @@ struct MainView: View {
                     .opacity(0.2)
 
                 // Sticky Notes Canvas
-                StickyCanvasView(
-                    stickyManager: stickyManager,
-                    canvasOffset: $canvasOffset,
-                    zoomScale: $zoomScale,
+                StickyCanvasContainer(
                     families: $families,
                     selectedFamilyIndex: $selectedFamilyIndex
                 )
-
+                .environmentObject(stickyManager)
                 // Top Bar + Debug button
                 VStack(spacing: 0) {
                     TopFamilyBar(

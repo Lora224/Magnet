@@ -13,7 +13,7 @@ struct PositionedStickyNote: Identifiable {
 
 class StickyDisplayManager: ObservableObject {
     @Published var displayedNotes: [PositionedStickyNote] = []
-
+    @Published var rawNotes: [StickyNote] = []
     var viewportNotes: [PositionedStickyNote] {
         displayedNotes
     }
@@ -29,23 +29,25 @@ class StickyDisplayManager: ObservableObject {
                 guard let docs = snapshot?.documents, error == nil else { return }
 
                 do {
-                    let rawNotes = try docs.compactMap {
+                    let fetched = try docs.compactMap {
                         try $0.data(as: StickyNote.self)
                     }.filter { note in
                         memberIDs.contains(note.senderID)
                     }.sorted { $0.timeStamp > $1.timeStamp }
-
+                   
                     print("📦 Querying StickyNotes for familyID=\(familyID), last 7 days, memberIDs=", memberIDs)
 
                     DispatchQueue.main.async {
+                        self.rawNotes = fetched
+                        print("📦 StickyDisplayManager.rawNotes updated, count =", self.rawNotes.count)
                         let currentIDs = Set(self.displayedNotes.map { $0.note.id })
-                        let newIDs = Set(rawNotes.map { $0.id })
+                        let newIDs = Set(self.rawNotes.map { $0.id })
 
                         if currentIDs != newIDs {
-                            self.displayedNotes = self.generateNonOverlappingLayout(for: rawNotes, canvasSize: canvasSize)
+                            self.displayedNotes = self.generateNonOverlappingLayout(for: self.rawNotes, canvasSize: canvasSize)
                         } else {
                             self.displayedNotes = self.displayedNotes.map { existing in
-                                if let updated = rawNotes.first(where: { $0.id == existing.note.id }) {
+                                if let updated = self.rawNotes.first(where: { $0.id == existing.note.id }) {
                                     return PositionedStickyNote(
                                         note: updated,
                                         position: existing.position,
