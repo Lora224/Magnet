@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 import AVFoundation
+import Speech
 
 struct VoiceInputView: View {
     var familyID: String
@@ -13,6 +14,12 @@ struct VoiceInputView: View {
     @State private var isRecording: Bool = false
     @State private var isPulsing: Bool = false
     @State private var hasRecording: Bool = false
+    
+    @State private var transcriptText: String = "Live transcription will appear here..."
+    @State private var speechRecognizer = SFSpeechRecognizer()
+    @State private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+    @State private var recognitionTask: SFSpeechRecognitionTask?
+    private let audioEngine = AVAudioEngine()
 
     @State private var audioURL: URL? = nil
 
@@ -40,6 +47,17 @@ struct VoiceInputView: View {
                 }.padding(.leading, 20).padding(.top, 20)
 
                 VStack(spacing: 30) {
+                    
+                    ScrollView {
+                        Text(transcriptText)
+                            .font(.body)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.white.opacity(0.2))
+                            .cornerRadius(8)
+                            .padding()
+                    }
+
                     Text(isRecording ? "Recording…" : (hasRecording ? "Recorded" : "Paused"))
                         .font(.title2)
 
@@ -96,6 +114,17 @@ struct VoiceInputView: View {
                 }
             }
         }
+        .onAppear {
+            SFSpeechRecognizer.requestAuthorization { authStatus in
+                switch authStatus {
+                case .authorized: print("✅ Speech recognition authorized")
+                case .denied: print("❌ Speech recognition denied")
+                case .restricted: print("⚠️ Speech recognition restricted")
+                case .notDetermined: print("❓ Speech recognition not determined")
+                @unknown default: break
+                }
+            }
+        }
     }
 
     private var formattedTime: String {
@@ -106,6 +135,7 @@ struct VoiceInputView: View {
 
     private func toggleRecording() {
         if isRecording {
+            stopTranscription()
             recorderManager.stopRecording { url in
                 self.audioURL = url
                 self.hasRecording = url != nil
@@ -115,11 +145,53 @@ struct VoiceInputView: View {
                 self.isPulsing = false
             }
         } else {
+            startTranscription()
             secondsElapsed = 0
             isRecording = true
             isPulsing = true
             recorderManager.startRecording()
         }
+    }
+    
+    private func startTranscription() {
+        transcriptText = ""
+        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        
+        guard let recognitionRequest = recognitionRequest else {
+            print("❌ Failed to create request")
+            return
+        }
+        
+        let inputNode = audioEngine.inputNode
+        recognitionRequest.shouldReportPartialResults = true
+
+        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
+            if let result = result {
+                transcriptText = result.bestTranscription.formattedString
+            }
+            if error != nil || (result?.isFinal ?? false) {
+                self.audioEngine.stop()
+                inputNode.removeTap(onBus: 0)
+                self.recognitionRequest = nil
+                self.recognitionTask = nil
+            }
+        }
+
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+            self.recognitionRequest?.append(buffer)
+        }
+
+        audioEngine.prepare()
+        try? audioEngine.start()
+    }
+
+    private func stopTranscription() {
+        audioEngine.stop()
+        recognitionRequest?.endAudio()
+        recognitionRequest = nil
+        recognitionTask = nil
+        transcriptText += "\n\nFinalized."
     }
 
     private func togglePlayback() {
