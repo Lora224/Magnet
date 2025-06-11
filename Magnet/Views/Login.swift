@@ -70,6 +70,15 @@ struct Login: View {
                     MainView()
                         .navigationBarBackButtonHidden(true)
                 }
+                .onReceive(NotificationCenter.default.publisher(for: Notification.Name("UserDidLogout"))) { _ in
+                    print("Received logout → return to Login screen")
+                    showMainView = false
+                    showJoinCreate = false
+                    showUsernameDialog = false
+                    // Optionally clear email/password too:
+                    email = ""
+                    password = ""
+                }
             }
             .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
                 Button("OK", role: .cancel) { }

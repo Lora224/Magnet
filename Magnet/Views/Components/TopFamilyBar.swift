@@ -21,28 +21,14 @@ struct TopFamilyBar: View {
         ZStack(alignment: .topLeading) {
             VStack(spacing: 0) {
                 ZStack {
-                    // Use dynamic family color
+                    // Background
                     Rectangle()
                         .fill(backgroundColor)
                         .frame(height: 90)
                         .shadow(color: .gray.opacity(0.1), radius: 10, x: 0, y: 4)
 
-                    // Original layout preserved
+                    // Centered family name + chevrons
                     HStack(spacing: 24) {
-                        // Sidebar toggle
-                        Button {
-                            withAnimation { isSidebarVisible.toggle() }
-                        } label: {
-                            Image(systemName: "line.horizontal.3")
-                                .resizable()
-                                .frame(width: 60, height: 30)
-                                .foregroundColor(magnetBrown)
-                                .padding(.leading, 20)
-                        }
-
-                        Spacer()
-
-                        // Previous family button
                         Button {
                             if selectedIndex > 0 { selectedIndex -= 1 }
                         } label: {
@@ -51,7 +37,6 @@ struct TopFamilyBar: View {
                                 .foregroundColor(magnetBrown)
                         }
 
-                        // Family picker menu
                         Menu {
                             ForEach(families) { family in
                                 Button(family.name) {
@@ -68,7 +53,6 @@ struct TopFamilyBar: View {
                                 .foregroundColor(magnetBrown)
                         }
 
-                        // Next family button
                         Button {
                             if selectedIndex < families.count - 1 { selectedIndex += 1 }
                         } label: {
@@ -76,11 +60,25 @@ struct TopFamilyBar: View {
                                 .font(.system(size: 40))
                                 .foregroundColor(magnetBrown)
                         }
+                    }
+                    .frame(height: 90)
 
+                    // Hamburger menu button positioned absolutely on the left
+                    HStack {
+                        Button {
+                            withAnimation { isSidebarVisible.toggle() }
+                        } label: {
+                            Image(systemName: "line.horizontal.3")
+                                .resizable()
+                                .frame(width: 60, height: 30)
+                                .foregroundColor(magnetBrown)
+                                .padding(.leading, 20)
+                        }
                         Spacer()
                     }
                     .frame(height: 90)
                 }
+
             }
 
             // Sidebar overlay
