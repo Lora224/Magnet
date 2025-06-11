@@ -49,4 +49,5 @@ struct Family: Identifiable {
     var green: Double
     var blue: Double
     var profilePic: Data?
+    var emoji: String
 }

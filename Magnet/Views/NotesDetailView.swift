@@ -168,13 +168,15 @@ struct NotesDetailView: View {
     families: .constant([
       Family(
         id: "fam",
-        name: "The Smiths 😊",
+        name: "The Smiths",
         inviteURL: "",
         memberIDs: [],
         red: 0.9,
         green: 0.7,
         blue: 0.2,
-        profilePic: nil
+        profilePic: nil,
+        emoji: "👪"
+
       )
     ]),
     selectedFamilyIndex: .constant(0)

@@ -99,8 +99,8 @@ struct TopFamilyBar: View {
 #if DEBUG
 struct TopFamilyBar_Previews: PreviewProvider {
     static let sample = [
-        Family(id: "1", name: "A", inviteURL: "", memberIDs: [], red: 0.8, green: 0.4, blue: 0.2, profilePic: nil),
-        Family(id: "2", name: "B", inviteURL: "", memberIDs: [], red: 0.2, green: 0.6, blue: 0.8, profilePic: nil)
+        Family(id: "1", name: "A", inviteURL: "", memberIDs: [], red: 0.8, green: 0.4, blue: 0.2, profilePic: nil, emoji: "👪"),
+        Family(id: "2", name: "B", inviteURL: "", memberIDs: [], red: 0.2, green: 0.6, blue: 0.8, profilePic: nil, emoji: "👪")
     ]
     static var previews: some View {
         TopFamilyBar(families: .constant(sample), selectedIndex: .constant(0))

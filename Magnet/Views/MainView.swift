@@ -188,14 +188,16 @@ struct MainView: View {
                 let data = doc.data()
                 return Family(
                     id:          doc.documentID,
-                    name:        data["name"]       as? String  ?? "<No Name>",
-                    inviteURL:   data["inviteURL"]  as? String  ?? "",
+                    name:        data["name"]       as? String   ?? "<No Name>",
+                    inviteURL:   data["inviteURL"]  as? String   ?? "",
                     memberIDs:   data["memberIDs"]  as? [String] ?? [],
-                    red:         data["red"]        as? Double  ?? 1.0,
-                    green:       data["green"]      as? Double  ?? 1.0,
-                    blue:        data["blue"]       as? Double  ?? 1.0,
-                    profilePic:  data["profilePic"] as? Data
+                    red:         data["red"]        as? Double   ?? 1.0,
+                    green:       data["green"]      as? Double   ?? 1.0,
+                    blue:        data["blue"]       as? Double   ?? 1.0,
+                    profilePic:  data["profilePic"] as? Data,
+                    emoji:       data["emoji"]      as? String   ?? "👪"   
                 )
+
             }
             // start at the first family
             self.selectedFamilyIndex = 0

@@ -1,214 +1,143 @@
 import SwiftUI
-import FirebaseAuth
 
 struct FamilyGroupView: View {
-    @State var familyName: String
-    let familyEmoji: String
-    @State var backgroundColor: Color
-//    @State var users: [String] 
-
-    
-    // Using placeholder avatars; replace "avatarPlaceholder" with real asset names.
     @StateObject private var famManager = Sid()
-    // MARK: – Custom colors
-    private let magnetBrown  = Color(red: 0.294, green: 0.212, blue: 0.129)  // #4B3621
-    private let magnetYellow = Color(red: 1.000, green: 0.961, blue: 0.855)  // #FFF5DA
-    
+
+    // Custom colors
+    private let magnetBrown  = Color(red: 0.294, green: 0.212, blue: 0.129)
+    private let magnetYellow = Color(red: 1.000, green: 0.961, blue: 0.855)
+
     var body: some View {
-        ZStack {
-            // Background: ignore safe area only on bottom
-            backgroundColor
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // MARK: – Top bar (hamburger on left, calendar on right)
-                
-                HStack {
-                    // Hamburger menu icon (kept at default size)
-                    NavigationLink(destination: SideBarView()) {
-                        Image(systemName: "line.3.horizontal")
-                            .resizable()
-                            .frame(width: 65, height: 35)
-                            .foregroundColor(magnetBrown)
-                            .padding(.leading, 25)
-                    }
-                    Spacer()
-                    
-//                    // Calendar icon (sized 50×50)
-//                    NavigationLink(destination: CalendarView()) {
-//                        Image(systemName: "calendar")
-//                            .resizable()
-//                            .frame(width: 50, height: 50)
-//                            .foregroundColor(magnetBrown)
-//                            .padding(.trailing, 16)
-//                    }
-                }
-                // Respect iPad’s top safe area
-                .padding(.top, 20)
-                .background(backgroundColor)
+        NavigationStack {
+            Group {
+                if let family = famManager.family {
+                    ZStack {
+                        // Background color from Firestore
+                        Color(red: family.red, green: family.green, blue: family.blue)
+                            .ignoresSafeArea()
 
-                
-                // MARK: – Emoji avatar + back arrow
-                ZStack {
-                    // Centered emoji inside a white circle (emoji at size 64)
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 150, height: 150)
-                        .overlay(
-                            Text(familyEmoji)
-                                .font(.system(size: 75))
-                        )
-                        .shadow(radius: 4)
-                    
-                    // Edit pencil overlay (50×50 circle + pencil icon)
-                    Button(action:{/*back button action*/}){
-                        Circle()
-                            .fill(magnetBrown)
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image(systemName: "pencil")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 24, height: 24)
-                                    .foregroundColor(.white)
-                            )
-                    }
-                        
-                            .offset(x: 50, y: 50)
-                    
-                    // Back arrow (sized 50×50)
-                        HStack {
-                            NavigationLink(destination: MainView()) {
-                                Image(systemName: "arrowshape.backward.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 80, height: 50)
-                                    .foregroundColor(magnetBrown)
-                                    .padding(.leading, 16)
-                            }
-                            Spacer()
-                        
-                        .frame(height: 120) // match emoji circle height
-                    }
-                }
-                .padding(.top, 8)
-                
-                // MARK: – Family name
-                HStack(spacing: 16) {
-                    TextField("Enter family name", text: $familyName)
-                        .font(.title)
-                        .bold()
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.white)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .stroke(Color.gray.opacity(0.5), lineWidth: 1.0)
-                                )
-                        )
-                        .frame(width: 240)
-
-                    ColorPicker("", selection: $backgroundColor, supportsOpacity: false)
-                        .labelsHidden()
-                        .frame(width: 64, height: 64)
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.gray.opacity(0.6), lineWidth: 1.0)
-                        )
-                }
-                .padding(.top, 24)
-                .padding(.horizontal, 40)
-
-                
-
-                
-                // MARK: – Members list (two columns)
-                ScrollView {
-                    VStack(spacing: 12) {
-                        if famManager.userNames.isEmpty {
-                            Text("No members found.")
-                                .foregroundColor(.gray)
-                                .padding()
-                        } else {
-                            ForEach(famManager.userNames, id: \.self) { name in
-                                HStack {
-                                    Image(systemName: "person.fill")
+                        VStack(spacing: 24) {
+                            // Top bar with sidebar button
+                            HStack {
+                                NavigationLink(destination: SideBarView()) {
+                                    Image(systemName: "line.3.horizontal")
                                         .resizable()
-                                        .frame(width: 40, height: 40)
-                                    Text(name)
-                                        .font(.headline)
-                                    Spacer()
+                                        .frame(width: 65, height: 35)
+                                        .foregroundColor(magnetBrown)
+                                        .padding(.leading, 25)
                                 }
-                                .padding(.horizontal)
+                                Spacer()
                             }
-                        }
+                            .padding(.top, 20)
+                            .background(Color(red: family.red, green: family.green, blue: family.blue))
 
+                            // Emoji avatar
+                            Text(family.emoji)
+                                .font(.system(size: 75))
+
+                            // Editable family name
+                            TextField("Family name", text: Binding(
+                                get: { famManager.family?.name ?? "" },
+                                set: { famManager.family?.name = $0 }
+                            ))
+                            .font(.title).bold()
+                            .multilineTextAlignment(.center)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color.white)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                    )
+                            )
+                            .frame(width: 240)
+                            .onSubmit {
+                                if let newName = famManager.family?.name {
+                                    famManager.updateFamilyName(newName: newName)
+                                }
+                            }
+
+                            // Members list
+                            ScrollView {
+                                VStack(spacing: 12) {
+                                    if famManager.userNames.isEmpty {
+                                        Text("No members found.")
+                                            .foregroundColor(.gray)
+                                            .padding()
+                                    } else {
+                                        ForEach(famManager.userNames, id: \.self) { name in
+                                            HStack {
+                                                Image(systemName: "person.fill")
+                                                    .frame(width: 40, height: 40)
+                                                Text(name)
+                                                    .font(.headline)
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer()
+
+                            // Action buttons
+                            HStack(spacing: 20) {
+                                Button {
+                                    if let updatedName = famManager.family?.name {
+                                        famManager.updateFamilyName(newName: updatedName)
+                                    }
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "arrow.up.circle")
+                                            .font(.system(size: 30))
+                                        Text("Update")
+                                            .font(.title3).bold()
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 32)
+                                    .background(magnetBrown)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 2)
+                                }
+
+                                Button {
+                                    // Invite logic here
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "link")
+                                            .font(.system(size: 30))
+                                        Text("Invite")
+                                            .font(.title3).bold()
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 32)
+                                    .background(magnetBrown)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 2)
+                                }
+                            }
+                            .padding(.bottom, 32)
+                        }
+                        .padding(.horizontal)
                     }
+                    .navigationTitle(family.name)
+                } else {
+                    // Loading state
+                    ProgressView("Loading…")
+                        .navigationTitle("Family")
                 }
-
-
-                .padding(.top, 24)
-                
-                Spacer()
-                
-                // MARK: – Invite button
-                HStack(spacing: 20) {
-                    Button(action: {
-                        // Update Firebase with the new name
-                        famManager.updateFamilyName(newName: familyName)
-                    }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "arrow.up.circle")
-                                .font(.system(size: 30, weight: .regular))
-                                .frame(width: 50, height: 35)
-                            Text("Update")
-                                .font(.title3).bold()
-                        }
-                        .foregroundColor(.white)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 32)
-                        .background(magnetBrown)
-                        .cornerRadius(8)
-                        .shadow(radius: 2)
-                    }
-
-                    Button(action: { /* Invite link logic goes here */ }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "link")
-                                .font(.system(size: 30, weight: .regular))
-                                .frame(width: 50, height: 35)
-                            Text("Invite")
-                                .font(.title3).bold()
-                        }
-                        .foregroundColor(.white)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 32)
-                        .background(magnetBrown)
-                        .cornerRadius(8)
-                        .shadow(radius: 2)
-                    }
-                }
-                .padding(.bottom, 32)
-                .padding(.top, 24)
-                
             }
             .onAppear {
                 famManager.loadCurrentUserFamily()
             }
         }
-
     }
-    
 }
 
-// MARK: – Preview
-#Preview{
-    FamilyGroupView(
-        familyName: "Family 1",
-        familyEmoji: "😍",
-        backgroundColor: Color(red: 1.000, green: 0.961, blue: 0.855)
-    )
+#Preview {
+    FamilyGroupView()
 }

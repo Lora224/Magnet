@@ -9,18 +9,18 @@ struct ProfileView: View {
     @State private var isSidebarVisible = false
     @State private var userName = ""
     @FocusState private var nameFieldIsFocused: Bool
-
+    
     @State private var avatarURL: URL? = nil
     @State private var selectedImageItem: PhotosPickerItem? = nil
     @State private var isShowingImagePicker = false
-
+    
     @State private var families: [Family] = []
-
+    
     private let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
     ]
-
+    
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -31,12 +31,12 @@ struct ProfileView: View {
                         .scaledToFill()
                         .ignoresSafeArea()
                         .opacity(0.2)
-
+                    
                     VStack(spacing: 0) {
                         header
                         content(for: geometry)
                     }
-
+                    
                     if isSidebarVisible {
                         // Overlay that captures taps outside the sidebar
                         Color.black.opacity(0.4)
@@ -68,7 +68,7 @@ struct ProfileView: View {
             .navigationBarHidden(true)
         }
     }
-
+    
     // MARK: - Header
     private var header: some View {
         HStack {
@@ -85,7 +85,7 @@ struct ProfileView: View {
         }
         .padding(.top, 20)
     }
-
+    
     // MARK: - Main Content
     private func content(for geometry: GeometryProxy) -> some View {
         ScrollView(.vertical, showsIndicators: true) {
@@ -94,7 +94,7 @@ struct ProfileView: View {
                     isShowingImagePicker = true
                 }
                 .padding(.top, 8)
-
+                
                 TextField("Enter name", text: $userName) {
                     updateName()
                 }
@@ -113,30 +113,27 @@ struct ProfileView: View {
                 .frame(width: 240)
                 .focused($nameFieldIsFocused)
                 .padding(.top, 24)
-
+                
                 let maxWidth = min(geometry.size.width * 0.9, 600)
                 familyGrid(maxWidth: maxWidth)
             }
             .padding(.bottom, 20)
         }
     }
-
+    
     private func familyGrid(maxWidth: CGFloat) -> some View {
         LazyVGrid(columns: columns, spacing: 32) {
             ForEach(families) { fam in
                 NavigationLink {
-                    FamilyGroupView(
-                        familyName: fam.name,
-                        familyEmoji: "👨‍👩‍👧‍👦",
-                        backgroundColor: Color(red: fam.red, green: fam.green, blue: fam.blue)
-                    )
+                    FamilyGroupView()
                 } label: {
                     FamilyCard(family: fam, textColor: .magnetBrown)
                         .frame(width: 240, height: 240)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-
+            
+            
             NavigationLink {
                 JoinCreate()
             } label: {
@@ -157,7 +154,7 @@ struct ProfileView: View {
         .frame(maxWidth: maxWidth)
         .frame(maxWidth: .infinity)
     }
-
+    
     // MARK: - Sidebar
     private var sidebar: some View {
         Group {
@@ -170,7 +167,7 @@ struct ProfileView: View {
                 .zIndex(1)
         }
     }
-
+    
     // MARK: - Actions
     private func updateName() {
         FirestoreManager.shared.updateCurrentUserName(to: userName) { result in
@@ -179,7 +176,7 @@ struct ProfileView: View {
             }
         }
     }
-
+    
     private func handleImageChange() {
         Task {
             if let data = try? await selectedImageItem?.loadTransferable(type: Data.self),
@@ -194,7 +191,7 @@ struct ProfileView: View {
             }
         }
     }
-
+    
     // MARK: - Data Loading
     private func loadUserName() {
         FirestoreManager.shared.getCurrentUserName { result in
@@ -207,7 +204,7 @@ struct ProfileView: View {
             }
         }
     }
-
+    
     private func loadUserAvatar() {
         UserProfileManager.shared.fetchUserProfilePictureURL { result in
             DispatchQueue.main.async {
@@ -221,7 +218,7 @@ struct ProfileView: View {
             }
         }
     }
-
+    
     private func loadFamilies() {
         UserProfileManager.shared.fetchUserFamilies { result in
             DispatchQueue.main.async {

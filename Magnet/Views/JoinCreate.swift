@@ -115,18 +115,13 @@ struct JoinCreate: View {
             }
             .ignoresSafeArea(.keyboard)
             .navigationDestination(isPresented: $famManager.navigateToHome) {
-                if let family = famManager.family {
-                                    FamilyGroupView(
-                                        familyName: family.name, familyEmoji: "",
-                                        backgroundColor: Color(
-                                            red: family.red,
-                                            green: family.green,
-                                            blue: family.blue
-                                        )
-                                    )
-                                } else {
-                                    Text("Family not found.")
-                                }
+                FamilyGroupView()
+                    .overlay(
+                      famManager.family == nil
+                        ? Text("Family not found.")
+                        : nil
+                    )
+
             }
         }
     }

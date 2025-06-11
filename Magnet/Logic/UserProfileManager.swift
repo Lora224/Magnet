@@ -115,7 +115,8 @@ class UserProfileManager {
                             red: familyData["red"] as? Double ?? 1.0,
                             green: familyData["green"] as? Double ?? 1.0,
                             blue: familyData["blue"] as? Double ?? 1.0,
-                            profilePic: nil
+                            profilePic: nil,
+                            emoji: "👪"
                         )
                         fetchedFamilies.append(family)
                     }
