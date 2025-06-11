@@ -2,6 +2,9 @@ import SwiftUI
 import FirebaseAuth
 
 struct SideBarView: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var authManager: AuthManager
+    
     // MARK: – Colors
     private let magnetBrown  = Color(red: 75.0/255.0,  green: 54.0/255.0,  blue: 33.0/255.0) // #4B3621
     private let circleBG     = Color(red: 226.0/255.0, green: 220.0/255.0, blue: 211.0/255.0) // light beige
@@ -10,13 +13,9 @@ struct SideBarView: View {
     private let avatarImage = Image("avatarPlaceholder") // replace with your asset name
 
     var body: some View {
-        // The outer HStack ensures the sidebar only occupies a fixed width on the leading edge,
-        // leaving the rest of the screen transparent (or to be dimmed by a parent if needed).
         HStack(spacing: 0) {
-            // ───────────────────── Sidebar Content ─────────────────────
             VStack(alignment: .leading, spacing: 32) {
                 // HOME ROW
-                //Navigate to home
                 NavigationLink(destination: MainView()) {
                     HStack(spacing: 16) {
                         ZStack {
@@ -33,13 +32,12 @@ struct SideBarView: View {
                         Text("Home")
                             .font(.title3)
                             .foregroundColor(.black)
-                        
+
                         Spacer()
 
                         Image(systemName: "chevron.right")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.gray)
-
                     }
                 }
 
@@ -70,7 +68,7 @@ struct SideBarView: View {
                         Text("Archive")
                             .font(.title3)
                             .foregroundColor(.black)
-                        
+
                         Spacer()
 
                         Image(systemName: "chevron.right")
@@ -80,8 +78,7 @@ struct SideBarView: View {
                 }
 
                 // PROFILE ROW
-                //Navigate to profile
-                    NavigationLink(destination: ProfileView()) {
+                NavigationLink(destination: ProfileView()) {
                     HStack(spacing: 16) {
                         avatarImage
                             .resizable()
@@ -104,12 +101,7 @@ struct SideBarView: View {
 
                 // LOGOUT ROW
                 Button(action: {
-                    do {
-                        try Auth.auth().signOut()
-                        NotificationCenter.default.post(name: Notification.Name("UserDidLogout"), object: nil)
-                    } catch {
-                        print("❌ Failed to logout: \(error.localizedDescription)")
-                    }
+                    authManager.logout()
                 }) {
                     HStack(spacing: 16) {
                         ZStack {
@@ -136,16 +128,13 @@ struct SideBarView: View {
             }
             .padding(.top, 20)
             .padding(.horizontal, 24)
-            .frame(width: 280)             // FIXED WIDTH of the sidebar
-            .background(Color.white)       // Solid white background for sidebar
-            .edgesIgnoringSafeArea(.all)   // Fill vertically under status bar
+            .frame(width: 280)
+            .background(Color.white)
+            .edgesIgnoringSafeArea(.all)
 
-            // ───────────────────── Transparent Remainder ─────────────────────
-            // This Spacer ensures the sidebar occupies only the left side.
-            // The rest of the HStack fills the screen but is fully transparent.
             Spacer()
         }
-        .edgesIgnoringSafeArea(.all) // Allow sidebar to extend under safe areas
+        .edgesIgnoringSafeArea(.all)
     }
 }
 
@@ -153,7 +142,9 @@ struct SideBarView: View {
 struct SideBarView_Previews: PreviewProvider {
     static var previews: some View {
         SideBarView()
-            // Preview in a full‐screen container so we can see the transparent area:
+            .environmentObject(AppState())
+            .environmentObject(AuthManager())
             .previewLayout(.fixed(width: 768, height: 1024))
     }
 }
+

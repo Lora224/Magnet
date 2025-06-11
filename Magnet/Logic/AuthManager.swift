@@ -8,6 +8,9 @@ class AuthManager: ObservableObject {
     @Published var showingAlert = false
     @Published var currentUserID: String? = nil
     
+    // ⭐️ 引入 AppState
+    var appState: AppState?
+    
     // MARK: - Register
     func register(email: String, password: String, completion: @escaping (Bool) -> Void) {
         guard FirebaseApp.app() != nil else {
@@ -54,11 +57,11 @@ class AuthManager: ObservableObject {
                     self.showingAlert = true
                     completion(false)
                 } else {
-                    // SUCCESS → Do NOT show alert, just complete
+                    // SUCCESS → Set appState
+                    self.appState?.isLoggedIn = true
                     completion(true)
                 }
             }
-
         }
     }
     
@@ -104,9 +107,26 @@ class AuthManager: ObservableObject {
                     self.showingAlert = true
                     completion(false)
                 } else {
+                    // SUCCESS → Set appState
+                    self.appState?.isLoggedIn = true
                     completion(true)
                 }
             }
         }
     }
+    
+    // MARK: - Logout
+    func logout() {
+        do {
+            try Auth.auth().signOut()
+            print("✅ User signed out.")
+            DispatchQueue.main.async {
+                self.appState?.isLoggedIn = false
+            }
+        } catch {
+            print("❌ Failed to logout: \(error.localizedDescription)")
+        }
+    }
+
 }
+

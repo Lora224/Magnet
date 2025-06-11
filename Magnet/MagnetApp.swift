@@ -10,10 +10,9 @@ import FirebaseCore
 import SwiftData
 import Firebase
 import FirebaseAppCheck
+import FirebaseAuth
 import FirebaseStorage
 
-import Firebase
-import FirebaseAppCheck
 
 class AppDelegate: NSObject, UIApplicationDelegate {
 //    override init() {
@@ -33,21 +32,52 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
+class AppState: ObservableObject {
+    @Published var isLoggedIn = false
+}
 
 
 @main
 struct MagnetApp: App {
-    
-  // register app delegate for Firebase setup
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject var appState: AppState
+    @StateObject var authManager = AuthManager()
 
-  var body: some Scene {
-    WindowGroup {
-          Login()
+    // register app delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+    init() {
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+            print("✅ FirebaseApp configured in MagnetApp.init()")
+        }
+
+        let initialAppState = AppState()
+
+        if Auth.auth().currentUser != nil {
+            initialAppState.isLoggedIn = true
+            print("✅ User is already logged in → show MainView")
+        } else {
+            initialAppState.isLoggedIn = false
+            print("✅ No user → show Login")
+        }
+
+        _appState = StateObject(wrappedValue: initialAppState)
     }
-    .modelContainer(for: [
-      User.self
-    ])
-  }
-}
 
+    var body: some Scene {
+        WindowGroup {
+            if appState.isLoggedIn {
+                MainView()
+                    .environmentObject(appState)
+                    .environmentObject(authManager)
+            } else {
+                Login()
+                    .environmentObject(appState)
+                    .environmentObject(authManager)
+            }
+        }
+        .modelContainer(for: [
+            User.self
+        ])
+    }
+}

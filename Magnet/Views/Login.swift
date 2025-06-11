@@ -5,18 +5,17 @@ import FirebaseFirestore
 struct Login: View {
     @State private var email = ""
     @State private var password = ""
-    @StateObject private var authManager = AuthManager()
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var authManager: AuthManager
 
     @State private var showUsernameDialog = false
     @State private var showJoinCreate = false
-    @State private var showMainView = false
 
     @State private var isSignUpFlow = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background LoginContentView
                 LoginContentView(
                     email: $email,
                     password: $password,
@@ -42,7 +41,6 @@ struct Login: View {
                 .blur(radius: showUsernameDialog ? 3 : 0)
                 .disabled(showUsernameDialog)
 
-                // UsernameSetupView overlay
                 if showUsernameDialog {
                     UsernameSetupView {
                         withAnimation(.spring()) {
@@ -55,29 +53,13 @@ struct Login: View {
                             checkFamilies()
                         }
                     }
-                    .transition(.move(edge: .bottom)) // 👈 Slide from bottom
+                    .transition(.move(edge: .bottom))
                     .zIndex(10)
                 }
 
-                // Navigation to JoinCreate
                 NavigationLink("", isActive: $showJoinCreate) {
                     JoinCreate()
                         .navigationBarBackButtonHidden(true)
-                }
-
-                // Navigation to MainView
-                NavigationLink("", isActive: $showMainView) {
-                    MainView()
-                        .navigationBarBackButtonHidden(true)
-                }
-                .onReceive(NotificationCenter.default.publisher(for: Notification.Name("UserDidLogout"))) { _ in
-                    print("Received logout → return to Login screen")
-                    showMainView = false
-                    showJoinCreate = false
-                    showUsernameDialog = false
-                    // Optionally clear email/password too:
-                    email = ""
-                    password = ""
                 }
             }
             .alert(authManager.alertMessage, isPresented: $authManager.showingAlert) {
@@ -153,10 +135,10 @@ struct Login: View {
             } else {
                 print("✅ Families exist → go to MainView")
                 DispatchQueue.main.async {
-                    showMainView = true
+                    // ⭐️ 关键改这里 → 不用 showMainView，直接改 AppState
+                    appState.isLoggedIn = true
                 }
             }
         }
     }
 }
-
