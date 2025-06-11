@@ -20,11 +20,7 @@ struct StickyNoteView: View {
         guard let me = Auth.auth().currentUser?.uid else { return false }
        // 1️⃣ if *I* sent it, never show “!”
        if note.senderID == me { return false }
-
-       // 2️⃣ pull the ReactionType? map (empty if missing)
-       let seenDict = note.seen as? [String:ReactionType?] ?? [:]
-       // 3️⃣ if my UID is a key, it’s seen
-       return !seenDict.keys.contains(me)
+        return !note.seen.keys.contains(me)
     }
     private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
 
@@ -103,6 +99,7 @@ struct StickyNoteView: View {
             )
             
         }
+        .navigationBarBackButtonHidden(true)
 
     
 

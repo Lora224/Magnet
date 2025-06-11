@@ -20,14 +20,10 @@ struct NoteDetailPage: View {
                 .padding(.top, 16)
 
             // 4–5. Show content exactly like StickyNoteView, but full-size
-            StickyNoteContentView(note: note)
-                .frame(maxWidth: 350, maxHeight: 500)
+            StickyNoteContentView(note: note, mode: .detail)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // Chevron to open seen-by
-            Image(systemName: "chevron.compact.up")
-                .font(.system(size: 40))
-                .foregroundColor(.magnetBrown)
-                .onTapGesture(perform: onToggleSeenPanel)
+
         }
     }
 }

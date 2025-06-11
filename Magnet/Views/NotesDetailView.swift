@@ -53,16 +53,12 @@ struct NotesDetailView: View {
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .onChange(of: currentIndex) { newIndex in
-                    if notes.indices.contains(newIndex) {
                         markSeenAndLoad()
-                    }
+
                 }
                 .onAppear {
-                    if notes.indices.contains(currentIndex) {
-                        print("📑 NotesDetailView appeared with notes.count =", notes.count, "currentIndex =", currentIndex)
-                          
                         markSeenAndLoad()
-                    }
+                   
                 }
 
                 // 3. Reaction bar
@@ -70,9 +66,20 @@ struct NotesDetailView: View {
                     selected: $myReaction,
                     onReact: saveReaction
                 )
-                .padding(.vertical, 12)
-            }
+                .id(currentIndex)
+                .padding(.horizontal, 12)
+               
 
+            }
+            VStack {
+                Spacer()
+                Image(systemName: "chevron.compact.up")
+                    .font(.system(size: 60))
+                    .foregroundColor(.magnetBrown)
+                    .padding(.bottom, 90)    // lift it above the reaction bar
+                    .onTapGesture { isSeenPanelOpen = true }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             // 6. Seen‐by overlay
             if isSeenPanelOpen {
                 Color.black.opacity(0.3)
@@ -92,19 +99,26 @@ struct NotesDetailView: View {
     // MARK: – Helpers
 
     private func markSeenAndLoad() {
-        guard notes.indices.contains(currentIndex) else {
-            print("⚠️ Tried to markSeenAndLoad at \(currentIndex), but notes.count = \(notes.count)")
-            return
-        }
+        guard notes.indices.contains(currentIndex) else { return }
+
         let note = notes[currentIndex]
         let me   = Auth.auth().currentUser!.uid
+        let seenKey = "seen.\(me)"
 
-        // 7. Mark it seen
-        Firestore.firestore()
-          .collection("StickyNotes")
-          .document(note.id.uuidString)
-          .updateData(["seen.\(me)": true])
-
+        // ✅ Only write if I’m not in the map yet
+        if note.seen[me] == nil {
+            Firestore.firestore()
+                .collection("StickyNotes")
+                .document(note.id.uuidString)
+                .updateData([ seenKey : NSNull() ])
+        }
+        if let raw = note.seen[me] as? String,
+           let r = ReactionType(rawValue: raw)
+        {
+            myReaction = r
+        } else {
+            myReaction = nil
+        }
         // 6. Load seen-by list (excluding the sender)
         let otherIDs = note.seen.keys.filter { $0 != note.senderID }
         guard !otherIDs.isEmpty else {
@@ -173,4 +187,76 @@ struct UserPublic: Identifiable {
     let name: String
     let avatarURL: URL
 }
+#if DEBUG
+import SwiftUI
 
+// MARK: - Local wrapper so we can hold @State / @StateObject
+private struct NotesDetailPreview: View {
+    @StateObject private var stickyManager = StickyDisplayManager()
+    @State private var families: [Family]
+    @State private var selectedFamilyIndex: Int
+    
+    init() {
+        // ───────────── sample data ─────────────
+        let demoFamily = Family(
+            id:        "fam-001",
+            name:      "Grandma’s Kitchen",
+            inviteURL: "",
+            memberIDs: ["u-00", "u-01"],
+            red: 0.95, green: 0.83, blue: 0.81,
+            profilePic: nil
+        )
+        
+        let demoNotes: [StickyNote] = [
+            StickyNote(
+                id: UUID(),
+                senderID: "u-00",
+                familyID: demoFamily.id,
+                
+                type: .text,
+                timeStamp: Date().addingTimeInterval(-3600 * 3),
+                seen: [:],
+                text: "First batch of cookies\nis in the oven 🍪",
+                payloadURL: nil,
+                
+           
+            ),
+            StickyNote(
+                id: UUID(),
+                senderID: "u-01",
+                familyID: demoFamily.id,
+              
+                type: .image,
+                timeStamp: Date().addingTimeInterval(-3600),
+                seen: [:],
+                text: "Look what I made!",
+                payloadURL: "https://picsum.photos/seed/123/600/450",
+              
+               
+            )
+        ]
+        // ───────────────────────────────────────
+        
+        _families             = State(initialValue: [demoFamily])
+        _selectedFamilyIndex  = State(initialValue: 0)
+        stickyManager.rawNotes = demoNotes
+    }
+    
+    var body: some View {
+        NavigationStack {
+            NotesDetailView(
+                notes: stickyManager.rawNotes, // same sample notes
+                currentIndex: 1,               // show newest first
+                families: $families,
+                selectedFamilyIndex: $selectedFamilyIndex
+            )
+            .environmentObject(stickyManager)
+        }
+    }
+}
+
+// MARK: - Xcode canvas / SwiftUI preview
+#Preview("Notes Detail") {
+    NotesDetailPreview()          // ← no explicit ‘return’
+}
+#endif

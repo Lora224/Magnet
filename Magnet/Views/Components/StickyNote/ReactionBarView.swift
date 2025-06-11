@@ -1,36 +1,38 @@
-//
-//  ReactionBarView.swift
-//  Magnet
-//
-//  Created by Muze Lyu on 11/6/2025.
-//
-
 import SwiftUI
 
-// MARK: - ReactionBarView
 struct ReactionBarView: View {
     @Binding var selected: ReactionType?
     var onReact: (ReactionType) -> Void
 
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 24) {
             ForEach(ReactionType.allCases, id: \.self) { reaction in
-                Button(action: {
+                Button {
                     selected = reaction
                     onReact(reaction)
-                }) {
+                } label: {
                     Image(reaction.ImageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .padding(8)
+                        .frame(width: 40, height: 40)
+                        .padding(10)
                         .background(
                             Circle()
-                                .stroke(selected == reaction ? Color.accentColor : Color.clear, lineWidth: 2)
+                                .fill(
+                                    selected == reaction
+                                        ? Color.accentColor.opacity(0.3)
+                                        : Color.clear
+                                )
                         )
                 }
                 .buttonStyle(PlainButtonStyle())
             }
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.gray.opacity(0.15))
+        )
     }
 }

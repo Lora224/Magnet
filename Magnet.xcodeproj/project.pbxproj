@@ -28,11 +28,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Views/Components/ReactionBarView.swift,
-				Views/Components/SeenUserPanel.swift,
-				Views/Components/StickyNoteContentView.swift,
-				Views/ReactionStripView.swift,
-				Views/SeenUserPanel.swift,
 			);
 			target = 0B89ABBA2DE93EFC0024EFB4 /* Magnet */;
 		};
