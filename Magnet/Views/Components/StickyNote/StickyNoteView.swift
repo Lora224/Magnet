@@ -7,6 +7,7 @@ import Firebase
 struct StickyNoteView: View {
     let note: StickyNote
     let reactions: [ReactionType]
+    @EnvironmentObject var stickyManager: StickyDisplayManager
     @Binding var families: [Family]
     @Binding var selectedFamilyIndex: Int
     @State private var isPresentingDetail = false
@@ -19,11 +20,7 @@ struct StickyNoteView: View {
         guard let me = Auth.auth().currentUser?.uid else { return false }
        // 1️⃣ if *I* sent it, never show “!”
        if note.senderID == me { return false }
-
-       // 2️⃣ pull the ReactionType? map (empty if missing)
-       let seenDict = note.seen as? [String:ReactionType?] ?? [:]
-       // 3️⃣ if my UID is a key, it’s seen
-       return !seenDict.keys.contains(me)
+        return !note.seen.keys.contains(me)
     }
     private let magnetColors: [Color] = [.magnetPink, .magnetYellow, .magnetBlue]
 
@@ -82,11 +79,28 @@ struct StickyNoteView: View {
         }
 
        // ⬇️  Put the destination on the SAME view that flips the Boolean
+        //.environmentObject(stickyManager)
         .navigationDestination(isPresented: $isPresentingDetail) {
-           NotesDetailView(note: note,
-                           families: $families,
-                           selectedFamilyIndex: $selectedFamilyIndex)
-       }
+            
+            // 1️⃣ Build an ascending array of notes (oldest → newest)
+            let ascending = stickyManager
+                .rawNotes
+                .sorted { $0.timeStamp < $1.timeStamp }
+      
+            // 2️⃣ Find the index of the tapped note
+            let startIndex = ascending.firstIndex { $0.id == note.id } ?? 0
+      
+            // 3️⃣ Initialize NotesDetailView with the correct labels:
+            NotesDetailView(
+                notes: ascending,
+                currentIndex: startIndex,
+                families: $families,
+                selectedFamilyIndex: $selectedFamilyIndex
+            )
+            
+        }
+        .navigationBarBackButtonHidden(true)
+
     
 
 }

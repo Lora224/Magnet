@@ -33,7 +33,7 @@ class AppState: ObservableObject {
 @main
 struct MagnetApp: App {
     @StateObject var authManager = AuthManager()
-
+    @StateObject private var stickyManager = StickyDisplayManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     init() {
@@ -48,10 +48,13 @@ struct MagnetApp: App {
             if authManager.isUserLoggedIn {
                 MainView()
                     .environmentObject(authManager)
+                    .environmentObject(stickyManager)
             } else {
                 Login()
                     .environmentObject(authManager)
+                    .environmentObject(stickyManager)
             }
         }
     }
 }
+
