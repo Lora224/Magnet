@@ -124,11 +124,7 @@ struct FamilyGroupView: View {
                         }
                         .padding(.horizontal)
                     }
-                    .navigationTitle(family.name)
-                } else {
-                    // Loading state
-                    ProgressView("Loading…")
-                        .navigationTitle("Family")
+                    .navigationTitle("")
                 }
             }
             .onAppear {
