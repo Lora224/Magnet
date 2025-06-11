@@ -41,8 +41,6 @@ struct ProfileView: View {
                         sidebar
                     }
                 }
-                .disabled(isSidebarVisible)
-                .blur(radius: isSidebarVisible ? 2 : 0)
                 .onAppear {
                     loadUserName()
                     loadUserAvatar()
