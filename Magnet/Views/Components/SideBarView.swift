@@ -3,6 +3,10 @@ import FirebaseAuth
 struct SideBarView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authManager: AuthManager
+    @StateObject private var stickyManager = StickyDisplayManager()
+    @State private var families: [Family] = []
+    @State private var selectedFamilyIndex: Int = 0
+
     
     @Environment(\.dismiss) private var dismiss
     
@@ -45,17 +49,13 @@ struct SideBarView: View {
                 }
 
                 // ARCHIVE ROW
-                NavigationLink(destination: CalendarView(notes: [
-                    StickyNote(
-                        senderID: "user1",
-                        familyID: "fam1",
-                        type: .text,
-                        timeStamp: Date(),
-                        seen: [:],
-                        text: "Sample Note",
-                        payloadURL: nil
+                NavigationLink(destination:
+                    CalendarView1(
+                        families: $families,
+                        selectedFamilyIndex: $selectedFamilyIndex
                     )
-                ]))  {
+                    .environmentObject(stickyManager)
+                )  {
                     HStack(spacing: 16) {
                         ZStack {
                             Circle()
