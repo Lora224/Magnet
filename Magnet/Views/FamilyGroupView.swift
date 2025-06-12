@@ -53,9 +53,6 @@ struct FamilyGroupView: View {
                             }
                             .toolbarBackground(familyColor, for: .navigationBar)
                             .toolbar(.hidden, for: .navigationBar)
-                            .onAppear {
-                                syncSelectedColor(with: family)
-                            }
                             .onChange(of: famManager.family?.id) { _ in
                                 if let newFamily = famManager.family {
                                     syncSelectedColor(with: newFamily)
@@ -214,11 +211,15 @@ struct FamilyGroupView: View {
 
                                     Spacer()
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal)
                             }
                         }
                     }
+                    .frame(maxWidth: 400)
+                    .frame(maxWidth: .infinity)
                 }
+
 
                 Spacer()
 
