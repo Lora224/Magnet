@@ -32,6 +32,8 @@ struct NotesDetailView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
+            
+            
             VStack(spacing: 0) {
                 // 1. Top family bar
                 TopFamilyBar(
@@ -94,6 +96,7 @@ struct NotesDetailView: View {
             }
         }
         .ignoresSafeArea(edges: .top)
+        .navigationBarBackButtonHidden(true)
     }
 
     // MARK: – Helpers
