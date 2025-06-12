@@ -160,6 +160,31 @@ class Sid: ObservableObject {
         }
     }
     
+    func updateFamilyColor(to newColor: Color) {
+        guard let familyID = self.family?.id else { return }
+
+        let uiColor = UIColor(newColor)
+        var r: CGFloat = 1.0, g: CGFloat = 1.0, b: CGFloat = 1.0
+        uiColor.getRed(&r, green: &g, blue: &b, alpha: nil)
+
+        db.collection("families").document(familyID).updateData([
+            "red": Double(r),
+            "green": Double(g),
+            "blue": Double(b)
+        ]) { error in
+            if let error = error {
+                print("Failed to update family color: \(error.localizedDescription)")
+            } else {
+                print("✅ Family color updated")
+                DispatchQueue.main.async {
+                    self.family?.red = r
+                    self.family?.green = g
+                    self.family?.blue = b
+                }
+            }
+        }
+    }
+    
     // Generates a random alphanumeric string
     func randomAlphaNumericString(length: Int) -> String {
         let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
