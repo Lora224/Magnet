@@ -65,7 +65,7 @@ struct FamilyGroupView: View {
                 }
             }
 
-            // ⭐️ Sidebar 部分 → 和 ProfileView 一致
+            // Sidebar
             if isSidebarVisible {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
@@ -180,12 +180,18 @@ struct FamilyGroupView: View {
 
                 // Members list
                 ScrollView {
-                    VStack(spacing: 12) {
                         if famManager.userSummaries.isEmpty {
                             Text("No members found.")
                                 .foregroundColor(.gray)
                                 .padding()
-                        } else {
+                        } else { LazyVGrid(
+                            columns: [
+                                GridItem(.fixed(180), spacing: 16),
+                                GridItem(.fixed(180), spacing: 16)
+                            ],
+                            alignment: .center,
+                            spacing: 20
+                        ) {
                             ForEach(famManager.userSummaries) { user in
                                 HStack(spacing: 12) {
                                     if let urlString = user.profilePictureURL, let url = URL(string: urlString) {
@@ -193,31 +199,32 @@ struct FamilyGroupView: View {
                                             image
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fill)
-                                                .frame(width: 40, height: 40)
+                                                .frame(width: 60, height: 60)
                                                 .clipShape(Circle())
                                         } placeholder: {
                                             ProgressView()
-                                                .frame(width: 40, height: 40)
+                                                .frame(width: 60, height: 60)
                                         }
                                     } else {
                                         Image(systemName: "person.crop.circle.fill")
                                             .resizable()
-                                            .frame(width: 40, height: 40)
+                                            .frame(width: 60, height: 60)
                                             .foregroundColor(.gray)
                                     }
 
                                     Text(user.name)
-                                        .font(.headline)
-
-                                    Spacer()
+                                        .font(.subheadline)
+                                        .multilineTextAlignment(.center)
                                 }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .frame(width: 180, alignment: .leading)
+                                .background(Color.white)
+                                .cornerRadius(15)
                             }
                         }
+                        .padding(.horizontal, 24)
                     }
-                    .frame(maxWidth: 400)
-                    .frame(maxWidth: .infinity)
                 }
 
 
