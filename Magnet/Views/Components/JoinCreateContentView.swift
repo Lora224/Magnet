@@ -11,16 +11,14 @@ struct JoinCreateContentView: View {
     @ObservedObject var authManager: AuthManager
 
     @State private var isJoining = false
-
-    private let magnetBrown = Color(red: 0.294, green: 0.212, blue: 0.129)
-
+    
     var body: some View {
         VStack {
             Spacer().frame(height: 60)
 
             Text("Let’s get started!")
                 .font(.system(size: 60, weight: .bold))
-                .foregroundColor(magnetBrown)
+                .foregroundColor(Color.magnetBrown)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: geo.size.width * 0.5)
                 .padding(.bottom, 5)
@@ -45,7 +43,7 @@ struct JoinCreateContentView: View {
                         .foregroundColor(.white)
                         .kerning(2)
                         .frame(width: geo.size.width * 0.4, height: 80)
-                        .background(magnetBrown)
+                        .background(Color.magnetBrown)
                         .cornerRadius(16)
                 }
 
@@ -56,7 +54,7 @@ struct JoinCreateContentView: View {
                             .font(.system(size: 20))
                             .padding(12)
                             .frame(width: geo.size.width * 0.4)
-                            .background(magnetBrown.opacity(0.1))
+                            .background(Color.magnetBrown.opacity(0.1))
                             .cornerRadius(10)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
@@ -65,7 +63,7 @@ struct JoinCreateContentView: View {
                                     if linkURL.isEmpty {
                                         Text("Enter link here")
                                             .font(.system(size: 20))
-                                            .foregroundColor(magnetBrown)
+                                            .foregroundColor(Color.magnetBrown)
                                             .padding(.leading, 16)
                                     }
                                 },
@@ -86,10 +84,10 @@ struct JoinCreateContentView: View {
                         }) {
                             Text(isJoining ? "Joining..." : "Go")
                                 .font(.system(size: 30, weight: .bold))
-                                .foregroundColor(.white)
                                 .kerning(2)
-                                .frame(width: geo.size.width * 0.4, height: 80)
-                                .background(isJoining ? Color.gray : magnetBrown)
+                                .frame(width: geo.size.width * 0.4, height: 50)
+                                .background(isJoining ? Color.gray : Color.magnetRice)
+                                .foregroundColor(isJoining ? .white : Color.magnetBrown)
                                 .cornerRadius(16)
                         }
                         .disabled(isJoining || linkURL.isEmpty)
@@ -112,7 +110,7 @@ struct JoinCreateContentView: View {
                         .foregroundColor(.white)
                         .kerning(2)
                         .frame(width: geo.size.width * 0.4, height: 80)
-                        .background(magnetBrown)
+                        .background(Color.magnetBrown)
                         .cornerRadius(16)
                 }
             }
