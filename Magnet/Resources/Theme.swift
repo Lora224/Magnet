@@ -5,6 +5,7 @@ extension Color {
     static let magnetPink    = Color(red: 0.945, green: 0.827, blue: 0.808) // #F1D3CE
     static let magnetYellow  = Color(red: 1.000, green: 0.961, blue: 0.855) // #FFF5DA
     static let magnetBlue    = Color(red: 0.820, green: 0.914, blue: 0.965) // #D1E9F6
+    static let magnetRice    = Color(red: 0.96, green: 0.93, blue: 0.87)
 
 }
 
