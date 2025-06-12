@@ -19,7 +19,21 @@ struct SideBarView: View {
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 32) {
-                
+                HStack(spacing: 12) {
+                    Image("MagnetLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                        .cornerRadius(8)
+
+                    Text("Magnet")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(magnetBrown)
+                }
+                .padding(.top, 10)
+                .padding(.bottom, 24)
+
                 // HOME ROW
                 Button(action: {
                     dismiss()
@@ -146,3 +160,4 @@ struct SideBarView: View {
         .edgesIgnoringSafeArea(.all)
     }
 }
+
