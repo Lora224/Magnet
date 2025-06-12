@@ -1,3 +1,4 @@
+// ProfileView.swift
 import SwiftUI
 import Firebase
 import FirebaseAuth
@@ -15,7 +16,8 @@ struct ProfileView: View {
     @State private var isShowingImagePicker = false
     
     @State private var families: [Family] = []
-    
+    @State private var selectedFamilyID: String? = nil  // ⭐️ 新增，控制跳转
+
     private let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
@@ -38,19 +40,17 @@ struct ProfileView: View {
                     }
                     
                     if isSidebarVisible {
-                        // Overlay that captures taps outside the sidebar
                         Color.black.opacity(0.4)
                             .ignoresSafeArea()
                             .onTapGesture {
                                 withAnimation { isSidebarVisible = false }
                             }
-                            .zIndex(1) // Ensure it’s above content but below sidebar
+                            .zIndex(1)
 
-                        // The sidebar itself
                         SideBarView()
                             .frame(width: 280)
                             .transition(.move(edge: .leading))
-                            .zIndex(2) // Topmost so it receives touches
+                            .zIndex(2)
                     }
                 }
                 .onAppear {
@@ -63,6 +63,10 @@ struct ProfileView: View {
                               matching: .images)
                 .onChange(of: selectedImageItem) {
                     handleImageChange()
+                }
+                // ⭐️ Navigation destination → 跳 FamilyGroupView(familyID)
+                .navigationDestination(item: $selectedFamilyID) { familyID in
+                    FamilyGroupView(familyID: familyID)
                 }
             }
             .navigationBarHidden(true)
@@ -124,15 +128,14 @@ struct ProfileView: View {
     private func familyGrid(maxWidth: CGFloat) -> some View {
         LazyVGrid(columns: columns, spacing: 32) {
             ForEach(families) { fam in
-                NavigationLink {
-                    FamilyGroupView()
-                } label: {
+                Button(action: {
+                    selectedFamilyID = fam.id  // ⭐️ 触发跳转
+                }) {
                     FamilyCard(family: fam, textColor: .magnetBrown)
                         .frame(width: 240, height: 240)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            
             
             NavigationLink {
                 JoinCreate()
@@ -153,19 +156,6 @@ struct ProfileView: View {
         .padding(.bottom, 20)
         .frame(maxWidth: maxWidth)
         .frame(maxWidth: .infinity)
-    }
-    
-    // MARK: - Sidebar
-    private var sidebar: some View {
-        Group {
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-                .onTapGesture { withAnimation { isSidebarVisible = false } }
-            SideBarView()
-                .frame(width: 280)
-                .transition(.move(edge: .leading))
-                .zIndex(1)
-        }
     }
     
     // MARK: - Actions
@@ -228,9 +218,5 @@ struct ProfileView: View {
             }
         }
     }
-}
-
-#Preview{
-    ProfileView()
 }
 

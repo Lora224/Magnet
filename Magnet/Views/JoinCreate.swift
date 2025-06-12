@@ -37,14 +37,6 @@ struct JoinCreate: View {
                 }
             }
             .ignoresSafeArea(.keyboard)
-            .navigationDestination(isPresented: $famManager.navigateToHome) {
-                FamilyGroupView()
-                    .overlay(
-                        famManager.family == nil
-                            ? Text("Family not found.")
-                            : nil
-                    )
-            }
         }
     }
 }

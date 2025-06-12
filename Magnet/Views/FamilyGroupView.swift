@@ -5,6 +5,7 @@ struct FamilyGroupView: View {
     @State private var showInviteSheet = false
     @State private var copySuccessMessage = ""
     @State private var selectedPastelColor: PastelColor?
+    let familyID: String
 
     private let magnetBrown  = Color(red: 0.294, green: 0.212, blue: 0.129)
 
@@ -61,7 +62,7 @@ struct FamilyGroupView: View {
             }
         }
         .onAppear {
-            famManager.loadCurrentUserFamily()
+            famManager.loadFamily(familyID)
         }
     }
 
@@ -289,6 +290,3 @@ struct FamilyGroupView: View {
     }
 }
 
-#Preview {
-    FamilyGroupView()
-}
