@@ -4,22 +4,28 @@ struct FamilyGroupView: View {
     @StateObject private var famManager = Sid()
     @State private var showInviteSheet = false
     @State private var copySuccessMessage = ""
-    @State private var selectedColor: Color = .white
+    @State private var selectedPastelColor: PastelColor?
 
     private let magnetBrown  = Color(red: 0.294, green: 0.212, blue: 0.129)
-    private let magnetYellow = Color(red: 1.000, green: 0.961, blue: 0.855)
 
-    private let pastelColors: [Color] = [
-        Color(red: 1.0, green: 0.9, blue: 0.9),
-        Color(red: 0.9, green: 1.0, blue: 0.9),
-        Color(red: 0.9, green: 0.9, blue: 1.0),
-        Color(red: 1.0, green: 1.0, blue: 0.9),
-        Color(red: 0.9, green: 1.0, blue: 1.0),
-        Color(red: 1.0, green: 0.9, blue: 1.0),
-        Color(red: 0.95, green: 0.95, blue: 0.95),
-        Color(red: 0.95, green: 0.85, blue: 0.7),
-        Color(red: 0.8, green: 0.95, blue: 0.85),
-        Color(red: 0.85, green: 0.8, blue: 0.95)
+    struct PastelColor: Hashable {
+        let color: Color
+        let red: Double
+        let green: Double
+        let blue: Double
+    }
+
+    private let pastelColors: [PastelColor] = [
+        PastelColor(color: Color(red: 1.0, green: 0.9, blue: 0.9), red: 1.0, green: 0.9, blue: 0.9),
+        PastelColor(color: Color(red: 0.9, green: 1.0, blue: 0.9), red: 0.9, green: 1.0, blue: 0.9),
+        PastelColor(color: Color(red: 0.9, green: 0.9, blue: 1.0), red: 0.9, green: 0.9, blue: 1.0),
+        PastelColor(color: Color(red: 1.0, green: 1.0, blue: 0.9), red: 1.0, green: 1.0, blue: 0.9),
+        PastelColor(color: Color(red: 0.9, green: 1.0, blue: 1.0), red: 0.9, green: 1.0, blue: 1.0),
+        PastelColor(color: Color(red: 1.0, green: 0.9, blue: 1.0), red: 1.0, green: 0.9, blue: 1.0),
+        PastelColor(color: Color(red: 0.95, green: 0.95, blue: 0.95), red: 0.95, green: 0.95, blue: 0.95),
+        PastelColor(color: Color(red: 0.95, green: 0.85, blue: 0.7), red: 0.95, green: 0.85, blue: 0.7),
+        PastelColor(color: Color(red: 0.8, green: 0.95, blue: 0.85), red: 0.8, green: 0.95, blue: 0.85),
+        PastelColor(color: Color(red: 0.85, green: 0.8, blue: 0.95), red: 0.85, green: 0.8, blue: 0.95)
     ]
 
     private var familyColor: Color {
@@ -39,65 +45,16 @@ struct FamilyGroupView: View {
                 if let family = famManager.family {
                     familyContent(for: family)
                         .sheet(isPresented: $showInviteSheet) {
-                            VStack(spacing: 24) {
-                                Text("Invite Link")
-                                    .font(.title2).bold()
-                                    .padding(.top)
-
-                                if let inviteCode = famManager.family?.inviteURL {
-                                    let inviteLink = "https://magnetapp.com/invite/\(inviteCode)"
-
-                                    Text(inviteLink)
-                                        .font(.body)
-                                        .padding()
-                                        .background(Color(.systemGray6))
-                                        .cornerRadius(8)
-                                        .multilineTextAlignment(.center)
-                                        .contextMenu {
-                                            Button("Copy", action: {
-                                                UIPasteboard.general.string = inviteLink
-                                                copySuccessMessage = "Copied!"
-                                            })
-                                        }
-
-                                    Button(action: {
-                                        UIPasteboard.general.string = inviteLink
-                                        copySuccessMessage = "Copied!"
-                                    }) {
-                                        Text("Copy Link")
-                                            .font(.headline)
-                                            .foregroundColor(.white)
-                                            .padding()
-                                            .frame(width: 200)
-                                            .background(magnetBrown)
-                                            .cornerRadius(12)
-                                    }
-
-                                    if !copySuccessMessage.isEmpty {
-                                        Text(copySuccessMessage)
-                                            .foregroundColor(.green)
-                                    }
-                                } else {
-                                    Text("Invite link not available.")
-                                }
-
-                                Spacer()
-                            }
-                            .padding()
+                            inviteSheetContent()
                         }
-                        .navigationTitle("")
-                        .navigationBarTitleDisplayMode(.inline)
                         .toolbarBackground(familyColor, for: .navigationBar)
-                        .toolbarBackground(.visible, for: .navigationBar)
-                        .toolbar(.hidden, for: .navigationBar) // if you're fully hiding it
+                        .toolbar(.hidden, for: .navigationBar)
                         .onAppear {
-                            let actualColor = Color(red: family.red, green: family.green, blue: family.blue)
-                            selectedColor = closestPastel(to: actualColor)
+                            syncSelectedColor(with: family)
                         }
                         .onChange(of: famManager.family?.id) { _ in
                             if let newFamily = famManager.family {
-                                let actualColor = Color(red: newFamily.red, green: newFamily.green, blue: newFamily.blue)
-                                selectedColor = closestPastel(to: actualColor)
+                                syncSelectedColor(with: newFamily)
                             }
                         }
                 }
@@ -107,8 +64,13 @@ struct FamilyGroupView: View {
             famManager.loadCurrentUserFamily()
         }
     }
-    
-    private func closestPastel(to color: Color) -> Color {
+
+    private func syncSelectedColor(with family: Family) {
+        let actualColor = Color(red: family.red, green: family.green, blue: family.blue)
+        selectedPastelColor = closestPastel(to: actualColor)
+    }
+
+    private func closestPastel(to color: Color) -> PastelColor {
         func components(of color: Color) -> (r: CGFloat, g: CGFloat, b: CGFloat) {
             let uiColor = UIColor(color)
             var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0
@@ -119,14 +81,14 @@ struct FamilyGroupView: View {
         let target = components(of: color)
 
         return pastelColors.min(by: { a, b in
-            let ca = components(of: a)
-            let cb = components(of: b)
+            let ca = (CGFloat(a.red), CGFloat(a.green), CGFloat(a.blue))
+            let cb = (CGFloat(b.red), CGFloat(b.green), CGFloat(b.blue))
 
-            let da = pow(ca.r - target.r, 2) + pow(ca.g - target.g, 2) + pow(ca.b - target.b, 2)
-            let db = pow(cb.r - target.r, 2) + pow(cb.g - target.g, 2) + pow(cb.b - target.b, 2)
+            let da = pow(ca.0 - target.r, 2) + pow(ca.1 - target.g, 2) + pow(ca.2 - target.b, 2)
+            let db = pow(cb.0 - target.r, 2) + pow(cb.1 - target.g, 2) + pow(cb.2 - target.b, 2)
 
             return da < db
-        }) ?? color
+        }) ?? pastelColors.first!
     }
 
     @ViewBuilder
@@ -135,7 +97,6 @@ struct FamilyGroupView: View {
             familyColor.ignoresSafeArea()
 
             VStack(spacing: 24) {
-                // Top bar
                 HStack {
                     NavigationLink(destination: SideBarView()) {
                         Image(systemName: "line.3.horizontal")
@@ -149,11 +110,9 @@ struct FamilyGroupView: View {
                 .padding(.top, 20)
                 .background(familyColor)
 
-                // Emoji avatar
                 Text(familyEmoji)
                     .font(.system(size: 75))
 
-                // Editable family name
                 TextField("Family name", text: Binding(
                     get: { famManager.family?.name ?? "" },
                     set: { famManager.family?.name = $0 }
@@ -181,24 +140,22 @@ struct FamilyGroupView: View {
                     .padding(.top, 10)
 
                 HStack(spacing: 10) {
-                    ForEach(pastelColors, id: \.self) { color in
+                    ForEach(pastelColors, id: \.self) { pastel in
                         Circle()
-                            .fill(color)
+                            .fill(pastel.color)
                             .frame(width: 30, height: 30)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.black.opacity(selectedColor == color ? 0.8 : 0), lineWidth: 2)
+                                    .stroke(Color.black.opacity(selectedPastelColor == pastel ? 0.8 : 0), lineWidth: 2)
                             )
                             .onTapGesture {
-                                selectedColor = color
-                                // snap to exact pastel before saving
-                                famManager.updateFamilyColor(to: color)
+                                selectedPastelColor = pastel
+                                famManager.updateFamilyColor(r: pastel.red, g: pastel.green, b: pastel.blue)
                             }
                     }
                 }
                 .padding(.bottom, 10)
 
-                // Members list
                 ScrollView {
                     VStack(spacing: 12) {
                         if famManager.userSummaries.isEmpty {
@@ -239,7 +196,6 @@ struct FamilyGroupView: View {
 
                 Spacer()
 
-                // Buttons
                 HStack(spacing: 20) {
                     Button {
                         if let updatedName = famManager.family?.name {
@@ -282,6 +238,54 @@ struct FamilyGroupView: View {
             }
             .padding(.horizontal)
         }
+    }
+
+    private func inviteSheetContent() -> some View {
+        VStack(spacing: 24) {
+            Text("Invite Link")
+                .font(.title2).bold()
+                .padding(.top)
+
+            if let inviteCode = famManager.family?.inviteURL {
+                let inviteLink = "https://magnetapp.com/invite/\(inviteCode)"
+
+                Text(inviteLink)
+                    .font(.body)
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                    .multilineTextAlignment(.center)
+                    .contextMenu {
+                        Button("Copy", action: {
+                            UIPasteboard.general.string = inviteLink
+                            copySuccessMessage = "Copied!"
+                        })
+                    }
+
+                Button(action: {
+                    UIPasteboard.general.string = inviteLink
+                    copySuccessMessage = "Copied!"
+                }) {
+                    Text("Copy Link")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 200)
+                        .background(magnetBrown)
+                        .cornerRadius(12)
+                }
+
+                if !copySuccessMessage.isEmpty {
+                    Text(copySuccessMessage)
+                        .foregroundColor(.green)
+                }
+            } else {
+                Text("Invite link not available.")
+            }
+
+            Spacer()
+        }
+        .padding()
     }
 }
 
