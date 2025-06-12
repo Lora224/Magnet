@@ -158,6 +158,7 @@ struct CalendarView: View {
             Spacer()
         }
         .ignoresSafeArea(edges: .top)
+        .navigationBarBackButtonHidden(true)
 //        .navigationTitle("Calendar")
     }
 
