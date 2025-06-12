@@ -61,17 +61,36 @@ struct FamilyGroupView: View {
                             // Members list
                             ScrollView {
                                 VStack(spacing: 12) {
-                                    if famManager.userNames.isEmpty {
+                                    if famManager.userSummaries.isEmpty {
+
                                         Text("No members found.")
                                             .foregroundColor(.gray)
                                             .padding()
                                     } else {
-                                        ForEach(famManager.userNames, id: \.self) { name in
-                                            HStack {
-                                                Image(systemName: "person.fill")
-                                                    .frame(width: 40, height: 40)
-                                                Text(name)
+                                        ForEach(famManager.userSummaries) { user in
+                                            HStack(spacing: 12) {
+                                                if let urlString = user.profilePictureURL, let url = URL(string: urlString) {
+                                                    AsyncImage(url: url) { image in
+                                                        image
+                                                            .resizable()
+                                                            .aspectRatio(contentMode: .fill)
+                                                            .frame(width: 40, height: 40)
+                                                            .clipShape(Circle())
+                                                    } placeholder: {
+                                                        ProgressView()
+                                                            .frame(width: 40, height: 40)
+                                                    }
+                                                } else {
+                                                    // Fallback avatar if no profile image
+                                                    Image(systemName: "person.crop.circle.fill")
+                                                        .resizable()
+                                                        .frame(width: 40, height: 40)
+                                                        .foregroundColor(.gray)
+                                                }
+                                                
+                                                Text(user.name)
                                                     .font(.headline)
+                                                
                                                 Spacer()
                                             }
                                             .padding(.horizontal)

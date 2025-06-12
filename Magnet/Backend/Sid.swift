@@ -14,6 +14,14 @@ class Sid: ObservableObject {
     
     private let db = Firestore.firestore()
     
+    struct UserSummary: Identifiable {
+        let id: String // uid
+        let name: String
+        let profilePictureURL: String?
+    }
+
+    @Published var userSummaries: [UserSummary] = []
+    
     // MARK: - Create a new family
     func regoFam(familyName: String, backgroundColor: Color) {
         let uiColor = UIColor(backgroundColor)
@@ -117,13 +125,17 @@ class Sid: ObservableObject {
     func fetchFamilyMembers() {
         guard let memberIDs = family?.memberIDs else { return }
         
-        self.userNames = []
+        self.userSummaries = []
+        
         for uid in memberIDs {
             db.collection("users").document(uid).getDocument { userSnapshot, _ in
-                if let userData = userSnapshot?.data(),
-                   let name = userData["name"] as? String {
+                if let userData = userSnapshot?.data() {
+                    let name = userData["name"] as? String ?? "Unnamed"
+                    let photoURL = userData["ProfilePictureURL"] as? String
+                    
+                    let summary = UserSummary(id: uid, name: name, profilePictureURL: photoURL)
                     DispatchQueue.main.async {
-                        self.userNames.append(name)
+                        self.userSummaries.append(summary)
                     }
                 }
             }
