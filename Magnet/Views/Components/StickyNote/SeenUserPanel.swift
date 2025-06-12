@@ -7,11 +7,6 @@ struct SeenUsersPanel: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // drag‐handle
-            Capsule()
-                .frame(width: 40, height: 5)
-                .foregroundColor(.gray.opacity(0.5))
-                .padding(.top, 8)
 
             Text("Seen by")
                 .font(.headline)
@@ -49,16 +44,6 @@ struct SeenUsersPanel: View {
                 .padding(.vertical, 8)
             }
             .frame(maxHeight: 300)
-
-            Button("Close") {
-                isPresented = false
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.accentColor.opacity(0.1))
-            .cornerRadius(8)
-            .padding(.horizontal)
-            .padding(.bottom, 12)
         }
         .background(Color(.systemBackground))
         .cornerRadius(16)

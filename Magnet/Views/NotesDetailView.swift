@@ -83,16 +83,10 @@ struct NotesDetailView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             // 6. Seen‐by overlay
-            if isSeenPanelOpen {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture { isSeenPanelOpen = false }
-
-                SeenUsersPanel(
-                    users: seenUsers,
-                    isPresented: $isSeenPanelOpen
-                )
-                .transition(.move(edge: .bottom))
+            .sheet(isPresented: $isSeenPanelOpen) {
+                SeenUsersPanel(users: seenUsers, isPresented: $isSeenPanelOpen)
+                    .presentationDetents([.medium, .large]) // Optional: pullable sheet height
+                    .presentationDragIndicator(.visible)    // Pull-down indicator
             }
         }
         .ignoresSafeArea(edges: .top)
