@@ -11,22 +11,18 @@ struct ProfileAvatarView: View {
                 .fill(Color.white)
                 .frame(width: 150, height: 150)
                 .overlay(
-                    ZStack {
-                        if let avatarURL = avatarURL {
-                            WebImage(url: avatarURL)
-                                .resizable()
-                                .scaledToFill()
-                                .transition(.fade(duration: 0.5))
-                        } else {
+                    WebImage(url: avatarURL)
+                        .resizable()
+                        .indicator(.activity)
+                        .scaledToFill()
+                        .background(
                             Image("avatarPlaceholder")
                                 .resizable()
                                 .scaledToFill()
-                        }
-                    }
-                    .clipShape(Circle())
-                    .padding(4)
+                        )
+                        .clipShape(Circle())
+                        .padding(4)
                 )
-
                 .shadow(radius: 6)
 
             Button(action: editAction) {
