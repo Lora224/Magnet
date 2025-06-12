@@ -5,6 +5,8 @@ struct FamilyGroupView: View {
     @State private var showInviteSheet = false
     @State private var copySuccessMessage = ""
     @State private var selectedPastelColor: PastelColor?
+    @State private var isSidebarVisible = false   // ⭐️ 和 ProfileView 一样！
+
     let familyID: String
 
     private let magnetBrown  = Color(red: 0.294, green: 0.212, blue: 0.129)
@@ -41,28 +43,45 @@ struct FamilyGroupView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if let family = famManager.family {
-                    familyContent(for: family)
-                        .sheet(isPresented: $showInviteSheet) {
-                            inviteSheetContent()
-                        }
-                        .toolbarBackground(familyColor, for: .navigationBar)
-                        .toolbar(.hidden, for: .navigationBar)
-                        .onAppear {
-                            syncSelectedColor(with: family)
-                        }
-                        .onChange(of: famManager.family?.id) { _ in
-                            if let newFamily = famManager.family {
-                                syncSelectedColor(with: newFamily)
+        ZStack(alignment: .leading) {
+            NavigationStack {
+                Group {
+                    if let family = famManager.family {
+                        familyContent(for: family)
+                            .sheet(isPresented: $showInviteSheet) {
+                                inviteSheetContent()
                             }
-                        }
+                            .toolbarBackground(familyColor, for: .navigationBar)
+                            .toolbar(.hidden, for: .navigationBar)
+                            .onAppear {
+                                syncSelectedColor(with: family)
+                            }
+                            .onChange(of: famManager.family?.id) { _ in
+                                if let newFamily = famManager.family {
+                                    syncSelectedColor(with: newFamily)
+                                }
+                            }
+                    }
+                }
+                .onAppear {
+                    famManager.loadFamily(familyID)
                 }
             }
-        }
-        .onAppear {
-            famManager.loadFamily(familyID)
+
+            // ⭐️ Sidebar 部分 → 和 ProfileView 一致
+            if isSidebarVisible {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation { isSidebarVisible = false }
+                    }
+                    .zIndex(1)
+
+                SideBarView()
+                    .frame(width: 280)
+                    .transition(.move(edge: .leading))
+                    .zIndex(2)
+            }
         }
     }
 
@@ -98,8 +117,11 @@ struct FamilyGroupView: View {
             familyColor.ignoresSafeArea()
 
             VStack(spacing: 24) {
+                // Top bar
                 HStack {
-                    NavigationLink(destination: SideBarView()) {
+                    Button {
+                        withAnimation(.easeInOut) { isSidebarVisible.toggle() }  // ⭐️ 和 ProfileView 一样
+                    } label: {
                         Image(systemName: "line.3.horizontal")
                             .resizable()
                             .frame(width: 65, height: 35)
@@ -111,9 +133,11 @@ struct FamilyGroupView: View {
                 .padding(.top, 20)
                 .background(familyColor)
 
+                // Emoji avatar
                 Text(familyEmoji)
                     .font(.system(size: 75))
 
+                // Editable family name
                 TextField("Family name", text: Binding(
                     get: { famManager.family?.name ?? "" },
                     set: { famManager.family?.name = $0 }
@@ -157,6 +181,7 @@ struct FamilyGroupView: View {
                 }
                 .padding(.bottom, 10)
 
+                // Members list
                 ScrollView {
                     VStack(spacing: 12) {
                         if famManager.userSummaries.isEmpty {
@@ -197,6 +222,7 @@ struct FamilyGroupView: View {
 
                 Spacer()
 
+                // Bottom buttons
                 HStack(spacing: 20) {
                     Button {
                         if let updatedName = famManager.family?.name {
