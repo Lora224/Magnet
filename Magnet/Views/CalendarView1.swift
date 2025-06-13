@@ -31,6 +31,28 @@ struct CalendarView1: View {
     @EnvironmentObject var stickyManager: StickyDisplayManager
     @Binding var families: [Family]
     @Binding var selectedFamilyIndex: Int
+    // ➊ Track the user’s pick
+    @State private var selectedMonth = Calendar.current.component(.month, from: Date())
+    @State private var selectedYear  = Calendar.current.component(.year,  from: Date())
+
+    // ➋ Helpers for all month names + a dynamic year range
+    private let months = Calendar.current.monthSymbols
+    private var years: [Int] {
+        let current = Calendar.current.component(.year, from: Date())
+        // you can tighten this to whatever span you like
+        let earliest = sortedNotes
+            .map { Calendar.current.component(.year, from: $0.timeStamp) }
+            .min() ?? current
+        return Array(earliest...current)
+    }
+
+    // ➌ Filtered notes
+    private var filteredNotes: [StickyNote] {
+        sortedNotes.filter { note in
+            let comps = Calendar.current.dateComponents([.year, .month], from: note.timeStamp)
+            return comps.year == selectedYear && comps.month == selectedMonth
+        }
+    }
 
     // Sorting notes oldest → newest
     private var sortedNotes: [StickyNote] {
@@ -58,10 +80,42 @@ struct CalendarView1: View {
                       )
                       .padding(.top, 6)
 
+                      // ── Month & Year pickers ──
+                      HStack(spacing: 24) {
+                          // Month picker
+                          Menu {
+                              ForEach(0..<months.count, id: \.self) { idx in
+                                  Button(months[idx]) {
+                                      selectedMonth = idx + 1
+                                  }
+                                  .foregroundColor(Color.magnetBrown)
+                              }
+                          } label: {
+                              Label(months[selectedMonth - 1], systemImage: "calendar")
+                                  .font(.title2)
+                                  .foregroundColor(Color.magnetBrown)
+                          }
+
+                          // Year picker
+                          Menu {
+                              ForEach(years, id: \.self) { year in
+                                  Button("\(year)") {
+                                      selectedYear = year
+                                  }
+                                  .foregroundColor(Color.magnetBrown)
+                              }
+                          } label: {
+                              Label("\(selectedYear)", systemImage: "calendar")
+                                  .font(.title2)
+                                  .foregroundColor(Color.magnetBrown)
+                          }
+                      }
+                      .padding(.horizontal)
+                      .padding(.top, 8)
 
                       ScrollView {
                           LazyVGrid(columns: columns, spacing: 16) {
-                              ForEach(Array(sortedNotes.enumerated()), id: \.offset) { idx, note in
+                              ForEach(Array(filteredNotes.enumerated()), id: \.offset) { idx, note in
                                   StickyNoteThumbnailView(note: note) // ⬅️ no more squishing
                                       .onTapGesture { selectedIndex = idx }
                               }
@@ -91,12 +145,13 @@ struct CalendarView1: View {
               )) {
                   if let index = selectedIndex {
                       NotesDetailView(
-                          notes: sortedNotes,
-                          currentIndex: index,
-                          families: $families,
-                          selectedFamilyIndex: $selectedFamilyIndex
+                        notes: filteredNotes,           // ← filtered not full list
+                        currentIndex: index,
+                        families: $families,
+                        selectedFamilyIndex: $selectedFamilyIndex
                       )
                   }
+
               }
               .onAppear(perform: loadUserFamilies)
               .navigationBarBackButtonHidden(true)

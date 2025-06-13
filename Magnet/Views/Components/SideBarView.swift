@@ -120,6 +120,7 @@ struct SideBarView: View {
                 if authManager.isUserLoggedIn {
                     Button(action: {
                         authManager.logout()
+                
                     }) {
                         HStack(spacing: 16) {
                             ZStack {
