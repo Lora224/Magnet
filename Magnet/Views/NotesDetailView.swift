@@ -7,16 +7,14 @@ struct NotesDetailView: View {
     @Binding var families: [Family]
     @Binding var selectedFamilyIndex: Int
 
-    /// All notes from the last 7 days, sorted oldest→newest
     let notes: [StickyNote]
-    /// Which note we’re showing right now
     @State private var currentIndex: Int
 
-    /// For “seen by” sheet
     @State private var isSeenPanelOpen = false
     @State private var seenUsers: [UserPublic] = []
-    /// The reaction this user has selected (if any)
     @State private var myReaction: ReactionType?
+
+    @State private var isSidebarVisible = false
 
     init(
         notes: [StickyNote],
@@ -31,18 +29,31 @@ struct NotesDetailView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            
-            
-            VStack(spacing: 0) {
-                // 1. Top family bar
-                TopFamilyBar(
-                    families: $families,
-                    selectedIndex: $selectedFamilyIndex
-                )
-                .padding(.top, 6)
+        ZStack(alignment: .leading) {
+            Image("MainBack")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+                .opacity(0.2)
 
-                // 2. Horizontal page‐style swipe
+            VStack(spacing: 0) {
+                // 1. Top family bar + Hamburger
+                HStack {
+                    Button {
+                        withAnimation(.easeInOut) { isSidebarVisible.toggle() }
+                    } label: {
+                        Image(systemName: "line.3.horizontal")
+                            .resizable()
+                            .frame(width: 60, height: 30)
+                            .foregroundColor(.magnetBrown)
+                            .padding(16)
+                    }
+
+                    Spacer()
+                }
+                .padding(.top, 12)
+
+                // 2. Horizontal page swipe
                 TabView(selection: $currentIndex) {
                     ForEach(Array(notes.enumerated()), id: \.offset) { idx, note in
                         NoteDetailPage(
@@ -55,12 +66,10 @@ struct NotesDetailView: View {
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .onChange(of: currentIndex) { newIndex in
-                        markSeenAndLoad()
-
+                    markSeenAndLoad()
                 }
                 .onAppear {
-                        markSeenAndLoad()
-                   
+                    markSeenAndLoad()
                 }
 
                 // 3. Reaction bar
@@ -70,24 +79,39 @@ struct NotesDetailView: View {
                 )
                 .id(currentIndex)
                 .padding(.horizontal, 12)
-               
-
             }
+
+            // 4. Bottom Chevron for Seen Panel
             VStack {
                 Spacer()
                 Image(systemName: "chevron.compact.up")
                     .font(.system(size: 60))
                     .foregroundColor(.magnetBrown)
-                    .padding(.bottom, 90)    // lift it above the reaction bar
+                    .padding(.bottom, 90)
                     .onTapGesture { isSeenPanelOpen = true }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            // 6. Seen‐by overlay
-            .sheet(isPresented: $isSeenPanelOpen) {
-                SeenUsersPanel(users: seenUsers, isPresented: $isSeenPanelOpen)
-                    .presentationDetents([.medium, .large]) // Optional: pullable sheet height
-                    .presentationDragIndicator(.visible)    // Pull-down indicator
+
+            // 5. Sidebar layer
+            if isSidebarVisible {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation { isSidebarVisible = false }
+                    }
+                    .zIndex(1)
+
+                SideBarView()
+                    .frame(width: 280)
+                    .transition(.move(edge: .leading))
+                    .zIndex(2)
             }
+        }
+        // 6. Seen Panel sheet
+        .sheet(isPresented: $isSeenPanelOpen) {
+            SeenUsersPanel(users: seenUsers, isPresented: $isSeenPanelOpen)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .ignoresSafeArea(edges: .top)
         .navigationBarBackButtonHidden(true)
@@ -108,20 +132,20 @@ struct NotesDetailView: View {
                 .document(note.id.uuidString)
                 .updateData([ seenKey : NSNull() ])
         }
+
         if let raw = note.seen[me] as? String,
-           let r = ReactionType(rawValue: raw)
-        {
+           let r = ReactionType(rawValue: raw) {
             myReaction = r
         } else {
             myReaction = nil
         }
-        // 6. Load seen-by list (excluding me)
+
         let otherIDs = note.seen.keys.filter { $0 != me }
         guard !otherIDs.isEmpty else {
             self.seenUsers = []
             return
         }
-        print("OtherIDs:\(otherIDs) ")
+
         Firestore
           .firestore()
           .collection("users")
@@ -132,25 +156,19 @@ struct NotesDetailView: View {
                   return
               }
 
-              // Map into your lightweight view model
               let publics: [UserPublic] = docs.map { doc in
                   let data = doc.data()
-
-                  // fall back to "Unknown" if they haven't set a name
                   let name = (data["name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
                              .isEmpty == false
                              ? data["name"] as! String
                              : "Someone"
 
-                  // try to parse URL, else leave it nil (or use a bundled placeholder)
                   let avatarURL: URL?
                   if let urlStr = data["ProfilePictureURL"] as? String,
                      let url = URL(string: urlStr) {
                       avatarURL = url
                   } else {
                       avatarURL = nil
-                      //—or, if you have a placeholder asset:
-                      // avatarURL = Bundle.main.url(forResource: "avatar_placeholder", withExtension: "png")
                   }
 
                   return UserPublic(id: doc.documentID,
@@ -158,23 +176,18 @@ struct NotesDetailView: View {
                                     avatarURL: avatarURL)
               }
 
-              // Update state on the main thread
               DispatchQueue.main.async {
                   self.seenUsers = publics
               }
           }
-        print("SeenUsers:\(seenUsers) ")
     }
-
 
     private func saveReaction(_ reaction: ReactionType) {
         guard notes.indices.contains(currentIndex) else {
-            print("⚠️ Tried to markSeenAndLoad at \(currentIndex), but notes.count = \(notes.count)")
+            print("⚠️ Tried to saveReaction at \(currentIndex), but notes.count = \(notes.count)")
             return
         }
-        guard myReaction != nil else{
-            return
-        }
+
         let note = notes[currentIndex]
         let me = Auth.auth().currentUser!.uid
 
@@ -182,93 +195,14 @@ struct NotesDetailView: View {
             .collection("StickyNotes")
             .document(note.id.uuidString)
             .updateData(["seen.\(me)": reaction.rawValue]) { _ in
-                    myReaction = reaction
+                myReaction = reaction
             }
     }
 }
 
-
-
-// You’ll also need to build these reusable pieces:
-//
-// • StickyNoteContentView(note:)        –– exactly your noteContentView()
-// • ReactionBarView(selected:onReact:)  –– three tappable magnets
-// • SeenUsersPanel(users:isPresented:)   –– slide-up list of avatars & names
 struct UserPublic: Identifiable {
     let id: String
     let name: String
     let avatarURL: URL?
 }
-//#if DEBUG
-//import SwiftUI
-//
-//// MARK: - Local wrapper so we can hold @State / @StateObject
-//private struct NotesDetailPreview: View {
-//    @StateObject private var stickyManager = StickyDisplayManager()
-//    @State private var families: [Family]
-//    @State private var selectedFamilyIndex: Int
-//    
-//    init() {
-//        // ───────────── sample data ─────────────
-//        let demoFamily = Family(
-//            id:        "fam-001",
-//            name:      "Grandma’s Kitchen",
-//            inviteURL: "",
-//            memberIDs: ["u-00", "u-01"],
-//            red: 0.95, green: 0.83, blue: 0.81,
-//            profilePic: nil
-//        )
-//        
-//        let demoNotes: [StickyNote] = [
-//            StickyNote(
-//                id: UUID(),
-//                senderID: "u-00",
-//                familyID: demoFamily.id,
-//                
-//                type: .text,
-//                timeStamp: Date().addingTimeInterval(-3600 * 3),
-//                seen: [:],
-//                text: "First batch of cookies\nis in the oven 🍪",
-//                payloadURL: nil,
-//                
-//           
-//            ),
-//            StickyNote(
-//                id: UUID(),
-//                senderID: "u-01",
-//                familyID: demoFamily.id,
-//              
-//                type: .image,
-//                timeStamp: Date().addingTimeInterval(-3600),
-//                seen: [:],
-//                text: "Look what I made!",
-//                payloadURL: "https://picsum.photos/seed/123/600/450",
-//              
-//               
-//            )
-//        ]
-//        // ───────────────────────────────────────
-//        
-//        _families             = State(initialValue: [demoFamily])
-//        _selectedFamilyIndex  = State(initialValue: 0)
-//        stickyManager.rawNotes = demoNotes
-//    }
-//    
-//    var body: some View {
-//        NavigationStack {
-//            NotesDetailView(
-//                notes: stickyManager.rawNotes, // same sample notes
-//                currentIndex: 1,               // show newest first
-//                families: $families,
-//                selectedFamilyIndex: $selectedFamilyIndex
-//            )
-//            .environmentObject(stickyManager)
-//        }
-//    }
-//}
-//
-//// MARK: - Xcode canvas / SwiftUI preview
-//#Preview("Notes Detail") {
-//    NotesDetailPreview()          // ← no explicit ‘return’
-//}
-//#endif
+

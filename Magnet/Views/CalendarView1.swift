@@ -98,7 +98,7 @@ struct CalendarView1: View {
                 }
             }
             .onAppear(perform: loadUserFamilies)
-            .navigationBarBackButtonHidden(true)  
+            .navigationBarBackButtonHidden(true)
             .onChange(of: selectedFamilyIndex) { _ in
                 loadNotesForCurrentFamily()
             }
