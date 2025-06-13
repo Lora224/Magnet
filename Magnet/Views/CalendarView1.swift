@@ -62,7 +62,7 @@ struct CalendarView1: View {
     @State private var selectedIndex: Int? = nil
     @State private var isSidebarVisible = false
     let columns: [GridItem] = [
-        GridItem(.adaptive(minimum: 100), spacing: 60)
+        GridItem(.adaptive(minimum: 100), spacing: 55)
     ]
 
     
@@ -120,7 +120,9 @@ struct CalendarView1: View {
                                       .onTapGesture { selectedIndex = idx }
                               }
                           }
-                          .padding(.leading, 10)
+                          .padding(.leading, 60)
+                          .padding(.trailing, 60)
+                          .frame(maxWidth: .infinity, alignment: .center)
                       }
                   } // VStack
 
