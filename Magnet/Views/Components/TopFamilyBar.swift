@@ -3,8 +3,7 @@ import SwiftUI
 struct TopFamilyBar: View {
     @Binding var families: [Family]
     @Binding var selectedIndex: Int
-    @State private var isSidebarVisible = false
-
+    @Binding var isSidebarVisible: Bool
     // Dynamic background based on selected family's RGB color
     private var backgroundColor: Color {
         guard families.indices.contains(selectedIndex) else {
@@ -81,30 +80,32 @@ struct TopFamilyBar: View {
 
             }
 
-            // Sidebar overlay
-            if isSidebarVisible {
-                Color.black.opacity(0.4).ignoresSafeArea()
-                    .onTapGesture { withAnimation { isSidebarVisible = false } }
-
-                SideBarView()
-                    .frame(maxWidth: 280, maxHeight: .infinity)
-                    .transition(.move(edge: .leading))
-            }
+//            // Sidebar overlay
+//            if isSidebarVisible {
+//                Color.black.opacity(0.4).ignoresSafeArea()
+//                    .onTapGesture { withAnimation { isSidebarVisible = false } }
+//
+////                SideBarView()
+////                    .frame(maxWidth: 280, maxHeight: .infinity)
+////                    .transition(.move(edge: .leading))
+//            }
         }
         .ignoresSafeArea(edges: .top)
     }
 }
 
 // MARK: - Preview
-#if DEBUG
-struct TopFamilyBar_Previews: PreviewProvider {
-    static let sample = [
-        Family(id: "1", name: "A", inviteURL: "", memberIDs: [], red: 0.8, green: 0.4, blue: 0.2, profilePic: nil, emoji: "👪"),
-        Family(id: "2", name: "B", inviteURL: "", memberIDs: [], red: 0.2, green: 0.6, blue: 0.8, profilePic: nil, emoji: "👪")
-    ]
-    static var previews: some View {
-        TopFamilyBar(families: .constant(sample), selectedIndex: .constant(0))
-            .previewLayout(.sizeThatFits)
-    }
-}
-#endif
+//#if DEBUG
+//struct TopFamilyBar_Previews: PreviewProvider {
+//
+//    static var previews: some View {
+//
+//       TopFamilyBar(
+//         families:          .constant(sample),
+//         selectedIndex:     .constant(0),
+//        isSidebarVisible:  .constant(false)    // ← new
+//       )
+//        .previewLayout(.sizeThatFits)
+//    }
+//}
+//#endif

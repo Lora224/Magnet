@@ -31,14 +31,14 @@ struct CalendarView1: View {
     @EnvironmentObject var stickyManager: StickyDisplayManager
     @Binding var families: [Family]
     @Binding var selectedFamilyIndex: Int
-    
+
     // Sorting notes oldest → newest
     private var sortedNotes: [StickyNote] {
         stickyManager.rawNotes.sorted { $0.timeStamp < $1.timeStamp }
     }
     
     @State private var selectedIndex: Int? = nil
-    
+    @State private var isSidebarVisible = false
     let columns: [GridItem] = [
         GridItem(.adaptive(minimum: 100), spacing: 300)
     ]
@@ -46,63 +46,64 @@ struct CalendarView1: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                TopFamilyBar(
-                    families: $families,
-                    selectedIndex: $selectedFamilyIndex
-                )
-                .padding(.top, 6)
-                .frame(maxWidth: .infinity, alignment: .top)
-                
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 16) {
-                                                ForEach(Array(sortedNotes.enumerated()), id: \.offset) { index, note in
-                        
-                                                    StickyNoteView(
-                                                        note: note,
-                                                        reactions: [],  // pass empty or your reactions array here
-                                                        families: $families,
-                                                        selectedFamilyIndex: $selectedFamilyIndex
-                                                    )
-                        
-                                                        .frame(width: 100, height: 150)  // Adjust thumbnail size
-                                                        .onTapGesture {
-                                                            selectedIndex = index
-                                                        }
-                                                }
-                        
-//                        ForEach(stickyManager.viewportNotes) { positioned in
-//                            StickyNoteView(note: positioned.note, reactions: positioned.reactions,  families: $families,  selectedFamilyIndex: $selectedFamilyIndex)
-//                                .rotationEffect(positioned.rotationAngle)
-//                                .position(positioned.position)
-//                                .id(positioned.id)
-//                                .zIndex(1)
-//                        }
-                    }
-                    
-                    .padding()
-                }
-            }
-            
-            .navigationDestination(isPresented: Binding(
-                get: { selectedIndex != nil },
-                set: { if !$0 { selectedIndex = nil } }
-            )) {
-                if let index = selectedIndex {
-                    NotesDetailView(
-                        notes: sortedNotes,
-                        currentIndex: index,
+              // We need one big ZStack so the dim layer sits on top of *everything*
+              ZStack(alignment: .leading) {
+
+                  // ── Main content ──
+                  VStack {
+                      TopFamilyBar(
                         families: $families,
-                        selectedFamilyIndex: $selectedFamilyIndex
-                    )
-                }
-            }
-            .onAppear(perform: loadUserFamilies)
-            .navigationBarBackButtonHidden(true)
-            .onChange(of: selectedFamilyIndex) { _ in
-                loadNotesForCurrentFamily()
-            }
-        }
+                        selectedIndex: $selectedFamilyIndex,
+                        isSidebarVisible: $isSidebarVisible
+                      )
+                      .padding(.top, 6)
+
+
+                      ScrollView {
+                          LazyVGrid(columns: columns, spacing: 16) {
+                              ForEach(Array(sortedNotes.enumerated()), id: \.offset) { idx, note in
+                                  StickyNoteThumbnailView(note: note) // ⬅️ no more squishing
+                                      .onTapGesture { selectedIndex = idx }
+                              }
+                          }
+                          .padding()
+                      }
+                  } // VStack
+
+                  // ── Dim layer + sidebar ──
+                  if isSidebarVisible {
+                      Color.black.opacity(0.4)
+                          .ignoresSafeArea()
+                          .onTapGesture { withAnimation { isSidebarVisible = false } }
+                          .zIndex(1)
+
+                      SideBarView()
+                          .frame(width: 280)
+                          .transition(.move(edge: .leading))
+                          .zIndex(2)
+                  }
+              } // ZStack
+
+              // Detail navigation exactly as before …
+              .navigationDestination(isPresented: Binding(
+                  get: { selectedIndex != nil },
+                  set: { if !$0 { selectedIndex = nil } }
+              )) {
+                  if let index = selectedIndex {
+                      NotesDetailView(
+                          notes: sortedNotes,
+                          currentIndex: index,
+                          families: $families,
+                          selectedFamilyIndex: $selectedFamilyIndex
+                      )
+                  }
+              }
+              .onAppear(perform: loadUserFamilies)
+              .navigationBarBackButtonHidden(true)
+              .onChange(of: selectedFamilyIndex) { _ in
+                  loadNotesForCurrentFamily()
+              }
+          } // NavigationStack
     }
     
     private func loadUserFamilies() {

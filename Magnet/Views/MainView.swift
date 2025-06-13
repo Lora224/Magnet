@@ -11,10 +11,11 @@ struct MainView: View {
     @State private var zoomScale: CGFloat = 1.0
     @State private var families: [Family] = []
     @State private var selectedFamilyIndex = 0
-
+    @State private var isSidebarVisible = false
+    
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .leading) {
                 // Background
                 Image("MainBack")
                     .resizable()
@@ -30,10 +31,11 @@ struct MainView: View {
                 .environmentObject(stickyManager)
                 // Top Bar + Debug button
                 VStack(spacing: 0) {
-                    TopFamilyBar(
-                        families: $families,
-                        selectedIndex: $selectedFamilyIndex
-                    )
+                       TopFamilyBar(
+                                    families:         $families,
+                                    selectedIndex:    $selectedFamilyIndex,
+                                    isSidebarVisible: $isSidebarVisible
+                                        )
 
                     .padding(.top, 6)
                     Spacer()
@@ -130,9 +132,20 @@ struct MainView: View {
 
                 // Navigation trigger
                 NavigationLink(value: navigationTarget, label: { EmptyView() })
-            }
-         
-            .navigationBarBackButtonHidden(true)
+                // ── Dim layer + sidebar ──
+                if isSidebarVisible {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture { withAnimation { isSidebarVisible = false } }
+                        .zIndex(1)
+
+                    SideBarView()
+                        .frame(width: 280)
+                        .transition(.move(edge: .leading))
+                        .zIndex(2)
+                }
+            } .navigationBarBackButtonHidden(true)
+           
             // 👆 Add end ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
             .navigationDestination(item: $navigationTarget) { target in
                 switch target {
